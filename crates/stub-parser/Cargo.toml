@@ -1,0 +1,30 @@
+[package]
+name = "rsphp-stub-parser"
+description = "Library for parsing PHP stub files and generating argument information"
+categories = ["development-tools::ffi"]
+authors.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+php-ast = { workspace = true }
+php-rs-parser = { workspace = true }
+regex = { workspace = true }
+
+[dev-dependencies]
+diff = { workspace = true }
+tempdir = { workspace = true }
+trybuild = { workspace = true }
+walkdir = { workspace = true }
+
+# For try-build
+rsphp-macros-c = { workspace = true }
+rsphp-macros-rs = { workspace = true }
+rsphp-sys = { workspace = true }

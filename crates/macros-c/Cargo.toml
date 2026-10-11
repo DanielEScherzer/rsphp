@@ -1,0 +1,25 @@
+[package]
+name = "rsphp-macros-c"
+description = "Rust macros to correspond to PHP's C macros"
+categories = ["development-tools::ffi"]
+authors.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+c_str_macro = { workspace = true }
+rsphp-sys = { workspace = true }
+
+[build-dependencies]
+rsphp-sys = { workspace = true }
+
+[features]
+default = ["verify_zval_types"]
+verify_zval_types = []

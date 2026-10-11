@@ -1,0 +1,62 @@
+use rsphp_macros_c::*;
+use rsphp_macros_rs::*;
+use rsphp_sys::*;
+
+/// Module for `Demo` class.
+pub(crate) mod Demo {
+    use rsphp_macros_c::*;
+    use rsphp_macros_rs::*;
+    use rsphp_sys::*;
+
+    /// Argument information for `Demo::test1()`.
+    pub(crate) const ARGINFO_TEST1: [zend_internal_arg_info; 1] = [
+        ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_VOID, 0),
+    ];
+
+    /// Argument information for `Demo::test2()`.
+    pub(crate) const ARGINFO_TEST2: [zend_internal_arg_info; 2] = [
+        ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_STRING, 0),
+        ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE!(0, "str", IS_STRING, 0, "\"\""),
+    ];
+
+    /// Argument information for `Demo::test3()`.
+    pub(crate) const ARGINFO_TEST3: [zend_internal_arg_info; 1] = [
+        ZEND_ARG_INFO_FOR_FUNCTION!(0, 0),
+    ];
+
+    /// Argument information for `Demo::test4()`.
+    pub(crate) const ARGINFO_TEST4: [zend_internal_arg_info; 2] = [
+        ZEND_ARG_INFO_FOR_FUNCTION!(0, 0),
+        ZEND_ARG_INFO_WITH_DEFAULT_VALUE!(0, "v", "123"),
+    ];
+
+    /// Argument information for `Demo::test5()`.
+    pub(crate) const ARGINFO_TEST5: [zend_internal_arg_info; 2] = [
+        ZEND_ARG_INFO_FOR_FUNCTION!(0, 1),
+        ZEND_ARG_INFO!(0, "v"),
+    ];
+
+    /// Argument information for `Demo::test6()`.
+    pub(crate) const ARGINFO_TEST6: [zend_internal_arg_info; 2] = [
+        ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_LONG, 0),
+        ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE!(0, "v", IS_LONG, 0, "123"),
+    ];
+
+    /// Register the `Demo` class.
+    pub(crate) fn register_class(methods: &[zend_function_entry]) -> *mut zend_class_entry {
+        assert_eq!(7, methods.len(), "Demo should have 6 methods");
+
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_CLASS_ENTRY!(ce, "Demo", methods);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+
+        class_entry
+    }
+}

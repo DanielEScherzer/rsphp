@@ -1,0 +1,18 @@
+[package]
+name = "rsphp-stub-parser-cli"
+description = "Binary script for parsing stub files"
+categories = ["command-line-utilities"]
+authors.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+clap = { workspace = true }
+rsphp-stub-parser = { workspace = true }

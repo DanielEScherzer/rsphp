@@ -1,0 +1,212 @@
+[package]
+name = "rsphp"
+description = "Utilities to support PHP extensions written in Rust"
+categories = []
+authors.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[workspace]
+package.authors = [
+	"Daniel Scherzer",
+]
+package.edition = "2024"
+package.keywords = ["php"]
+package.license = "MIT"
+package.repository = "https://github.com/DanielEScherzer/rsphp"
+package.rust-version = "1.99.0"
+package.version = "0.1.0"
+
+members = ["crates/*"]
+
+[workspace.lints]
+[workspace.lints.rust]
+ambiguous_negative_literals = "warn"
+elided_lifetimes_in_paths = "warn"
+meta_variable_misuse = "warn"
+missing_copy_implementations = "warn"
+missing_debug_implementations = "warn"
+missing_docs = "warn"
+non_ascii_idents = "warn"
+raw_borrows_via_references = "warn"
+redundant_imports = "warn"
+redundant_lifetimes = "warn"
+unit_bindings = "warn"
+unnameable_types = "warn"
+unreachable_pub = "warn"
+unused_import_braces = "warn"
+unused_lifetimes = "warn"
+unused_macro_rules = "warn"
+unused_qualifications = "warn"
+unused_results = "warn"
+variant_size_differences = "warn"
+
+[workspace.lints.rustdoc]
+missing_crate_level_docs = "warn"
+unescaped_backticks = "warn"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+
+# `restriction` category lints
+allow_attributes = "warn"
+allow_attributes_without_reason = "deny"
+as_conversions = "warn"
+as_pointer_underscore = "warn"
+as_underscore = "warn"
+assertions_on_result_states = "warn"
+big_endian_bytes = "warn"
+cfg_not_test = "warn"
+clone_on_ref_ptr = "warn"
+create_dir = "warn"
+dbg_macro = "warn"
+decimal_literal_representation = "warn"
+default_union_representation = "warn"
+definition_in_module_root = "warn"
+doc_include_without_cfg = "warn"
+doc_paragraphs_missing_punctuation = "warn"
+empty_drop = "warn"
+empty_enum_variants_with_brackets = "warn"
+empty_structs_with_brackets = "warn"
+error_impl_error = "warn"
+exhaustive_enums = "warn"
+exhaustive_structs = "warn"
+exit = "warn"
+field_scoped_visibility_modifiers = "warn"
+filetype_is_file = "warn"
+float_arithmetic = "warn"
+float_cmp_const = "warn"
+fn_to_numeric_cast_any = "warn"
+get_unwrap = "warn"
+host_endian_bytes = "warn"
+if_then_some_else_none = "warn"
+impl_trait_in_params = "warn"
+infinite_loop = "warn"
+inline_modules = "warn"
+inline_trait_bounds = "warn"
+integer_division = "warn"
+iter_over_hash_type = "warn"
+large_include_file = "warn"
+let_underscore_must_use = "warn"
+let_underscore_untyped = "warn"
+little_endian_bytes = "warn"
+lossy_float_literal = "warn"
+map_err_ignore = "warn"
+map_with_unused_argument_over_ranges = "warn"
+mem_forget = "warn"
+min_ident_chars = "warn"
+missing_assert_message = "warn"
+missing_asserts_for_indexing = "warn"
+missing_docs_in_private_items = "warn"
+mixed_read_write_in_expression = "warn"
+module_name_repetitions = "warn"
+modulo_arithmetic = "warn"
+multiple_inherent_impl = "warn"
+multiple_unsafe_ops_per_block = "warn"
+mutex_atomic = "warn"
+mutex_integer = "warn"
+needless_raw_strings = "warn"
+non_ascii_literal = "warn"
+non_zero_suggestions = "warn"
+panic = "warn"
+panic_in_result_fn = "warn"
+partial_pub_fields = "warn"
+pathbuf_init_then_push = "warn"
+pointer_format = "warn"
+precedence_bits = "warn"
+print_stderr = "warn"
+print_stdout = "warn"
+rc_buffer = "warn"
+rc_mutex = "warn"
+redundant_test_prefix = "warn"
+renamed_function_params = "warn"
+rest_pat_in_fully_bound_structs = "warn"
+rest_pattern_accessible_field = "warn"
+return_and_then = "warn"
+same_name_method = "warn"
+self_named_module_files = "warn"
+shadow_reuse = "warn"
+shadow_same = "warn"
+shadow_unrelated = "warn"
+single_char_lifetime_names = "warn"
+str_to_string = "warn"
+string_lit_chars_any = "warn"
+string_slice = "warn"
+suspicious_xor_used_as_pow = "warn"
+todo = "warn"
+try_err = "warn"
+undocumented_unsafe_blocks = "warn"
+unimplemented = "warn"
+unnecessary_rest_pattern = "warn"
+unnecessary_safety_doc = "warn"
+unnecessary_self_imports = "warn"
+unreachable = "warn"
+unseparated_literal_suffix = "warn"
+unused_result_ok = "warn"
+unused_trait_names = "warn"
+unwrap_in_result = "warn"
+unwrap_used = "warn"
+use_debug = "warn"
+verbose_file_reads = "warn"
+
+# `nursery` category lints
+empty_enums = "warn"
+equatable_if_let = "warn"
+fallible_impl_from = "warn"
+iter_on_empty_collections = "warn"
+iter_on_single_items = "warn"
+iter_with_drain = "warn"
+literal_string_with_formatting_args = "warn"
+needless_collect = "warn"
+needless_pass_by_ref_mut = "warn"
+needless_type_cast = "warn"
+nonstandard_macro_braces = "warn"
+or_fun_call = "warn"
+path_buf_push_overwrite = "warn"
+read_zero_byte_vec = "warn"
+redundant_clone = "warn"
+search_is_some = "warn"
+suspicious_operation_groupings = "warn"
+too_long_first_doc_paragraph = "warn"
+trailing_empty_array = "warn"
+trait_duplication_in_bounds = "warn"
+trivial_regex = "warn"
+tuple_array_conversions = "warn"
+type_repetition_in_bounds = "warn"
+uninhabited_references = "warn"
+unused_peekable = "warn"
+unused_rounding = "warn"
+useless_let_if_seq = "warn"
+
+[workspace.dependencies]
+bindgen = "0.73.2"
+bstr = "1.13.1"
+c_str_macro = "1.0.3"
+cc = "1.7.0"
+clap = { version = "4.6.7", features = ["derive"] }
+diff = "0.1.13"
+php-ast = "0.21.0"
+php-rs-parser = "0.21.0"
+proc-macro2 = "1.0.107"
+regex = "1.13.1"
+rsphp-build-tools = { version = "0.1.0", path = "./crates/build-tools" }
+rsphp-macros-c = { version = "0.1.0", path = "./crates/macros-c" }
+rsphp-macros-rs = { version = "0.1.0", path = "./crates/macros-rs" }
+rsphp-stub-parser = { version = "0.1.0", path = "./crates/stub-parser" }
+rsphp-sys = { version = "0.1.0", path = "./crates/sys" }
+tempdir = "0.3.7"
+trybuild = "1.0.122"
+walkdir = "2.5.0"
+
+[dependencies]
+bstr = { workspace = true, optional = true }
+rsphp-macros-c = { workspace = true }
+rsphp-macros-rs = { workspace = true }
+rsphp-sys = { workspace = true }
+
+[features]
+default = ["bstr"]

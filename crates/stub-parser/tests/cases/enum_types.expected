@@ -1,0 +1,102 @@
+use rsphp_macros_c::*;
+use rsphp_macros_rs::*;
+use rsphp_sys::*;
+
+/// Module for `Unbacked` enum.
+pub(crate) mod Unbacked {
+    use rsphp_macros_c::*;
+    use rsphp_sys::*;
+
+
+    /// Register the `Unbacked` enum.
+    pub(crate) fn register_enum() -> *mut zend_class_entry {
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_enum(
+                c"Unbacked".as_ptr(),
+                IS_UNDEF,
+                std::ptr::null_mut(),
+            )
+        };
+        unsafe {
+            zend_enum_add_case_cstr(class_entry, c"Foo".as_ptr(), std::ptr::null_mut());
+            zend_enum_add_case_cstr(class_entry, c"Bar".as_ptr(), std::ptr::null_mut());
+        };
+
+
+        class_entry
+    }
+}
+/// Module for `IntBacked` enum.
+pub(crate) mod IntBacked {
+    use rsphp_macros_c::*;
+    use rsphp_sys::*;
+
+
+    /// Register the `IntBacked` enum.
+    pub(crate) fn register_enum() -> *mut zend_class_entry {
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_enum(
+                c"IntBacked".as_ptr(),
+                IS_LONG,
+                std::ptr::null_mut(),
+            )
+        };
+        unsafe {
+            {
+                let mut value: zval = std::mem::zeroed();
+                ZVAL_LONG!(std::ptr::from_mut::<zval>(&mut value), 1);
+                zend_enum_add_case_cstr(class_entry, c"Foo".as_ptr(), std::ptr::from_mut::<zval>(&mut value));
+            }
+            {
+                let mut value: zval = std::mem::zeroed();
+                ZVAL_LONG!(std::ptr::from_mut::<zval>(&mut value), 2);
+                zend_enum_add_case_cstr(class_entry, c"Bar".as_ptr(), std::ptr::from_mut::<zval>(&mut value));
+            }
+        };
+
+
+        class_entry
+    }
+}
+/// Module for `StringBacked` enum.
+pub(crate) mod StringBacked {
+    use rsphp_macros_c::*;
+    use rsphp_sys::*;
+
+
+    /// Register the `StringBacked` enum.
+    pub(crate) fn register_enum() -> *mut zend_class_entry {
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_enum(
+                c"StringBacked".as_ptr(),
+                IS_STRING,
+                std::ptr::null_mut(),
+            )
+        };
+        unsafe {
+            {
+                let mut value: zval = std::mem::zeroed();
+                let value_str: *mut zend_string = zend_string_init(
+                    c"Foo".as_ptr(),
+                    c"Foo".count_bytes(),
+                    true,
+                );
+                ZVAL_STR!(std::ptr::from_mut::<zval>(&mut value), value_str);
+                zend_enum_add_case_cstr(class_entry, c"Foo".as_ptr(), std::ptr::from_mut::<zval>(&mut value));
+            }
+            {
+                let mut value: zval = std::mem::zeroed();
+                let value_str: *mut zend_string = zend_string_init(
+                    c"Bar".as_ptr(),
+                    c"Bar".count_bytes(),
+                    true,
+                );
+                ZVAL_STR!(std::ptr::from_mut::<zval>(&mut value), value_str);
+                zend_enum_add_case_cstr(class_entry, c"Bar".as_ptr(), std::ptr::from_mut::<zval>(&mut value));
+            }
+        };
+
+
+        class_entry
+    }
+}

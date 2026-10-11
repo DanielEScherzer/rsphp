@@ -1,0 +1,43 @@
+use rsphp_macros_c::*;
+use rsphp_macros_rs::*;
+use rsphp_sys::*;
+
+/// Module for `CustomCastable` class.
+pub(crate) mod CustomCastable {
+    use rsphp_macros_c::*;
+    use rsphp_macros_rs::*;
+    use rsphp_sys::*;
+
+    /// Argument information for `CustomCastable::__construct()`.
+    pub(crate) const ARGINFO___CONSTRUCT: [zend_internal_arg_info; 1] = [
+        ZEND_ARG_INFO_FOR_FUNCTION!(0, 0),
+    ];
+
+    /// Register the `CustomCastable` class.
+    pub(crate) fn register_class(methods: &[zend_function_entry]) -> *mut zend_class_entry {
+        assert_eq!(2, methods.len(), "CustomCastable should have 1 methods");
+
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_CLASS_ENTRY!(ce, "CustomCastable", methods);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+
+        unsafe {
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"Attribute".as_ptr(),
+                "Attribute".len(),
+                true,
+            );
+            let attrib: *mut zend_attribute = zend_add_class_attribute(class_entry, name, 1);
+            zend_string_release_ex(name, true);
+            ZVAL_LONG!(&mut (*attrib).args[0].value, ZEND_ATTRIBUTE_TARGET_CLASS as i64);
+        }
+        class_entry
+    }
+}

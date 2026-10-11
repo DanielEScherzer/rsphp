@@ -1,0 +1,21 @@
+[package]
+name = "rsphp-macros-rs"
+description = "Rust macros to do not correspond to PHP's C macros"
+categories = ["development-tools::ffi"]
+authors.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rsphp-macros-c = { workspace = true }
+rsphp-sys = { workspace = true }
+
+[build-dependencies]
+rsphp-sys = { workspace = true }

@@ -1,0 +1,57 @@
+use rsphp_macros_c::*;
+use rsphp_macros_rs::*;
+use rsphp_sys::*;
+
+/// Module for `CustomCasting\CastableTarget` enum.
+pub(crate) mod CustomCasting_CastableTarget {
+    use rsphp_macros_c::*;
+    use rsphp_sys::*;
+
+
+    /// Register the `CustomCasting\CastableTarget` enum.
+    pub(crate) fn register_enum() -> *mut zend_class_entry {
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_enum(
+                c"CustomCasting\\CastableTarget".as_ptr(),
+                IS_UNDEF,
+                std::ptr::null_mut(),
+            )
+        };
+        unsafe {
+            zend_enum_add_case_cstr(class_entry, c"CAST_BOOL".as_ptr(), std::ptr::null_mut());
+            zend_enum_add_case_cstr(class_entry, c"CAST_FLOAT".as_ptr(), std::ptr::null_mut());
+            zend_enum_add_case_cstr(class_entry, c"CAST_LONG".as_ptr(), std::ptr::null_mut());
+        };
+
+
+        class_entry
+    }
+}
+/// Module for `CustomCasting\HasCustomCast` interface.
+pub(crate) mod CustomCasting_HasCustomCast {
+    use rsphp_macros_c::*;
+    use rsphp_macros_rs::*;
+    use rsphp_sys::*;
+
+    /// Argument information for `CustomCasting\HasCustomCast::__doCast()`.
+    pub(crate) const ARGINFO___DOCAST: [zend_internal_arg_info; 2] = [
+        ZEND_ARG_INFO_FOR_FUNCTION!(0, 1),
+        ZEND_ARG_OBJ_INFO!(0, "t", "CustomCasting\\CastableTarget", 0),
+    ];
+
+    /// Register the `CustomCasting\HasCustomCast` interface.
+    pub(crate) fn register_interface(methods: &[zend_function_entry]) -> *mut zend_class_entry {
+        assert_eq!(2, methods.len(), "CustomCasting\\HasCustomCast should have 1 methods");
+
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_NS_CLASS_ENTRY!(ce, "CustomCasting", "HasCustomCast", methods);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_interface(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+            )
+        };
+
+
+        class_entry
+    }
+}

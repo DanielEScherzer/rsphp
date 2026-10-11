@@ -1,0 +1,38 @@
+use rsphp_macros_c::*;
+use rsphp_macros_rs::*;
+use rsphp_sys::*;
+
+/// Argument information for `test1()`.
+pub(crate) const ARGINFO_TEST1: [zend_internal_arg_info; 1] = [
+    ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_VOID, 0),
+];
+
+/// Argument information for `test2()`.
+pub(crate) const ARGINFO_TEST2: [zend_internal_arg_info; 2] = [
+    ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_STRING, 0),
+    ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE!(0, "str", IS_STRING, 0, "\"\""),
+];
+
+/// Argument information for `test3()`.
+pub(crate) const ARGINFO_TEST3: [zend_internal_arg_info; 1] = [
+    ZEND_ARG_INFO_FOR_FUNCTION!(0, 0),
+];
+
+/// Argument information for `test4()`.
+pub(crate) const ARGINFO_TEST4: [zend_internal_arg_info; 2] = [
+    ZEND_ARG_INFO_FOR_FUNCTION!(0, 0),
+    ZEND_ARG_INFO_WITH_DEFAULT_VALUE!(0, "v", "123"),
+];
+
+/// Argument information for `test5()`.
+pub(crate) const ARGINFO_TEST5: [zend_internal_arg_info; 2] = [
+    ZEND_ARG_INFO_FOR_FUNCTION!(0, 1),
+    ZEND_ARG_INFO!(0, "v"),
+];
+
+/// Argument information for `test6()`.
+pub(crate) const ARGINFO_TEST6: [zend_internal_arg_info; 2] = [
+    ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_LONG, 0),
+    ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE!(0, "v", IS_LONG, 0, "123"),
+];
+

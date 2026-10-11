@@ -1,0 +1,199 @@
+use rsphp_macros_c::*;
+use rsphp_macros_rs::*;
+use rsphp_sys::*;
+
+/// Module for `CustomCastable` class.
+pub(crate) mod CustomCastable {
+    use rsphp_macros_c::*;
+    use rsphp_macros_rs::*;
+    use rsphp_sys::*;
+
+    /// Argument information for `CustomCastable::__construct()`.
+    pub(crate) const ARGINFO___CONSTRUCT: [zend_internal_arg_info; 2] = [
+        ZEND_ARG_INFO_FOR_FUNCTION!(0, 0),
+        ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE!(0, "target", IS_LONG, 0, "CustomCastable::TARGET_ALL"),
+    ];
+
+    /// Register the `CustomCastable` class.
+    pub(crate) fn register_class(methods: &[zend_function_entry]) -> *mut zend_class_entry {
+        assert_eq!(2, methods.len(), "CustomCastable should have 1 methods");
+
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_CLASS_ENTRY!(ce, "CustomCastable", methods);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                ZEND_ACC_FINAL,
+            )
+        };
+
+        let mut property_target_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_target_default_value)); }
+        let property_target_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"target".as_ptr(),
+                "target".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_target_name,
+                std::ptr::from_mut::<zval>(&mut property_target_default_value),
+                ZEND_ACC_PRIVATE as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_LONG),
+            );
+        }
+        unsafe {
+            zend_string_release(property_target_name);
+        }
+        unsafe {
+            let mut value: zval = std::mem::zeroed();
+            ZVAL_LONG!(&mut value, 1);
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"TARGET_BOOL".as_ptr(),
+                "TARGET_BOOL".len(),
+                true,
+            );
+            zend_declare_typed_class_constant(
+                class_entry, name, std::ptr::from_mut::<zval>(&mut value), ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(), ZEND_TYPE_INIT_MASK!(MAY_BE_LONG)
+            );
+            zend_string_release_ex(name, true);
+        }
+        unsafe {
+            let mut value: zval = std::mem::zeroed();
+            ZVAL_LONG!(&mut value, 2);
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"TARGET_FLOAT".as_ptr(),
+                "TARGET_FLOAT".len(),
+                true,
+            );
+            zend_declare_typed_class_constant(
+                class_entry, name, std::ptr::from_mut::<zval>(&mut value), ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(), ZEND_TYPE_INIT_MASK!(MAY_BE_LONG)
+            );
+            zend_string_release_ex(name, true);
+        }
+        unsafe {
+            let mut value: zval = std::mem::zeroed();
+            ZVAL_LONG!(&mut value, 4);
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"TARGET_LONG".as_ptr(),
+                "TARGET_LONG".len(),
+                true,
+            );
+            zend_declare_typed_class_constant(
+                class_entry, name, std::ptr::from_mut::<zval>(&mut value), ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(), ZEND_TYPE_INIT_MASK!(MAY_BE_LONG)
+            );
+            zend_string_release_ex(name, true);
+        }
+        unsafe {
+            let mut value: zval = std::mem::zeroed();
+            ZVAL_LONG!(&mut value, 7);
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"TARGET_ALL".as_ptr(),
+                "TARGET_ALL".len(),
+                true,
+            );
+            zend_declare_typed_class_constant(
+                class_entry, name, std::ptr::from_mut::<zval>(&mut value), ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(), ZEND_TYPE_INIT_MASK!(MAY_BE_LONG)
+            );
+            zend_string_release_ex(name, true);
+        }
+        class_entry
+    }
+}
+/// Module for `ConstantValues` class.
+pub(crate) mod ConstantValues {
+    use rsphp_macros_c::*;
+    use rsphp_sys::*;
+
+
+    /// Register the `ConstantValues` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_CLASS_ENTRY!(ce, "ConstantValues", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+        unsafe {
+            let mut value: zval = std::mem::zeroed();
+            ZVAL_DOUBLE!(&mut value, ZEND_DEBUG as f64);
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"IS_5".as_ptr(),
+                "IS_5".len(),
+                true,
+            );
+            zend_declare_typed_class_constant(
+                class_entry, name, std::ptr::from_mut::<zval>(&mut value), ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(), ZEND_TYPE_INIT_MASK!(MAY_BE_DOUBLE)
+            );
+            zend_string_release_ex(name, true);
+        }
+        unsafe {
+            let mut value: zval = std::mem::zeroed();
+            let value_str: *mut zend_string = zend_string_init(
+                crate::PHP_OS.as_ptr().cast::<std::ffi::c_char>(),
+                std::ffi::CStr::from_ptr(crate::PHP_OS.as_ptr().cast::<std::ffi::c_char>()).count_bytes(),
+                true);
+            ZVAL_STR!(&mut value, value_str);
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"IS_STR".as_ptr(),
+                "IS_STR".len(),
+                true,
+            );
+            zend_declare_typed_class_constant(
+                class_entry, name, std::ptr::from_mut::<zval>(&mut value), ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(), ZEND_TYPE_INIT_MASK!(MAY_BE_STRING)
+            );
+            zend_string_release_ex(name, true);
+        }
+        class_entry
+    }
+}
+/// Module for `ImplicitPublicConstant` class.
+pub(crate) mod ImplicitPublicConstant {
+    use rsphp_macros_c::*;
+    use rsphp_sys::*;
+
+
+    /// Register the `ImplicitPublicConstant` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_CLASS_ENTRY!(ce, "ImplicitPublicConstant", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+        unsafe {
+            let mut value: zval = std::mem::zeroed();
+            ZVAL_LONG!(&mut value, 5);
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"FOO".as_ptr(),
+                "FOO".len(),
+                true,
+            );
+            zend_declare_typed_class_constant(
+                class_entry, name, std::ptr::from_mut::<zval>(&mut value), ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(), ZEND_TYPE_INIT_MASK!(MAY_BE_LONG)
+            );
+            zend_string_release_ex(name, true);
+        }
+        class_entry
+    }
+}

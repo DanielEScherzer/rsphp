@@ -1,0 +1,47 @@
+name: setup-php
+inputs:
+  debug:
+    required: true
+  zts:
+    required: true
+  working-directory:
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        set -x
+        sudo apt-get update -y | true
+        sudo apt-get install -y \
+          re2c \
+          valgrind
+
+    - name: Run PHP ./buildconf
+      shell: bash
+      run: ./buildconf --force
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Run PHP ./configure
+      shell: bash
+      run: |
+        ./configure \
+          --enable-option-checking=fatal \
+          --disable-all \
+          --enable-cli \
+          ${{ inputs.debug == 'true' && '--enable-debug' || '' }} \
+          ${{ inputs.zts == 'true' && '--enable-zts' || '' }} \
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: PHP install (verbose)
+      shell: bash
+      if: ${{ runner.debug == '1' }}
+      run: sudo make -j$(/usr/bin/nproc) install
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: PHP install (quiet)
+      shell: bash
+      if: ${{ runner.debug != '1' }}
+      run: sudo make -j$(/usr/bin/nproc) install > /dev/null
+      working-directory: ${{ inputs.working-directory }}

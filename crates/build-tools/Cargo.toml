@@ -1,0 +1,17 @@
+[package]
+name = "rsphp-build-tools"
+description = "Tools to support building FFI bindings for PHP's Zend engine"
+categories = ["development-tools::build-utils"]
+authors.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+bindgen = { workspace = true }

@@ -1,0 +1,72 @@
+use rsphp_macros_c::*;
+use rsphp_macros_rs::*;
+use rsphp_sys::*;
+
+/// Module for `Demo\InDemoNamespace` class.
+pub(crate) mod Demo_InDemoNamespace {
+    use rsphp_macros_c::*;
+    use rsphp_macros_rs::*;
+    use rsphp_sys::*;
+
+    /// Argument information for `Demo\InDemoNamespace::__construct()`.
+    pub(crate) const ARGINFO___CONSTRUCT: [zend_internal_arg_info; 1] = [
+        ZEND_ARG_INFO_FOR_FUNCTION!(0, 0),
+    ];
+
+    /// Register the `Demo\InDemoNamespace` class.
+    pub(crate) fn register_class(methods: &[zend_function_entry]) -> *mut zend_class_entry {
+        assert_eq!(2, methods.len(), "Demo\\InDemoNamespace should have 1 methods");
+
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_NS_CLASS_ENTRY!(ce, "Demo", "InDemoNamespace", methods);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+
+        class_entry
+    }
+}
+/// Argument information for `Demo\inDemoNamespace()`.
+pub(crate) const ARGINFO_DEMO_INDEMONAMESPACE: [zend_internal_arg_info; 1] = [
+    ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_VOID, 0),
+];
+
+/// Module for `Other\InOtherNamespace` class.
+pub(crate) mod Other_InOtherNamespace {
+    use rsphp_macros_c::*;
+    use rsphp_macros_rs::*;
+    use rsphp_sys::*;
+
+    /// Argument information for `Other\InOtherNamespace::__construct()`.
+    pub(crate) const ARGINFO___CONSTRUCT: [zend_internal_arg_info; 1] = [
+        ZEND_ARG_INFO_FOR_FUNCTION!(0, 0),
+    ];
+
+    /// Register the `Other\InOtherNamespace` class.
+    pub(crate) fn register_class(methods: &[zend_function_entry]) -> *mut zend_class_entry {
+        assert_eq!(2, methods.len(), "Other\\InOtherNamespace should have 1 methods");
+
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_NS_CLASS_ENTRY!(ce, "Other", "InOtherNamespace", methods);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+
+        class_entry
+    }
+}
+/// Argument information for `Other\inOtherNamespace()`.
+pub(crate) const ARGINFO_OTHER_INOTHERNAMESPACE: [zend_internal_arg_info; 1] = [
+    ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_ANY, 0),
+];
+

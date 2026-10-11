@@ -1,0 +1,263 @@
+use rsphp_macros_c::*;
+use rsphp_macros_rs::*;
+use rsphp_sys::*;
+
+/// Module for `RSGit\Commit` class.
+pub(crate) mod RSGit_Commit {
+    use rsphp_macros_c::*;
+    use rsphp_sys::*;
+
+
+    /// Register the `RSGit\Commit` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Commit", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
+            )
+        };
+
+        let mut property_id_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_id_default_value)); }
+        let property_id_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"id".as_ptr(),
+                "id".len(),
+                true,
+            )
+        };
+        let property_id_type: *mut zend_string = unsafe {
+            zend_string_init(
+                c"RSGit\\Oid".as_ptr(),
+                "RSGit\\Oid".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_id_name,
+                std::ptr::from_mut::<zval>(&mut property_id_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_CLASS!(property_id_type, 0, 0),
+            );
+        }
+        unsafe {
+            zend_string_release(property_id_name);
+        }
+        
+        let mut property_author_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_author_default_value)); }
+        let property_author_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"author".as_ptr(),
+                "author".len(),
+                true,
+            )
+        };
+        let property_author_type: *mut zend_string = unsafe {
+            zend_string_init(
+                c"RSGit\\Signature".as_ptr(),
+                "RSGit\\Signature".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_author_name,
+                std::ptr::from_mut::<zval>(&mut property_author_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_CLASS!(property_author_type, 0, 0),
+            );
+        }
+        unsafe {
+            zend_string_release(property_author_name);
+        }
+        
+        let mut property_committer_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_committer_default_value)); }
+        let property_committer_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"committer".as_ptr(),
+                "committer".len(),
+                true,
+            )
+        };
+        let property_committer_type: *mut zend_string = unsafe {
+            zend_string_init(
+                c"RSGit\\Signature".as_ptr(),
+                "RSGit\\Signature".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_committer_name,
+                std::ptr::from_mut::<zval>(&mut property_committer_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_CLASS!(property_committer_type, 0, 0),
+            );
+        }
+        unsafe {
+            zend_string_release(property_committer_name);
+        }
+
+        class_entry
+    }
+}
+/// Module for `RSGit\Oid` class.
+pub(crate) mod RSGit_Oid {
+    use rsphp_macros_c::*;
+    use rsphp_macros_rs::*;
+    use rsphp_sys::*;
+
+    /// Argument information for `RSGit\Oid::__toString()`.
+    pub(crate) const ARGINFO___TOSTRING: [zend_internal_arg_info; 1] = [
+        ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_STRING, 0),
+    ];
+
+    /// Register the `RSGit\Oid` class.
+    pub(crate) fn register_class(methods: &[zend_function_entry]) -> *mut zend_class_entry {
+        assert_eq!(2, methods.len(), "RSGit\\Oid should have 1 methods");
+
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Oid", methods);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
+            )
+        };
+
+        let mut property_asHex_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_asHex_default_value)); }
+        let property_asHex_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"asHex".as_ptr(),
+                "asHex".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_asHex_name,
+                std::ptr::from_mut::<zval>(&mut property_asHex_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
+            );
+        }
+        unsafe {
+            zend_string_release(property_asHex_name);
+        }
+
+        class_entry
+    }
+}
+/// Module for `RSGit\Signature` class.
+pub(crate) mod RSGit_Signature {
+    use rsphp_macros_c::*;
+    use rsphp_sys::*;
+
+
+    /// Register the `RSGit\Signature` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Signature", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
+            )
+        };
+
+        let mut property_name_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_name_default_value)); }
+        let property_name_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"name".as_ptr(),
+                "name".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_name_name,
+                std::ptr::from_mut::<zval>(&mut property_name_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
+            );
+        }
+        unsafe {
+            zend_string_release(property_name_name);
+        }
+        
+        let mut property_email_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_email_default_value)); }
+        let property_email_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"email".as_ptr(),
+                "email".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_email_name,
+                std::ptr::from_mut::<zval>(&mut property_email_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
+            );
+        }
+        unsafe {
+            zend_string_release(property_email_name);
+        }
+        
+        let mut property_time_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_time_default_value)); }
+        let property_time_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"time".as_ptr(),
+                "time".len(),
+                true,
+            )
+        };
+        let property_time_type: *mut zend_string = unsafe {
+            zend_string_init(
+                c"DateTimeImmutable".as_ptr(),
+                "DateTimeImmutable".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_time_name,
+                std::ptr::from_mut::<zval>(&mut property_time_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_CLASS!(property_time_type, 0, 0),
+            );
+        }
+        unsafe {
+            zend_string_release(property_time_name);
+        }
+
+        class_entry
+    }
+}

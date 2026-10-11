@@ -1,0 +1,19 @@
+[package]
+name = "rsphp-sys"
+description = "FFI bindings for PHP"
+categories = ["external-ffi-bindings"]
+authors.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lints]
+workspace = true
+
+[build-dependencies]
+bindgen = { workspace = true }
+cc = { workspace = true }
+rsphp-build-tools = { workspace = true }

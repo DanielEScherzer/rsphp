@@ -1,0 +1,145 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  rustfmt:
+    name: Lint code with rustfmt
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: ["1.99.0"]
+    steps:
+      - name: Checkout library
+        uses: actions/checkout@v7
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt
+
+      - name: Run rustfmt
+        run: cargo fmt --check
+
+      - name: Run rustfmt on example
+        run: cargo fmt --check
+        working-directory: ./example/rust-ext-demo
+
+  clippy:
+    name: >
+      Run clippy (${{ matrix.php }},
+      php ${{ matrix.php_debug && 'debug' || 'release' }},
+      ${{ matrix.php_zts && 'ZTS' || 'NTS' }},
+      rust ${{ matrix.rust }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["PHP-8.5"]
+        rust: ["1.99.0"]
+        php_zts: [true, false]
+        php_debug: [true, false]
+    steps:
+      # We need to clone and configure PHP so that bindings can be generated
+      # in the build script for clippy; need to build it so that php-config
+      # results in the correct headers
+      - name: Checkout PHP
+        uses: actions/checkout@v7
+        with:
+          repository: php/php-src
+          ref: ${{ matrix.php }}
+          path: php/php-src
+
+      - name: Checkout library
+        uses: actions/checkout@v7
+        with:
+          path: php/php-src/ext/rust-ext
+
+      - name: PHP install
+        uses: ./php/php-src/ext/rust-ext/.github/actions/setup-php
+        with:
+          zts: ${{ matrix.php_zts }}
+          debug: ${{ matrix.php_debug }}
+          working-directory: php/php-src
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: clippy, rustfmt
+
+      - name: Run build
+        run: cargo build
+        working-directory: ./php/php-src/ext/rust-ext
+
+      - name: Run clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -Dwarnings
+        working-directory: ./php/php-src/ext/rust-ext
+
+      - name: Run clippy on example
+        run: cargo clippy --all-targets --all-features -- -Dwarnings
+        working-directory: ./php/php-src/ext/rust-ext/example/rust-ext-demo
+
+  test:
+    name: >
+      Run tests (${{ matrix.php }},
+      php ${{ matrix.php_debug && 'debug' || 'release' }},
+      ${{ matrix.php_zts && 'ZTS' || 'NTS' }},
+      rust ${{ matrix.rust }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["PHP-8.5"]
+        rust: ["1.99.0"]
+        php_zts: [true, false]
+        php_debug: [true, false]
+    steps:
+      - name: Checkout PHP
+        uses: actions/checkout@v7
+        with:
+          repository: php/php-src
+          ref: ${{ matrix.php }}
+          path: php/php-src
+
+      - name: Checkout library
+        uses: actions/checkout@v7
+        with:
+          path: php/php-src/ext/rust-ext
+
+      - name: PHP install
+        uses: ./php/php-src/ext/rust-ext/.github/actions/setup-php
+        with:
+          zts: ${{ matrix.php_zts }}
+          debug: ${{ matrix.php_debug }}
+          working-directory: php/php-src
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build library
+        run: cargo build
+        working-directory: php/php-src/ext/rust-ext
+
+      - name: Test library and workspace
+        run: cargo test --workspace
+        working-directory: php/php-src/ext/rust-ext
+
+      - name: Build example extension
+        run: cargo build
+        working-directory: php/php-src/ext/rust-ext/example/rust-ext-demo
+
+      - name: Test example extension
+        run: cargo test
+        working-directory: php/php-src/ext/rust-ext/example/rust-ext-demo
