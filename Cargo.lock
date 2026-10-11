@@ -575,7 +575,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bstr",
  "rsphp-macros-c",
@@ -585,14 +585,14 @@ dependencies = [
 
 [[package]]
 name = "rsphp-build-tools"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bindgen",
 ]
 
 [[package]]
 name = "rsphp-macros-c"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "c_str_macro",
  "rsphp-sys",
@@ -600,7 +600,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-macros-rs"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "rsphp-macros-c",
  "rsphp-sys",
@@ -608,7 +608,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-stub-parser"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "diff",
  "php-ast",
@@ -624,7 +624,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-stub-parser-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap",
  "rsphp-stub-parser",
@@ -632,7 +632,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-sys"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bindgen",
  "cc",
