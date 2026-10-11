@@ -1016,7 +1016,15 @@ macro_rules! Z_OBJ_HANDLER {
     };
 }
 
-make_pointer_version!( Z_OBJ_HANDLER_P => Z_OBJ_HANDLER );
+/// Access one of the handlers in the [`rsphp_sys::zend_object_handlers`] of
+/// a [`rsphp_sys::zval`] pointer holding a [`rsphp_sys::zend_object`] pointer.
+#[doc = c_version!("#define Z_OBJ_HANDLER_P(zv_p, hf)    Z_OBJ_HANDLER(*(zv_p), hf)")]
+#[macro_export]
+macro_rules! Z_OBJ_HANDLER_P {
+    ($zval_p:expr, $hf:ident) => {
+        $crate::Z_OBJ_HANDLER!(*$zval_p, $hf)
+    };
+}
 
 /// Access the [`rsphp_sys::zend_class_entry`] of a [`rsphp_sys::zval`] holding a
 /// [`rsphp_sys::zend_object`] pointer.
