@@ -10,6 +10,10 @@ repository.workspace = true
 rust-version.workspace = true
 version.workspace = true
 
+[package.metadata.docs.rs]
+# Show documentation for private items
+rustdoc-args = ["--document-private-items"]
+
 [workspace]
 package.authors = [
 	"Daniel Scherzer",
