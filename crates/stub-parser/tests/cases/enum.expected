@@ -1,13 +1,13 @@
 
 /// Module for `CustomCasting\CastableTarget` enum.
 pub(crate) mod CustomCasting_CastableTarget {
-    use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr, zend_register_internal_enum};
+    use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr};
 
 
     /// Register the `CustomCasting\CastableTarget` enum.
     pub(crate) fn register_enum() -> *mut zend_class_entry {
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_enum(
+            rsphp_sys::zend_register_internal_enum(
                 c"CustomCasting\\CastableTarget".as_ptr(),
                 IS_UNDEF,
                 std::ptr::null_mut(),

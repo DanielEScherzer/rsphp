@@ -183,7 +183,7 @@ impl ClassLikeType {
             None => ("INIT_CLASS_ENTRY", String::new()),
         };
         let init_macro = format!(
-            "{macro_name}!(ce,{macro_ns_arg} \"{name}\", {methods});",
+            "rsphp_macros_c::{macro_name}!(ce,{macro_ns_arg} \"{name}\", {methods});",
             methods = if method_count == 0 { "NULL" } else { "methods" }
         );
         scope.add_import("rsphp_sys", "zend_class_entry");
@@ -212,13 +212,11 @@ impl ClassLikeType {
                 } else {
                     flags.join("|")
                 };
-                scope.add_import("rsphp_sys", "zend_register_internal_class_with_flags");
-                scope.add_import("rsphp_macros_c", macro_name);
                 format!(
                     "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
                     \n{space}{init_macro}\
                     \n{space}let class_entry: *mut zend_class_entry = unsafe {{\
-                    \n{space}{space}zend_register_internal_class_with_flags(\
+                    \n{space}{space}rsphp_sys::zend_register_internal_class_with_flags(\
                     \n{space}{space}{space}std::ptr::from_mut::<zend_class_entry>(&mut ce),\
                     \n{space}{space}{space}{extends_param},\
                     \n{space}{space}{space}{flags_str},\
@@ -245,10 +243,9 @@ impl ClassLikeType {
                     },
                 };
                 scope.add_import("rsphp_sys", backing_type_code);
-                scope.add_import("rsphp_sys", "zend_register_internal_enum");
                 format!(
                     "\n{space}let class_entry: *mut zend_class_entry = unsafe {{\
-                    \n{space}{space}zend_register_internal_enum(\
+                    \n{space}{space}rsphp_sys::zend_register_internal_enum(\
                     \n{space}{space}{space}c\"{ns_name_segment}{name}\".as_ptr(),\
                     \n{space}{space}{space}{backing_type_code},\
                     \n{space}{space}{space}std::ptr::null_mut(),\
@@ -258,13 +255,11 @@ impl ClassLikeType {
                 )
             }
             ClassLikeType::Interface(_) => {
-                scope.add_import("rsphp_sys", "zend_register_internal_interface");
-                scope.add_import("rsphp_macros_c", macro_name);
                 format!(
                     "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
                         \n{space}{init_macro}\
                         \n{space}let class_entry: *mut zend_class_entry = unsafe {{\
-                        \n{space}{space}zend_register_internal_interface(\
+                        \n{space}{space}rsphp_sys::zend_register_internal_interface(\
                         \n{space}{space}{space}std::ptr::from_mut::<zend_class_entry>(&mut ce),\
                         \n{space}{space})\
                         \n{space}}};",

@@ -1,9 +1,9 @@
 
 /// Module for `Repository` class.
 pub(crate) mod Repository {
-    use rsphp_macros_c::{INIT_CLASS_ENTRY, ZEND_ARG_OBJ_INFO, ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE, ZEND_ARG_TYPE_INFO};
+    use rsphp_macros_c::{ZEND_ARG_OBJ_INFO, ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE, ZEND_ARG_TYPE_INFO};
     use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_OBJ_INFO;
-    use rsphp_sys::{IS_ARRAY, IS_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags};
+    use rsphp_sys::{IS_ARRAY, IS_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry, zend_function_entry, zend_internal_arg_info};
 
     /// Argument information for `Repository::commit()`.
     pub(crate) const ARGINFO_COMMIT: [zend_internal_arg_info; 6] = [
@@ -20,9 +20,9 @@ pub(crate) mod Repository {
         assert_eq!(2, methods.len(), "Repository should have 1 methods");
 
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "Repository", methods);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "Repository", methods);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
@@ -35,16 +35,15 @@ pub(crate) mod Repository {
 }
 /// Module for `Oid` class.
 pub(crate) mod Oid {
-    use rsphp_macros_c::INIT_CLASS_ENTRY;
-    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry, zend_register_internal_class_with_flags};
+    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry};
 
 
     /// Register the `Oid` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "Oid", NULL);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "Oid", NULL);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
@@ -57,16 +56,15 @@ pub(crate) mod Oid {
 }
 /// Module for `Signature` class.
 pub(crate) mod Signature {
-    use rsphp_macros_c::INIT_CLASS_ENTRY;
-    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry, zend_register_internal_class_with_flags};
+    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry};
 
 
     /// Register the `Signature` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "Signature", NULL);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "Signature", NULL);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,

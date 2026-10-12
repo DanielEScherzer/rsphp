@@ -3,9 +3,8 @@ use rsphp_sys::{MAY_BE_VOID, zend_internal_arg_info};
 
 /// Module for `Demo\InDemoNamespace` class.
 pub(crate) mod Demo_InDemoNamespace {
-    use rsphp_macros_c::INIT_NS_CLASS_ENTRY;
     use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION;
-    use rsphp_sys::{zend_class_entry, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags};
+    use rsphp_sys::{zend_class_entry, zend_function_entry, zend_internal_arg_info};
 
     /// Argument information for `Demo\InDemoNamespace::__construct()`.
     pub(crate) const ARGINFO___CONSTRUCT: [zend_internal_arg_info; 1] = [
@@ -17,9 +16,9 @@ pub(crate) mod Demo_InDemoNamespace {
         assert_eq!(2, methods.len(), "Demo\\InDemoNamespace should have 1 methods");
 
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_NS_CLASS_ENTRY!(ce, "Demo", "InDemoNamespace", methods);
+        rsphp_macros_c::INIT_NS_CLASS_ENTRY!(ce, "Demo", "InDemoNamespace", methods);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 0,

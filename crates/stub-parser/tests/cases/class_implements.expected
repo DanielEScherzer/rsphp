@@ -1,16 +1,15 @@
 
 /// Module for `IDemo` interface.
 pub(crate) mod IDemo {
-    use rsphp_macros_c::INIT_CLASS_ENTRY;
-    use rsphp_sys::{zend_class_entry, zend_register_internal_interface};
+    use rsphp_sys::zend_class_entry;
 
 
     /// Register the `IDemo` interface.
     pub(crate) fn register_interface() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "IDemo", NULL);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "IDemo", NULL);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_interface(
+            rsphp_sys::zend_register_internal_interface(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
             )
         };
@@ -21,16 +20,15 @@ pub(crate) mod IDemo {
 }
 /// Module for `Demo` class.
 pub(crate) mod Demo {
-    use rsphp_macros_c::INIT_CLASS_ENTRY;
-    use rsphp_sys::{zend_class_entry, zend_class_implements, zend_register_internal_class_with_flags};
+    use rsphp_sys::{zend_class_entry, zend_class_implements};
 
 
     /// Register the `Demo` class.
     pub(crate) fn register_class(zend_ce_IDemo: *mut zend_class_entry) -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "Demo", NULL);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "Demo", NULL);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 0,

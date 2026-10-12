@@ -149,9 +149,6 @@ impl VerificationData {
 
 /// Imports needed for infrastructure, at a file level.
 pub(crate) const VERIFICATION_RSPHP_SYS_IMPORTS: &[&str] = &[
-    "_ZEND_TYPE_LIST_BIT",
-    "_ZEND_TYPE_LITERAL_NAME_BIT",
-    "_ZEND_TYPE_NAME_BIT",
     "zend_function_entry",
     "zend_internal_arg_info",
     "zend_string",
@@ -197,7 +194,7 @@ fn types_match(expected: &zend_type, actual: &zend_type) -> Option<String> {
         return Some("Expected a pointer to be set in the actual type".to_owned());
     }
     // Compare the values depending on the flags
-    if expected.type_mask & _ZEND_TYPE_LITERAL_NAME_BIT != 0 {
+    if expected.type_mask & rsphp_sys::_ZEND_TYPE_LITERAL_NAME_BIT != 0 {
         // CString pointers
         let expected_name = unsafe { CStr::from_ptr(expected.ptr.cast::<c_char>()) };
         let actual_name = unsafe { CStr::from_ptr(actual.ptr.cast::<c_char>()) };
@@ -206,7 +203,7 @@ fn types_match(expected: &zend_type, actual: &zend_type) -> Option<String> {
         }
         return Some(format!("Expected literal name {expected_name:?}, found {actual_name:?}"));
     }
-    if expected.type_mask & _ZEND_TYPE_NAME_BIT != 0 {
+    if expected.type_mask & rsphp_sys::_ZEND_TYPE_NAME_BIT != 0 {
         // zend_string pointers, compare them by comparing the lengths and values
         let expected_name: &zend_string = unsafe { expected.ptr.cast::<zend_string>().as_ref().expect("Valid pointer") };
         let actual_name: &zend_string = unsafe { actual.ptr.cast::<zend_string>().as_ref().expect("Valid pointer") };
@@ -220,7 +217,7 @@ fn types_match(expected: &zend_type, actual: &zend_type) -> Option<String> {
         }
         return Some(format!("Expected name {expected_slice:?}, found {actual_slice:?}"));
     }
-    if expected.type_mask & _ZEND_TYPE_LIST_BIT != 0 {
+    if expected.type_mask & rsphp_sys::_ZEND_TYPE_LIST_BIT != 0 {
         // zend_type_list pointers
         let expected_list: &zend_type_list = unsafe { expected.ptr.cast::<zend_type_list>().as_ref().expect("Valid pointer") };
         let acutal_list: &zend_type_list = unsafe { actual.ptr.cast::<zend_type_list>().as_ref().expect("Valid pointer") };

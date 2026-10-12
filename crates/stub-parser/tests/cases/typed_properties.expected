@@ -1,16 +1,16 @@
 
 /// Module for `RSGit\Commit` class.
 pub(crate) mod RSGit_Commit {
-    use rsphp_macros_c::{INIT_NS_CLASS_ENTRY, ZEND_TYPE_INIT_CLASS, ZVAL_UNDEF};
-    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_release, zval};
+    use rsphp_macros_c::{ZEND_TYPE_INIT_CLASS, ZVAL_UNDEF};
+    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `RSGit\Commit` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Commit", NULL);
+        rsphp_macros_c::INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Commit", NULL);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
@@ -112,9 +112,9 @@ pub(crate) mod RSGit_Commit {
 }
 /// Module for `RSGit\Oid` class.
 pub(crate) mod RSGit_Oid {
-    use rsphp_macros_c::{INIT_NS_CLASS_ENTRY, ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
+    use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
     use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK;
-    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_release, zval};
+    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_function_entry, zend_internal_arg_info, zend_string, zend_string_init, zend_string_release, zval};
 
     /// Argument information for `RSGit\Oid::__toString()`.
     pub(crate) const ARGINFO___TOSTRING: [zend_internal_arg_info; 1] = [
@@ -126,9 +126,9 @@ pub(crate) mod RSGit_Oid {
         assert_eq!(2, methods.len(), "RSGit\\Oid should have 1 methods");
 
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Oid", methods);
+        rsphp_macros_c::INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Oid", methods);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
@@ -163,16 +163,16 @@ pub(crate) mod RSGit_Oid {
 }
 /// Module for `RSGit\Signature` class.
 pub(crate) mod RSGit_Signature {
-    use rsphp_macros_c::{INIT_NS_CLASS_ENTRY, ZEND_TYPE_INIT_CLASS, ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
-    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_release, zval};
+    use rsphp_macros_c::{ZEND_TYPE_INIT_CLASS, ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
+    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `RSGit\Signature` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Signature", NULL);
+        rsphp_macros_c::INIT_NS_CLASS_ENTRY!(ce, "RSGit", "Signature", NULL);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
