@@ -1,0 +1,21 @@
+name: verify-generated
+inputs:
+  working-directory:
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Run git add for untracked files
+      shell: bash
+      run: git add -N .
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Show git status
+      shell: bash
+      run: git status
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Check for changed files
+      shell: bash
+      run: git diff -a --exit-code HEAD
+      working-directory: ${{ inputs.working-directory }}

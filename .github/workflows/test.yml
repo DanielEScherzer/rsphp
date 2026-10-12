@@ -83,8 +83,17 @@ jobs:
         working-directory: ./php/php-src/ext/rust-ext
 
       - name: Run clippy on example
+        # Run clippy for the example even if for the main project it failed
+        if: ${{ !cancelled() }}
         run: cargo clippy --all-targets --all-features -- -Dwarnings
         working-directory: ./php/php-src/ext/rust-ext/example/rust-ext-demo
+
+      - name: Check generated files
+        # Run check even if clippy or something else failed
+        if: ${{ !cancelled() }}
+        uses: ./php/php-src/ext/rust-ext/.github/actions/verify-generated
+        with:
+          working-directory: php/php-src/ext/rust-ext
 
   test:
     name: >
