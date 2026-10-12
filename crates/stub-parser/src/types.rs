@@ -1,7 +1,7 @@
 use php_ast::ast::{BuiltinType, NameKind};
 use php_ast::owned::{Name, TypeHintKind};
 
-use crate::builder::ImportsUsed;
+use crate::imports::ImportsUsed;
 
 /// Information for a typehint for a function or parameter.
 #[derive(Debug)]
@@ -101,30 +101,24 @@ impl ArgInfoTypeRepr {
         match self {
             ArgInfoTypeRepr::Builtin(_) => {
                 let type_info = self.type_info()?;
-                scope.import_sys.insert(type_info.1.to_owned());
-                scope
-                    .import_macros_c
-                    .insert("ZEND_TYPE_INIT_MASK".to_owned());
+                scope.add_import("rsphp_sys", type_info.1);
+                scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_MASK");
                 Ok((None, format!("ZEND_TYPE_INIT_MASK!({})", type_info.1)))
             }
             ArgInfoTypeRepr::Nullable(inner) => match **inner {
                 ArgInfoTypeRepr::Builtin(_) => {
                     let type_info = inner.type_info()?;
-                    scope.import_sys.insert(type_info.1.to_owned());
-                    scope.import_sys.insert("MAY_BE_NULL".to_owned());
-                    scope
-                        .import_macros_c
-                        .insert("ZEND_TYPE_INIT_MASK".to_owned());
+                    scope.add_import("rsphp_sys", type_info.1);
+                    scope.add_import("rsphp_sys", "MAY_BE_NULL");
+                    scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_MASK");
                     Ok((
                         None,
                         format!("ZEND_TYPE_INIT_MASK!({}|MAY_BE_NULL)", type_info.1),
                     ))
                 }
                 ArgInfoTypeRepr::Named(_) | ArgInfoTypeRepr::FullyQualifiedNamed(_) => {
-                    scope.import_sys.insert("MAY_BE_NULL".to_owned());
-                    scope
-                        .import_macros_c
-                        .insert("ZEND_TYPE_INIT_CLASS".to_owned());
+                    scope.add_import("rsphp_sys", "MAY_BE_NULL");
+                    scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_CLASS");
                     Ok((
                         inner.property_type_code(scope, namespace, name_str)?.0,
                         format!("ZEND_TYPE_INIT_CLASS!(property_{name_str}_type, 0, MAY_BE_NULL)"),
@@ -133,11 +127,9 @@ impl ArgInfoTypeRepr {
                 _ => Err(format!("Unhandled type code: {self:?}")),
             },
             ArgInfoTypeRepr::Named(raw_name) => {
-                scope.import_sys.insert("zend_string".to_owned());
-                scope.import_sys.insert("zend_string_init".to_owned());
-                scope
-                    .import_macros_c
-                    .insert("ZEND_TYPE_INIT_CLASS".to_owned());
+                scope.add_import("rsphp_sys", "zend_string");
+                scope.add_import("rsphp_sys", "zend_string_init");
+                scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_CLASS");
                 Ok((
                     Some(format!(
                         "{space}let property_{name_str}_type: *mut zend_string = unsafe {{\
@@ -154,11 +146,9 @@ impl ArgInfoTypeRepr {
                 ))
             }
             ArgInfoTypeRepr::FullyQualifiedNamed(name) => {
-                scope.import_sys.insert("zend_string".to_owned());
-                scope.import_sys.insert("zend_string_init".to_owned());
-                scope
-                    .import_macros_c
-                    .insert("ZEND_TYPE_INIT_CLASS".to_owned());
+                scope.add_import("rsphp_sys", "zend_string");
+                scope.add_import("rsphp_sys", "zend_string_init");
+                scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_CLASS");
                 Ok((
                     Some(format!(
                         "{space}let property_{name_str}_type: *mut zend_string = unsafe {{\
@@ -183,11 +173,9 @@ impl ArgInfoTypeRepr {
                         .map(|inner_type| inner_type.type_info().map(|inner_info| inner_info.1))
                         .collect::<Result<_, _>>()?;
                     for inner_flag in &parts {
-                        scope.import_sys.insert(inner_flag.to_string());
+                        scope.add_import("rsphp_sys", *inner_flag);
                     }
-                    scope
-                        .import_macros_c
-                        .insert("ZEND_TYPE_INIT_MASK".to_owned());
+                    scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_MASK");
                     Ok((None, format!("ZEND_TYPE_INIT_MASK!({})", parts.join("|"))))
                 } else {
                     Err(format!("Unhandled union: {inner:?}"))

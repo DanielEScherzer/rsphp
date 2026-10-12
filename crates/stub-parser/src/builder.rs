@@ -1,4 +1,5 @@
 use crate::VerificationMode;
+use crate::imports::ImportsUsed;
 use crate::types::ArgInfoTypeRepr;
 use crate::verification::{VERIFICATION_RSPHP_SYS_IMPORTS, VerificationData};
 use php_ast::ast::{BuiltinType, Visibility};
@@ -150,7 +151,7 @@ impl ClassLikeType {
         if interface_ptrs.is_empty() {
             String::new()
         } else {
-            scope.import_sys.insert("zend_class_implements".to_owned());
+            scope.add_import("rsphp_sys", "zend_class_implements");
             format!(
                 "\n{space}unsafe {{\
                 \n{space}{space}zend_class_implements(\
@@ -205,22 +206,18 @@ impl ClassLikeType {
                 let mut flags = vec![];
                 if class.modifiers.is_final {
                     flags.push("ZEND_ACC_FINAL");
-                    scope.import_sys.insert("ZEND_ACC_FINAL".to_owned());
+                    scope.add_import("rsphp_sys", "ZEND_ACC_FINAL");
                 }
                 match class.doc_comment.as_ref() {
                     None => (),
                     Some(comment) => {
                         if comment.text.contains("@strict-properties") {
                             flags.push("ZEND_ACC_NO_DYNAMIC_PROPERTIES");
-                            scope
-                                .import_sys
-                                .insert("ZEND_ACC_NO_DYNAMIC_PROPERTIES".to_owned());
+                            scope.add_import("rsphp_sys", "ZEND_ACC_NO_DYNAMIC_PROPERTIES");
                         }
                         if comment.text.contains("@not-serializable") {
                             flags.push("ZEND_ACC_NOT_SERIALIZABLE");
-                            scope
-                                .import_sys
-                                .insert("ZEND_ACC_NOT_SERIALIZABLE".to_owned());
+                            scope.add_import("rsphp_sys", "ZEND_ACC_NOT_SERIALIZABLE");
                         }
                     }
                 }
@@ -229,11 +226,9 @@ impl ClassLikeType {
                 } else {
                     flags.join("|")
                 };
-                scope.import_sys.insert("zend_class_entry".to_owned());
-                scope
-                    .import_sys
-                    .insert("zend_register_internal_class_with_flags".to_owned());
-                scope.import_macros_c.insert(macro_name.to_owned());
+                scope.add_import("rsphp_sys", "zend_class_entry");
+                scope.add_import("rsphp_sys", "zend_register_internal_class_with_flags");
+                scope.add_import("rsphp_macros_c", macro_name);
                 Ok(format!(
                     "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
                     \n{space}{init_macro}\
@@ -274,11 +269,9 @@ impl ClassLikeType {
                         return Err(format!("Invalid backing type: {backing_type:?}"));
                     }
                 };
-                scope.import_sys.insert("zend_class_entry".to_owned());
-                scope.import_sys.insert(backing_type_code.to_owned());
-                scope
-                    .import_sys
-                    .insert("zend_register_internal_enum".to_owned());
+                scope.add_import("rsphp_sys", "zend_class_entry");
+                scope.add_import("rsphp_sys", backing_type_code);
+                scope.add_import("rsphp_sys", "zend_register_internal_enum");
                 Ok(format!(
                     "\n{space}let class_entry: *mut zend_class_entry = unsafe {{\
                     \n{space}{space}zend_register_internal_enum(\
@@ -292,11 +285,9 @@ impl ClassLikeType {
                 ))
             }
             ClassLikeType::Interface(_) => {
-                scope.import_sys.insert("zend_class_entry".to_owned());
-                scope
-                    .import_sys
-                    .insert("zend_register_internal_interface".to_owned());
-                scope.import_macros_c.insert(macro_name.to_owned());
+                scope.add_import("rsphp_sys", "zend_class_entry");
+                scope.add_import("rsphp_sys", "zend_register_internal_interface");
+                scope.add_import("rsphp_macros_c", macro_name);
                 Ok(format!(
                     "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
                         \n{space}{init_macro}\
@@ -327,58 +318,6 @@ impl ClassLikeType {
             ClassLikeType::PhpEnum(php_enum) => php_enum.scalar_type.as_ref(),
             _ => None,
         }
-    }
-}
-
-/// Tracker for what imports need to be added to a given scope.
-#[derive(Default)]
-#[expect(
-    clippy::field_scoped_visibility_modifiers,
-    clippy::struct_field_names,
-    reason = "To be refactored"
-)]
-pub(crate) struct ImportsUsed {
-    /// Imports needed from `rsphp_sys`.
-    pub(crate) import_sys: HashSet<String>,
-    /// Imports needed from `rsphp_macros_c`.
-    pub(crate) import_macros_c: HashSet<String>,
-    /// Imports needed from `rsphp_macros_rs`.
-    pub(crate) import_macros_rs: HashSet<String>,
-}
-
-impl ImportsUsed {
-    /// Create a new empty set of imports.
-    fn new() -> Self {
-        Self {
-            import_sys: HashSet::new(),
-            import_macros_c: HashSet::new(),
-            import_macros_rs: HashSet::new(),
-        }
-    }
-
-    /// Format all imports.
-    fn as_uses(&self) -> String {
-        vec![
-            Self::as_use_single(&self.import_macros_c, "rsphp_macros_c"),
-            Self::as_use_single(&self.import_macros_rs, "rsphp_macros_rs"),
-            Self::as_use_single(&self.import_sys, "rsphp_sys"),
-        ]
-        .into_iter()
-        .flatten()
-        .collect::<String>()
-    }
-
-    /// Format imports for a single module.
-    fn as_use_single(used: &HashSet<String>, module: &str) -> Option<String> {
-        if used.is_empty() {
-            return None;
-        }
-        let mut used_names: Vec<String> = used.clone().into_iter().collect();
-        if used_names.len() == 1 {
-            return Some(format!("use {module}::{};\n", used_names[0]));
-        }
-        used_names.sort();
-        Some(format!("use {module}::{{{}}};\n", used_names.join(", ")))
     }
 }
 
@@ -526,7 +465,7 @@ impl ArgInfoBuilder<'_> {
                     format!("({by_ref}, \"{name}\", \"{dflt}\")"),
                 ),
             };
-            self.scope.import_macros_c.insert(macro_name.clone());
+            self.scope.add_import("rsphp_macros_c", macro_name.clone());
             return Ok(format!("    {macro_name}!{macro_args},\n"));
         };
         let (macro_name, macro_args) = match (
@@ -543,13 +482,13 @@ impl ArgInfoBuilder<'_> {
             }
             ((None, Some(param_mask), param_info, nullable), None) => {
                 if param_mask.contains('|') {
-                    self.scope.import_sys.extend(param_type_info.mask_uses);
+                    self.scope.sys.extend(param_type_info.mask_uses);
                     (
                         "ZEND_ARG_TYPE_MASK".to_owned(),
                         format!("({by_ref}, \"{name}\", {param_mask}, std::ptr::null())"),
                     )
                 } else {
-                    self.scope.import_sys.extend(param_type_info.return_uses);
+                    self.scope.sys.extend(param_type_info.return_uses);
                     (
                         format!("ZEND_ARG_{maybe_variadic}TYPE_INFO"),
                         format!(
@@ -568,7 +507,7 @@ impl ArgInfoBuilder<'_> {
                 ),
             ),
             ((Some(param_class), Some(param_mask), _, _), dflt) => {
-                self.scope.import_sys.extend(param_type_info.mask_uses);
+                self.scope.sys.extend(param_type_info.mask_uses);
                 (
                     format!("ZEND_ARG_{maybe_variadic}OBJ_TYPE_MASK"),
                     format!(
@@ -581,7 +520,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             ((None, _, Some(param_info), nullable), Some(dflt)) => {
-                self.scope.import_sys.extend(param_type_info.return_uses);
+                self.scope.sys.extend(param_type_info.return_uses);
                 (
                     "ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE".to_owned(),
                     format!(
@@ -599,7 +538,7 @@ impl ArgInfoBuilder<'_> {
             ),
             _ => return Err(format!("Unhandled parameter: {param:?}")),
         };
-        self.scope.import_macros_c.insert(macro_name.clone());
+        self.scope.add_import("rsphp_macros_c", macro_name.clone());
         Ok(format!("    {macro_name}!{macro_args},\n"))
     }
 
@@ -625,12 +564,9 @@ impl ArgInfoBuilder<'_> {
             .collect::<Result<Vec<_>, _>>()?;
         let return_reference_int: u8 = u8::from(return_reference);
         let Some(return_info) = return_type else {
+            self.scope.add_import("rsphp_sys", "zend_internal_arg_info");
             self.scope
-                .import_sys
-                .insert("zend_internal_arg_info".to_owned());
-            self.scope
-                .import_macros_rs
-                .insert("ZEND_ARG_INFO_FOR_FUNCTION".to_owned());
+                .add_import("rsphp_macros_rs", "ZEND_ARG_INFO_FOR_FUNCTION");
             return Ok(format!(
                 "/// Argument information for `{doc_name}()`.\
                 \npub(crate) const {name_constant}: [zend_internal_arg_info; {}] = [\
@@ -666,7 +602,7 @@ impl ArgInfoBuilder<'_> {
                 ),
             ),
             (None, _, Some(info)) if typehint.is_nullable => {
-                self.scope.import_sys.extend(typehint.return_uses);
+                self.scope.sys.extend(typehint.return_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_INFO",
                     format!(
@@ -676,7 +612,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             (None, Some(mask), _) => {
-                self.scope.import_sys.extend(typehint.mask_uses);
+                self.scope.sys.extend(typehint.mask_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK",
                     format!(
@@ -686,7 +622,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             (Some(class), Some(mask), _) => {
-                self.scope.import_sys.extend(typehint.mask_uses);
+                self.scope.sys.extend(typehint.mask_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_OBJ_TYPE_INFO",
                     format!(
@@ -697,12 +633,8 @@ impl ArgInfoBuilder<'_> {
             }
             _ => return Err(format!("Unhandled return info: {return_info:?}")),
         };
-        self.scope
-            .import_sys
-            .insert("zend_internal_arg_info".to_owned());
-        self.scope
-            .import_macros_rs
-            .insert(fn_arginfo_macro.to_owned());
+        self.scope.add_import("rsphp_sys", "zend_internal_arg_info");
+        self.scope.add_import("rsphp_macros_rs", fn_arginfo_macro);
         Ok(format!(
             "/// Argument information for `{doc_name}()`.\
             \npub(crate) const {name_constant}: [zend_internal_arg_info; {}] = [\
@@ -739,8 +671,8 @@ impl ArgInfoBuilder<'_> {
 
     /// Generate code for a class property.
     fn build_property(&mut self, prop: &PropertyDecl) -> Result<String, String> {
-        self.scope.import_sys.insert("zval".to_owned());
-        self.scope.import_sys.insert("zend_class_entry".to_owned());
+        self.scope.add_import("rsphp_sys", "zval");
+        self.scope.add_import("rsphp_sys", "zend_class_entry");
         let prop_name = prop.name.as_ref().ok_or("Property name missing")?;
         let prop_default_create = format!(
             "{space}let mut property_{name}_default_value: zval = unsafe {{ std::mem::zeroed() }};",
@@ -779,14 +711,14 @@ impl ArgInfoBuilder<'_> {
                 kind: ExprKind::Identifier(ident),
                 span: _,
             }) if **ident == *"E_ERROR" => {
-                self.scope.import_sys.insert("E_ERROR".to_owned());
+                self.scope.add_import("rsphp_sys", "E_ERROR");
                 ("ZVAL_LONG", Some("E_ERROR".to_owned()), None)
             }
             Some(Expr {
                 kind: ExprKind::String(string),
                 span: _,
             }) => {
-                self.scope.import_sys.insert("zend_string_init".to_owned());
+                self.scope.add_import("rsphp_sys", "zend_string_init");
                 (
                     "ZVAL_INTERNED_STR",
                     Some(format!("property_{prop_name}_default_str")),
@@ -800,7 +732,7 @@ impl ArgInfoBuilder<'_> {
             }
             _ => return Err(format!("Unhandled property default: {prop:?}")),
         };
-        self.scope.import_macros_c.insert(init_macro.to_owned());
+        self.scope.add_import("rsphp_macros_c", init_macro);
         let prop_name_init = format!(
             "{space}let property_{name}_name: *mut zend_string = unsafe {{\
             \n{space}{space}zend_string_init(\
@@ -812,14 +744,14 @@ impl ArgInfoBuilder<'_> {
             name = prop_name,
             space = "    "
         );
-        self.scope.import_sys.insert("zend_string".to_owned());
-        self.scope.import_sys.insert("zend_string_init".to_owned());
+        self.scope.add_import("rsphp_sys", "zend_string");
+        self.scope.add_import("rsphp_sys", "zend_string_init");
         let vis = match prop.visibility {
             None | Some(Visibility::Public) => "ZEND_ACC_PUBLIC",
             Some(Visibility::Protected) => "ZEND_ACC_PROTECTED",
             Some(Visibility::Private) => "ZEND_ACC_PRIVATE",
         };
-        self.scope.import_sys.insert(vis.to_owned());
+        self.scope.add_import("rsphp_sys", vis);
         let (type_declaration, type_code) = match prop.type_hint.as_ref() {
             Some(type_hint) => {
                 ArgInfoTypeRepr::try_from(type_hint.kind.clone(), self.namespace.as_ref())?
@@ -852,11 +784,8 @@ impl ArgInfoBuilder<'_> {
             space = "    "
         );
         self.scope
-            .import_sys
-            .insert("zend_declare_typed_property".to_owned());
-        self.scope
-            .import_sys
-            .insert("zend_string_release".to_owned());
+            .add_import("rsphp_sys", "zend_declare_typed_property");
+        self.scope.add_import("rsphp_sys", "zend_string_release");
         let mut parts = vec![prop_default_create];
         match init_extra_code {
             None => (),
@@ -977,9 +906,7 @@ impl ArgInfoBuilder<'_> {
             registration_params.push(format!("{interface}: *mut zend_class_entry"));
         }
         if !method_verifications.is_empty() {
-            self.scope
-                .import_sys
-                .insert("zend_function_entry".to_owned());
+            self.scope.add_import("rsphp_sys", "zend_function_entry");
             registration_params.push("methods: &[zend_function_entry]".to_owned());
         }
         // Registration function
@@ -1025,11 +952,15 @@ impl ArgInfoBuilder<'_> {
         let flags_in_verification = VerificationData::get_all_flags(&method_verifications);
         match self.verification {
             VerificationMode::Never => (),
-            VerificationMode::Always => {
-                self.scope.import_sys.extend(flags_in_verification);
+            VerificationMode::Always =>
+            {
+                #[expect(clippy::iter_over_hash_type, reason = "Order does not matter")]
+                for flag in flags_in_verification {
+                    self.scope.add_import("rsphp_sys", flag);
+                }
             }
             VerificationMode::DebugAssert => {
-                let extra_flags_in_verification = &flags_in_verification - &self.scope.import_sys;
+                let extra_flags_in_verification = &flags_in_verification - &self.scope.sys;
                 if let Some(extra_use) =
                     ImportsUsed::as_use_single(&extra_flags_in_verification, "rsphp_sys")
                 {
@@ -1092,13 +1023,11 @@ impl ArgInfoBuilder<'_> {
                     "message" => "_zend_known_string_id::ZEND_STR_MESSAGE",
                     _ => return Err(format!("Unhandled attribute parameter name: {name}")),
                 };
-                self.scope
-                    .import_sys
-                    .insert("_zend_known_string_id".to_owned());
+                self.scope.add_import("rsphp_sys", "_zend_known_string_id");
                 let init = format!(
                     "(*(*attrib).args.as_mut_ptr().add({index})).name = ZSTR_KNOWN!({known_name});",
                 );
-                self.scope.import_macros_c.insert("ZSTR_KNOWN".to_owned());
+                self.scope.add_import("rsphp_macros_c", "ZSTR_KNOWN");
                 param_init.push(init);
             }
             match &arg
@@ -1112,13 +1041,13 @@ impl ArgInfoBuilder<'_> {
                         "let arg_{index}_value = zend_string_init(c\"{string}\".as_ptr(), \
                             \"{string}\".len(), true);",
                     );
-                    self.scope.import_sys.insert("zend_string_init".to_owned());
+                    self.scope.add_import("rsphp_sys", "zend_string_init");
                     param_init.push(alloc);
                     let param_use = format!(
                         "ZVAL_STR!(std::ptr::from_mut::<zval>(&mut (*(*attrib).args.as_mut_ptr().add({index})).value), arg_{index}_value);",
                     );
-                    self.scope.import_sys.insert("zval".to_owned());
-                    self.scope.import_macros_c.insert("ZVAL_STR".to_owned());
+                    self.scope.add_import("rsphp_sys", "zval");
+                    self.scope.add_import("rsphp_macros_c", "ZVAL_STR");
                     param_init.push(param_use);
                 }
                 _ => return Err(format!("Unhandled attribute value: {arg:#?}")),
@@ -1131,11 +1060,9 @@ impl ArgInfoBuilder<'_> {
         #[expect(clippy::single_match_else, reason = "Clearer as a match")]
         let (name_alloc, name_use, name_free) = match attrib_name.as_str() {
             "Deprecated" => {
-                self.scope.import_macros_c.insert("ZSTR_LEN".to_owned());
-                self.scope.import_macros_c.insert("ZSTR_KNOWN".to_owned());
-                self.scope
-                    .import_sys
-                    .insert("_zend_known_string_id".to_owned());
+                self.scope.add_import("rsphp_macros_c", "ZSTR_LEN");
+                self.scope.add_import("rsphp_macros_c", "ZSTR_KNOWN");
+                self.scope.add_import("rsphp_sys", "_zend_known_string_id");
                 (
                     "\n        assert_eq!(10, ZSTR_LEN!(ZSTR_KNOWN!(_zend_known_string_id::ZEND_STR_DEPRECATED_CAPITALIZED)));".to_owned(),
                     "ZSTR_KNOWN!(_zend_known_string_id::ZEND_STR_DEPRECATED_CAPITALIZED)".to_owned(),
@@ -1143,13 +1070,10 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             _ => {
-                self.scope.import_sys.insert("zend_string".to_owned());
+                self.scope.add_import("rsphp_sys", "zend_string");
                 self.scope
-                    .import_sys
-                    .insert("zend_string_init_interned".to_owned());
-                self.scope
-                    .import_sys
-                    .insert("zend_string_release_ex".to_owned());
+                    .add_import("rsphp_sys", "zend_string_init_interned");
+                self.scope.add_import("rsphp_sys", "zend_string_release_ex");
                 (
                     format!(
                         "\n{space}{space}let attrib_name: *mut zend_string = (zend_string_init_interned.expect(\"zend_string_init_interned should be set\"))(\
@@ -1164,15 +1088,12 @@ impl ArgInfoBuilder<'_> {
                 )
             }
         };
-        self.scope.import_sys.insert("zend_function".to_owned());
+        self.scope.add_import("rsphp_sys", "zend_function");
+        self.scope.add_import("rsphp_sys", "zend_hash_str_find_ptr");
+        self.scope.add_import("rsphp_sys", "HashTable");
+        self.scope.add_import("rsphp_sys", "zend_attribute");
         self.scope
-            .import_sys
-            .insert("zend_hash_str_find_ptr".to_owned());
-        self.scope.import_sys.insert("HashTable".to_owned());
-        self.scope.import_sys.insert("zend_attribute".to_owned());
-        self.scope
-            .import_sys
-            .insert("zend_add_function_attribute".to_owned());
+            .add_import("rsphp_sys", "zend_add_function_attribute");
         Ok(format!(
             "{space}unsafe {{\
             \n{space}{space}let fn_ptr: *mut zend_function = zend_hash_str_find_ptr(\
@@ -1209,7 +1130,7 @@ impl ArgInfoBuilder<'_> {
             Some(Visibility::Protected) => "ZEND_ACC_PROTECTED",
             Some(Visibility::Private) => "ZEND_ACC_PRIVATE",
         };
-        self.scope.import_sys.insert(vis.to_owned());
+        self.scope.add_import("rsphp_sys", vis);
         let type_repr = ArgInfoTypeRepr::try_from(
             constant.type_hint.as_ref().map_or_else(
                 || {
@@ -1240,11 +1161,11 @@ impl ArgInfoBuilder<'_> {
         )?;
         let init_code = match &constant.value.kind {
             ExprKind::Int(num) => {
-                self.scope.import_macros_c.insert("ZVAL_LONG".to_owned());
+                self.scope.add_import("rsphp_macros_c", "ZVAL_LONG");
                 format!("ZVAL_LONG!(&mut value, {num});")
             }
             ExprKind::Null => {
-                self.scope.import_macros_c.insert("ZVAL_NULL".to_owned());
+                self.scope.add_import("rsphp_macros_c", "ZVAL_NULL");
                 "ZVAL_NULL!(&mut value);".to_owned()
             }
             ExprKind::Identifier(ident) if *ident == "UNKNOWN".into() => {
@@ -1264,23 +1185,23 @@ impl ArgInfoBuilder<'_> {
                     .to_owned();
                 // Might not be something defined in core
                 if cvalue_val.starts_with("ZEND_") || cvalue_val.starts_with("PHP_") {
-                    self.scope.import_sys.insert(cvalue_val.clone());
+                    self.scope.add_import("rsphp_sys", cvalue_val.clone());
                 } else {
                     cvalue_val = "crate::".to_owned() + &cvalue_val;
                 }
                 match type_repr {
                     ArgInfoTypeRepr::Builtin(BuiltinType::Int) => {
-                        self.scope.import_macros_c.insert("ZVAL_LONG".to_owned());
+                        self.scope.add_import("rsphp_macros_c", "ZVAL_LONG");
                         format!("ZVAL_LONG!(&mut value, {cvalue_val} as i64);")
                     }
                     ArgInfoTypeRepr::Builtin(BuiltinType::Float) => {
-                        self.scope.import_macros_c.insert("ZVAL_DOUBLE".to_owned());
+                        self.scope.add_import("rsphp_macros_c", "ZVAL_DOUBLE");
                         format!("ZVAL_DOUBLE!(&mut value, {cvalue_val} as f64);")
                     }
                     ArgInfoTypeRepr::Builtin(BuiltinType::String) => {
-                        self.scope.import_sys.insert("zend_string".to_owned());
-                        self.scope.import_sys.insert("zend_string_init".to_owned());
-                        self.scope.import_macros_c.insert("ZVAL_STR".to_owned());
+                        self.scope.add_import("rsphp_sys", "zend_string");
+                        self.scope.add_import("rsphp_sys", "zend_string_init");
+                        self.scope.add_import("rsphp_macros_c", "ZVAL_STR");
                         format!(
                             "let value_str: *mut zend_string = zend_string_init(\
                             \n{space3}{cvalue_val}.as_ptr().cast::<std::ffi::c_char>(),\
@@ -1300,17 +1221,13 @@ impl ArgInfoBuilder<'_> {
             }
             _ => return Err(format!("Unhandled constant initialization: {constant:#?}")),
         };
-        self.scope.import_sys.insert("zval".to_owned());
-        self.scope.import_sys.insert("zend_string".to_owned());
+        self.scope.add_import("rsphp_sys", "zval");
+        self.scope.add_import("rsphp_sys", "zend_string");
         self.scope
-            .import_sys
-            .insert("zend_string_init_interned".to_owned());
+            .add_import("rsphp_sys", "zend_string_init_interned");
         self.scope
-            .import_sys
-            .insert("zend_declare_typed_class_constant".to_owned());
-        self.scope
-            .import_sys
-            .insert("zend_string_release_ex".to_owned());
+            .add_import("rsphp_sys", "zend_declare_typed_class_constant");
+        self.scope.add_import("rsphp_sys", "zend_string_release_ex");
         Ok(format!(
             "{space}unsafe {{\
             \n{space}{space}let mut value: zval = std::mem::zeroed();\
@@ -1383,9 +1300,9 @@ impl ArgInfoBuilder<'_> {
                     })
                     .collect::<Result<Vec<_>, _>>()?;
                 for flag in &flags {
-                    self.scope.import_sys.insert(flag.to_string());
+                    self.scope.add_import("rsphp_sys", *flag);
                 }
-                self.scope.import_macros_c.insert("ZVAL_LONG".to_owned());
+                self.scope.add_import("rsphp_macros_c", "ZVAL_LONG");
                 let init = format!(
                     "ZVAL_LONG!(&mut (*attrib).args[{index}].value, {flags} as i64);",
                     flags = flags.join("|")
@@ -1395,17 +1312,13 @@ impl ArgInfoBuilder<'_> {
                 return Err(format!("Unsupported class attribute: {attrib:?}"));
             }
         }
-        self.scope.import_sys.insert("zend_string".to_owned());
+        self.scope.add_import("rsphp_sys", "zend_string");
         self.scope
-            .import_sys
-            .insert("zend_string_init_interned".to_owned());
-        self.scope.import_sys.insert("zend_attribute".to_owned());
+            .add_import("rsphp_sys", "zend_string_init_interned");
+        self.scope.add_import("rsphp_sys", "zend_attribute");
         self.scope
-            .import_sys
-            .insert("zend_add_class_attribute".to_owned());
-        self.scope
-            .import_sys
-            .insert("zend_string_release_ex".to_owned());
+            .add_import("rsphp_sys", "zend_add_class_attribute");
+        self.scope.add_import("rsphp_sys", "zend_string_release_ex");
         Ok(format!(
             "{space}unsafe {{\
             \n{space}{space}let name: *mut zend_string = (zend_string_init_interned.expect(\"zend_string_init_interned should be set\"))(\
@@ -1443,13 +1356,12 @@ impl ArgInfoBuilder<'_> {
             }
             return match &value.kind {
                 ExprKind::String(string) => {
-                    self.scope.import_sys.insert("zval".to_owned());
-                    self.scope.import_sys.insert("zend_string".to_owned());
-                    self.scope.import_sys.insert("zend_string_init".to_owned());
+                    self.scope.add_import("rsphp_sys", "zval");
+                    self.scope.add_import("rsphp_sys", "zend_string");
+                    self.scope.add_import("rsphp_sys", "zend_string_init");
                     self.scope
-                        .import_sys
-                        .insert("zend_enum_add_case_cstr".to_owned());
-                    self.scope.import_macros_c.insert("ZVAL_STR".to_owned());
+                        .add_import("rsphp_sys", "zend_enum_add_case_cstr");
+                    self.scope.add_import("rsphp_macros_c", "ZVAL_STR");
                     Ok(format!(
                         "{space}{{\
                         \n{space3}let mut value: zval = std::mem::zeroed();\
@@ -1468,11 +1380,10 @@ impl ArgInfoBuilder<'_> {
                     ))
                 }
                 ExprKind::Int(num) => {
-                    self.scope.import_sys.insert("zval".to_owned());
+                    self.scope.add_import("rsphp_sys", "zval");
                     self.scope
-                        .import_sys
-                        .insert("zend_enum_add_case_cstr".to_owned());
-                    self.scope.import_macros_c.insert("ZVAL_LONG".to_owned());
+                        .add_import("rsphp_sys", "zend_enum_add_case_cstr");
+                    self.scope.add_import("rsphp_macros_c", "ZVAL_LONG");
                     Ok(format!(
                         "{space}{{\
                         \n{space3}let mut value: zval = std::mem::zeroed();\
@@ -1489,8 +1400,7 @@ impl ArgInfoBuilder<'_> {
             };
         }
         self.scope
-            .import_sys
-            .insert("zend_enum_add_case_cstr".to_owned());
+            .add_import("rsphp_sys", "zend_enum_add_case_cstr");
         Ok(format!(
             "{space}zend_enum_add_case_cstr(class_entry, c\"{name}\".as_ptr(), std::ptr::null_mut());",
             name = case_name,
@@ -1507,18 +1417,16 @@ impl ArgInfoBuilder<'_> {
             match self.verification {
                 VerificationMode::Never => (),
                 VerificationMode::Always => {
-                    self.scope.import_sys.extend(
-                        verification_imports
-                            .iter()
-                            .map(|import| (*import).to_owned()),
-                    );
+                    for import in verification_imports {
+                        self.scope.add_import("rsphp_sys", *import);
+                    }
                 }
                 VerificationMode::DebugAssert => {
                     let extra_verification_imports = &verification_imports
                         .iter()
                         .map(|import| (*import).to_owned())
                         .collect::<HashSet<_>>()
-                        - &self.scope.import_sys;
+                        - &self.scope.sys;
                     if let Some(extra_use) =
                         ImportsUsed::as_use_single(&extra_verification_imports, "rsphp_sys")
                     {
