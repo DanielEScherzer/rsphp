@@ -29,34 +29,11 @@ mod ini_demo;
 use ini_demo::{class_ini_demo_methods, ini_demo_ptr};
 
 #[rustfmt::skip]
-#[cfg_attr(
-    not(test),
-    expect(
-        clippy::wildcard_imports,
-        reason = "rust-lang/rust-clippy#13186"
-    )
-)]
 #[expect(clippy::cast_possible_wrap)]
 mod rustdemo_arginfo;
 #[rustfmt::skip]
-#[cfg_attr(
-    not(test),
-    expect(
-        clippy::wildcard_imports,
-        reason = "rust-lang/rust-clippy#13186"
-    )
-)]
-#[expect(unused_imports)]
 mod opaquedata_arginfo;
 #[rustfmt::skip]
-#[cfg_attr(
-    not(test),
-    expect(
-        clippy::wildcard_imports,
-        reason = "rust-lang/rust-clippy#13186"
-    )
-)]
-#[expect(unused)]
 mod ini_demo_arginfo;
 
 extern "C" fn my_module_info(entry: *mut zend_module_entry) {
