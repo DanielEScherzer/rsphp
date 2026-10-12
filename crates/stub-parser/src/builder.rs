@@ -396,8 +396,9 @@ pub(crate) struct ArgInfoBuilder<'program> {
     /// then there is nothing to verify and the verification code doesn't need
     /// to be added.
     needs_verification: bool,
-    /// File-level imports used.
-    file_uses: ImportsUsed,
+    /// Imports used in the current level - replace this while in a different
+    /// scope.
+    scope: ImportsUsed,
 }
 
 impl<'program> ArgInfoBuilder<'program> {
@@ -410,16 +411,11 @@ impl<'program> ArgInfoBuilder<'program> {
             namespace: None,
             verification,
             needs_verification: false,
-            file_uses: ImportsUsed::new(),
+            scope: ImportsUsed::new(),
         }
     }
 }
 
-#[expect(
-    clippy::unused_self,
-    clippy::needless_pass_by_ref_mut,
-    reason = "Non-wildcard imports not set up yet"
-)]
 #[expect(
     unused_results,
     reason = "HashSet used to prevent duplication, just need to include the import"
@@ -440,12 +436,23 @@ impl ArgInfoBuilder<'_> {
         for stmt in statements {
             match &stmt.kind {
                 StmtKind::Function(function) => self.function(function.as_ref())?,
-                StmtKind::Class(class) => self.class_like(&ClassLikeType::Class(*class.clone()))?,
+                StmtKind::Class(class) => {
+                    let old_scope = std::mem::take(&mut self.scope);
+                    let result = self.class_like(&ClassLikeType::Class(*class.clone()));
+                    self.scope = old_scope;
+                    result?;
+                }
                 StmtKind::Enum(php_enum) => {
-                    self.class_like(&ClassLikeType::PhpEnum(*php_enum.clone()))?;
+                    let old_scope = std::mem::take(&mut self.scope);
+                    let result = self.class_like(&ClassLikeType::PhpEnum(*php_enum.clone()));
+                    self.scope = old_scope;
+                    result?;
                 }
                 StmtKind::Interface(interface) => {
-                    self.class_like(&ClassLikeType::Interface(*interface.clone()))?;
+                    let old_scope = std::mem::take(&mut self.scope);
+                    let result = self.class_like(&ClassLikeType::Interface(*interface.clone()));
+                    self.scope = old_scope;
+                    result?;
                 }
                 StmtKind::Namespace(namespace) => self.namespace(namespace.as_ref())?,
                 _ => (),
@@ -479,7 +486,7 @@ impl ArgInfoBuilder<'_> {
         Ok(())
     }
     /// Generate code for a function parameter.
-    fn param(&self, scope: &mut ImportsUsed, param: &Param) -> Result<String, String> {
+    fn param(&mut self, param: &Param) -> Result<String, String> {
         let by_ref = u8::from(param.by_ref);
         let param_type_info_opt = param.type_hint.as_ref().map(|type_hint| {
             ArgInfoTypeRepr::try_from(type_hint.kind.clone(), self.namespace.as_ref())
@@ -519,7 +526,7 @@ impl ArgInfoBuilder<'_> {
                     format!("({by_ref}, \"{name}\", \"{dflt}\")"),
                 ),
             };
-            scope.import_macros_c.insert(macro_name.clone());
+            self.scope.import_macros_c.insert(macro_name.clone());
             return Ok(format!("    {macro_name}!{macro_args},\n"));
         };
         let (macro_name, macro_args) = match (
@@ -536,13 +543,13 @@ impl ArgInfoBuilder<'_> {
             }
             ((None, Some(param_mask), param_info, nullable), None) => {
                 if param_mask.contains('|') {
-                    scope.import_sys.extend(param_type_info.mask_uses);
+                    self.scope.import_sys.extend(param_type_info.mask_uses);
                     (
                         "ZEND_ARG_TYPE_MASK".to_owned(),
                         format!("({by_ref}, \"{name}\", {param_mask}, std::ptr::null())"),
                     )
                 } else {
-                    scope.import_sys.extend(param_type_info.return_uses);
+                    self.scope.import_sys.extend(param_type_info.return_uses);
                     (
                         format!("ZEND_ARG_{maybe_variadic}TYPE_INFO"),
                         format!(
@@ -561,7 +568,7 @@ impl ArgInfoBuilder<'_> {
                 ),
             ),
             ((Some(param_class), Some(param_mask), _, _), dflt) => {
-                scope.import_sys.extend(param_type_info.mask_uses);
+                self.scope.import_sys.extend(param_type_info.mask_uses);
                 (
                     format!("ZEND_ARG_{maybe_variadic}OBJ_TYPE_MASK"),
                     format!(
@@ -574,7 +581,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             ((None, _, Some(param_info), nullable), Some(dflt)) => {
-                scope.import_sys.extend(param_type_info.return_uses);
+                self.scope.import_sys.extend(param_type_info.return_uses);
                 (
                     "ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE".to_owned(),
                     format!(
@@ -592,15 +599,13 @@ impl ArgInfoBuilder<'_> {
             ),
             _ => return Err(format!("Unhandled parameter: {param:?}")),
         };
-        scope.import_macros_c.insert(macro_name.clone());
+        self.scope.import_macros_c.insert(macro_name.clone());
         Ok(format!("    {macro_name}!{macro_args},\n"))
     }
 
     /// Generate code for a global function or class method.
-    #[expect(clippy::too_many_arguments, reason = "To be refactored")]
     fn build_function(
-        &self,
-        scope: &mut ImportsUsed,
+        &mut self,
         params: &[Param],
         comment_opt: Option<&Comment>,
         name_constant: &str,
@@ -616,12 +621,14 @@ impl ArgInfoBuilder<'_> {
         }
         let param_code: Vec<String> = params
             .iter()
-            .map(|parameter| self.param(scope, parameter))
+            .map(|parameter| self.param(parameter))
             .collect::<Result<Vec<_>, _>>()?;
         let return_reference_int: u8 = u8::from(return_reference);
         let Some(return_info) = return_type else {
-            scope.import_sys.insert("zend_internal_arg_info".to_owned());
-            scope
+            self.scope
+                .import_sys
+                .insert("zend_internal_arg_info".to_owned());
+            self.scope
                 .import_macros_rs
                 .insert("ZEND_ARG_INFO_FOR_FUNCTION".to_owned());
             return Ok(format!(
@@ -659,7 +666,7 @@ impl ArgInfoBuilder<'_> {
                 ),
             ),
             (None, _, Some(info)) if typehint.is_nullable => {
-                scope.import_sys.extend(typehint.return_uses);
+                self.scope.import_sys.extend(typehint.return_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_INFO",
                     format!(
@@ -669,7 +676,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             (None, Some(mask), _) => {
-                scope.import_sys.extend(typehint.mask_uses);
+                self.scope.import_sys.extend(typehint.mask_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK",
                     format!(
@@ -679,7 +686,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             (Some(class), Some(mask), _) => {
-                scope.import_sys.extend(typehint.mask_uses);
+                self.scope.import_sys.extend(typehint.mask_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_OBJ_TYPE_INFO",
                     format!(
@@ -690,8 +697,12 @@ impl ArgInfoBuilder<'_> {
             }
             _ => return Err(format!("Unhandled return info: {return_info:?}")),
         };
-        scope.import_sys.insert("zend_internal_arg_info".to_owned());
-        scope.import_macros_rs.insert(fn_arginfo_macro.to_owned());
+        self.scope
+            .import_sys
+            .insert("zend_internal_arg_info".to_owned());
+        self.scope
+            .import_macros_rs
+            .insert(fn_arginfo_macro.to_owned());
         Ok(format!(
             "/// Argument information for `{doc_name}()`.\
             \npub(crate) const {name_constant}: [zend_internal_arg_info; {}] = [\
@@ -714,10 +725,7 @@ impl ArgInfoBuilder<'_> {
             Some(ns) => format!("{ns}\\{fn_name}"),
             None => fn_name.to_string(),
         };
-        // Can't borrow from self.file_uses as mutable while calling a function
-        let mut file_uses = std::mem::take(&mut self.file_uses);
         let fn_result = self.build_function(
-            &mut file_uses,
             &func.params,
             func.doc_comment.as_ref(),
             &format!("ARGINFO_{ns_segment}{}", fn_name.to_uppercase()),
@@ -725,19 +733,14 @@ impl ArgInfoBuilder<'_> {
             func.return_type.as_ref(),
             &doc_name,
         );
-        self.file_uses = file_uses;
         self.parts.push(fn_result?);
         Ok(())
     }
 
     /// Generate code for a class property.
-    fn build_property(
-        &self,
-        scope: &mut ImportsUsed,
-        prop: &PropertyDecl,
-    ) -> Result<String, String> {
-        scope.import_sys.insert("zval".to_owned());
-        scope.import_sys.insert("zend_class_entry".to_owned());
+    fn build_property(&mut self, prop: &PropertyDecl) -> Result<String, String> {
+        self.scope.import_sys.insert("zval".to_owned());
+        self.scope.import_sys.insert("zend_class_entry".to_owned());
         let prop_name = prop.name.as_ref().ok_or("Property name missing")?;
         let prop_default_create = format!(
             "{space}let mut property_{name}_default_value: zval = unsafe {{ std::mem::zeroed() }};",
@@ -776,14 +779,14 @@ impl ArgInfoBuilder<'_> {
                 kind: ExprKind::Identifier(ident),
                 span: _,
             }) if **ident == *"E_ERROR" => {
-                scope.import_sys.insert("E_ERROR".to_owned());
+                self.scope.import_sys.insert("E_ERROR".to_owned());
                 ("ZVAL_LONG", Some("E_ERROR".to_owned()), None)
             }
             Some(Expr {
                 kind: ExprKind::String(string),
                 span: _,
             }) => {
-                scope.import_sys.insert("zend_string_init".to_owned());
+                self.scope.import_sys.insert("zend_string_init".to_owned());
                 (
                     "ZVAL_INTERNED_STR",
                     Some(format!("property_{prop_name}_default_str")),
@@ -797,7 +800,7 @@ impl ArgInfoBuilder<'_> {
             }
             _ => return Err(format!("Unhandled property default: {prop:?}")),
         };
-        scope.import_macros_c.insert(init_macro.to_owned());
+        self.scope.import_macros_c.insert(init_macro.to_owned());
         let prop_name_init = format!(
             "{space}let property_{name}_name: *mut zend_string = unsafe {{\
             \n{space}{space}zend_string_init(\
@@ -809,18 +812,18 @@ impl ArgInfoBuilder<'_> {
             name = prop_name,
             space = "    "
         );
-        scope.import_sys.insert("zend_string".to_owned());
-        scope.import_sys.insert("zend_string_init".to_owned());
+        self.scope.import_sys.insert("zend_string".to_owned());
+        self.scope.import_sys.insert("zend_string_init".to_owned());
         let vis = match prop.visibility {
             None | Some(Visibility::Public) => "ZEND_ACC_PUBLIC",
             Some(Visibility::Protected) => "ZEND_ACC_PROTECTED",
             Some(Visibility::Private) => "ZEND_ACC_PRIVATE",
         };
-        scope.import_sys.insert(vis.to_owned());
+        self.scope.import_sys.insert(vis.to_owned());
         let (type_declaration, type_code) = match prop.type_hint.as_ref() {
             Some(type_hint) => {
                 ArgInfoTypeRepr::try_from(type_hint.kind.clone(), self.namespace.as_ref())?
-                    .property_type_code(scope, self.namespace.as_ref(), prop_name)?
+                    .property_type_code(&mut self.scope, self.namespace.as_ref(), prop_name)?
             }
             None => (None, "ZEND_TYPE_INIT_NONE!(0)".to_owned()),
         };
@@ -848,10 +851,12 @@ impl ArgInfoBuilder<'_> {
             name = prop_name,
             space = "    "
         );
-        scope
+        self.scope
             .import_sys
             .insert("zend_declare_typed_property".to_owned());
-        scope.import_sys.insert("zend_string_release".to_owned());
+        self.scope
+            .import_sys
+            .insert("zend_string_release".to_owned());
         let mut parts = vec![prop_default_create];
         match init_extra_code {
             None => (),
@@ -875,7 +880,6 @@ impl ArgInfoBuilder<'_> {
 
     /// Generate code for a class, enum, or interface declaration.
     fn class_like(&mut self, wrapped: &ClassLikeType) -> Result<(), String> {
-        let mut scope = ImportsUsed::new();
         let class_name = wrapped.name();
         let mut properties = vec![];
         let mut constants = vec![];
@@ -901,7 +905,6 @@ impl ArgInfoBuilder<'_> {
                     let fn_name = method.name.as_ref().expect("No errors");
                     let name_constant = format!("ARGINFO_{}", fn_name.to_uppercase());
                     module_parts.push(self.build_function(
-                        &mut scope,
                         &method.params,
                         method.doc_comment.as_ref(),
                         &name_constant,
@@ -919,7 +922,6 @@ impl ArgInfoBuilder<'_> {
                     );
                     for attrib in &method.attributes {
                         attribute_setup.push(self.build_method_attribute(
-                            &mut scope,
                             fn_name,
                             attrib,
                             &mut verification,
@@ -929,17 +931,13 @@ impl ArgInfoBuilder<'_> {
                     self.needs_verification = true;
                 }
                 ClassLikeMember::Property(property) => {
-                    properties.push(self.build_property(&mut scope, &property)?);
+                    properties.push(self.build_property(&property)?);
                 }
                 ClassLikeMember::ClassConst(class_const) => {
-                    constants.push(self.build_constant(&mut scope, &class_const)?);
+                    constants.push(self.build_constant(&class_const)?);
                 }
                 ClassLikeMember::EnumCase(enum_case) => {
-                    enum_cases.push(self.build_case(
-                        &mut scope,
-                        &enum_case,
-                        enum_backing.as_ref(),
-                    )?);
+                    enum_cases.push(self.build_case(&enum_case, enum_backing.as_ref())?);
                 }
             }
         }
@@ -947,7 +945,7 @@ impl ArgInfoBuilder<'_> {
         let mut class_attributes = wrapped
             .attributes()
             .iter()
-            .map(|attribute| self.class_attribute(&mut scope, attribute))
+            .map(|attribute| self.class_attribute(attribute))
             .collect::<Result<Vec<_>, _>>()?;
         class_attributes.extend(attribute_setup);
         let class_attributes_str = if class_attributes.is_empty() {
@@ -979,7 +977,9 @@ impl ArgInfoBuilder<'_> {
             registration_params.push(format!("{interface}: *mut zend_class_entry"));
         }
         if !method_verifications.is_empty() {
-            scope.import_sys.insert("zend_function_entry".to_owned());
+            self.scope
+                .import_sys
+                .insert("zend_function_entry".to_owned());
             registration_params.push("methods: &[zend_function_entry]".to_owned());
         }
         // Registration function
@@ -1010,7 +1010,7 @@ impl ArgInfoBuilder<'_> {
             methods_param = registration_params.join(", "),
             module_parts = module_parts.join("\n"),
             init_and_register_code = wrapped.init_and_register_code(
-                &mut scope,
+                &mut self.scope,
                 self.namespace.as_ref(),
                 method_verifications.len(),
                 self.program
@@ -1026,10 +1026,10 @@ impl ArgInfoBuilder<'_> {
         match self.verification {
             VerificationMode::Never => (),
             VerificationMode::Always => {
-                scope.import_sys.extend(flags_in_verification);
+                self.scope.import_sys.extend(flags_in_verification);
             }
             VerificationMode::DebugAssert => {
-                let extra_flags_in_verification = &flags_in_verification - &scope.import_sys;
+                let extra_flags_in_verification = &flags_in_verification - &self.scope.import_sys;
                 if let Some(extra_use) =
                     ImportsUsed::as_use_single(&extra_flags_in_verification, "rsphp_sys")
                 {
@@ -1038,7 +1038,7 @@ impl ArgInfoBuilder<'_> {
                 }
             }
         }
-        module_content = scope.as_uses() + &module_content;
+        module_content = self.scope.as_uses() + &module_content;
         let module_content_indented = module_content
             .split('\n')
             .map(|line| {
@@ -1067,8 +1067,7 @@ impl ArgInfoBuilder<'_> {
 
     /// Generate code for registering an attribute on a class method.
     fn build_method_attribute(
-        &self,
-        scope: &mut ImportsUsed,
+        &mut self,
         name: &str,
         attrib: &Attribute,
         verification: &mut VerificationData,
@@ -1093,11 +1092,13 @@ impl ArgInfoBuilder<'_> {
                     "message" => "_zend_known_string_id::ZEND_STR_MESSAGE",
                     _ => return Err(format!("Unhandled attribute parameter name: {name}")),
                 };
-                scope.import_sys.insert("_zend_known_string_id".to_owned());
+                self.scope
+                    .import_sys
+                    .insert("_zend_known_string_id".to_owned());
                 let init = format!(
                     "(*(*attrib).args.as_mut_ptr().add({index})).name = ZSTR_KNOWN!({known_name});",
                 );
-                scope.import_macros_c.insert("ZSTR_KNOWN".to_owned());
+                self.scope.import_macros_c.insert("ZSTR_KNOWN".to_owned());
                 param_init.push(init);
             }
             match &arg
@@ -1111,13 +1112,13 @@ impl ArgInfoBuilder<'_> {
                         "let arg_{index}_value = zend_string_init(c\"{string}\".as_ptr(), \
                             \"{string}\".len(), true);",
                     );
-                    scope.import_sys.insert("zend_string_init".to_owned());
+                    self.scope.import_sys.insert("zend_string_init".to_owned());
                     param_init.push(alloc);
                     let param_use = format!(
                         "ZVAL_STR!(std::ptr::from_mut::<zval>(&mut (*(*attrib).args.as_mut_ptr().add({index})).value), arg_{index}_value);",
                     );
-                    scope.import_sys.insert("zval".to_owned());
-                    scope.import_macros_c.insert("ZVAL_STR".to_owned());
+                    self.scope.import_sys.insert("zval".to_owned());
+                    self.scope.import_macros_c.insert("ZVAL_STR".to_owned());
                     param_init.push(param_use);
                 }
                 _ => return Err(format!("Unhandled attribute value: {arg:#?}")),
@@ -1130,9 +1131,11 @@ impl ArgInfoBuilder<'_> {
         #[expect(clippy::single_match_else, reason = "Clearer as a match")]
         let (name_alloc, name_use, name_free) = match attrib_name.as_str() {
             "Deprecated" => {
-                scope.import_macros_c.insert("ZSTR_LEN".to_owned());
-                scope.import_macros_c.insert("ZSTR_KNOWN".to_owned());
-                scope.import_sys.insert("_zend_known_string_id".to_owned());
+                self.scope.import_macros_c.insert("ZSTR_LEN".to_owned());
+                self.scope.import_macros_c.insert("ZSTR_KNOWN".to_owned());
+                self.scope
+                    .import_sys
+                    .insert("_zend_known_string_id".to_owned());
                 (
                     "\n        assert_eq!(10, ZSTR_LEN!(ZSTR_KNOWN!(_zend_known_string_id::ZEND_STR_DEPRECATED_CAPITALIZED)));".to_owned(),
                     "ZSTR_KNOWN!(_zend_known_string_id::ZEND_STR_DEPRECATED_CAPITALIZED)".to_owned(),
@@ -1140,11 +1143,13 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             _ => {
-                scope.import_sys.insert("zend_string".to_owned());
-                scope
+                self.scope.import_sys.insert("zend_string".to_owned());
+                self.scope
                     .import_sys
                     .insert("zend_string_init_interned".to_owned());
-                scope.import_sys.insert("zend_string_release_ex".to_owned());
+                self.scope
+                    .import_sys
+                    .insert("zend_string_release_ex".to_owned());
                 (
                     format!(
                         "\n{space}{space}let attrib_name: *mut zend_string = (zend_string_init_interned.expect(\"zend_string_init_interned should be set\"))(\
@@ -1159,11 +1164,13 @@ impl ArgInfoBuilder<'_> {
                 )
             }
         };
-        scope.import_sys.insert("zend_function".to_owned());
-        scope.import_sys.insert("zend_hash_str_find_ptr".to_owned());
-        scope.import_sys.insert("HashTable".to_owned());
-        scope.import_sys.insert("zend_attribute".to_owned());
-        scope
+        self.scope.import_sys.insert("zend_function".to_owned());
+        self.scope
+            .import_sys
+            .insert("zend_hash_str_find_ptr".to_owned());
+        self.scope.import_sys.insert("HashTable".to_owned());
+        self.scope.import_sys.insert("zend_attribute".to_owned());
+        self.scope
             .import_sys
             .insert("zend_add_function_attribute".to_owned());
         Ok(format!(
@@ -1192,11 +1199,7 @@ impl ArgInfoBuilder<'_> {
     }
 
     /// Generate code for registering a class constant.
-    fn build_constant(
-        &self,
-        scope: &mut ImportsUsed,
-        constant: &ClassConstDecl,
-    ) -> Result<String, String> {
+    fn build_constant(&mut self, constant: &ClassConstDecl) -> Result<String, String> {
         let constant_name = constant
             .name
             .as_ref()
@@ -1206,7 +1209,7 @@ impl ArgInfoBuilder<'_> {
             Some(Visibility::Protected) => "ZEND_ACC_PROTECTED",
             Some(Visibility::Private) => "ZEND_ACC_PRIVATE",
         };
-        scope.import_sys.insert(vis.to_owned());
+        self.scope.import_sys.insert(vis.to_owned());
         let type_repr = ArgInfoTypeRepr::try_from(
             constant.type_hint.as_ref().map_or_else(
                 || {
@@ -1230,15 +1233,18 @@ impl ArgInfoBuilder<'_> {
             )?,
             self.namespace.as_ref(),
         )?;
-        let (_type_declaration, type_code) =
-            type_repr.property_type_code(scope, self.namespace.as_ref(), constant_name)?;
+        let (_type_declaration, type_code) = type_repr.property_type_code(
+            &mut self.scope,
+            self.namespace.as_ref(),
+            constant_name,
+        )?;
         let init_code = match &constant.value.kind {
             ExprKind::Int(num) => {
-                scope.import_macros_c.insert("ZVAL_LONG".to_owned());
+                self.scope.import_macros_c.insert("ZVAL_LONG".to_owned());
                 format!("ZVAL_LONG!(&mut value, {num});")
             }
             ExprKind::Null => {
-                scope.import_macros_c.insert("ZVAL_NULL".to_owned());
+                self.scope.import_macros_c.insert("ZVAL_NULL".to_owned());
                 "ZVAL_NULL!(&mut value);".to_owned()
             }
             ExprKind::Identifier(ident) if *ident == "UNKNOWN".into() => {
@@ -1258,23 +1264,23 @@ impl ArgInfoBuilder<'_> {
                     .to_owned();
                 // Might not be something defined in core
                 if cvalue_val.starts_with("ZEND_") || cvalue_val.starts_with("PHP_") {
-                    scope.import_sys.insert(cvalue_val.clone());
+                    self.scope.import_sys.insert(cvalue_val.clone());
                 } else {
                     cvalue_val = "crate::".to_owned() + &cvalue_val;
                 }
                 match type_repr {
                     ArgInfoTypeRepr::Builtin(BuiltinType::Int) => {
-                        scope.import_macros_c.insert("ZVAL_LONG".to_owned());
+                        self.scope.import_macros_c.insert("ZVAL_LONG".to_owned());
                         format!("ZVAL_LONG!(&mut value, {cvalue_val} as i64);")
                     }
                     ArgInfoTypeRepr::Builtin(BuiltinType::Float) => {
-                        scope.import_macros_c.insert("ZVAL_DOUBLE".to_owned());
+                        self.scope.import_macros_c.insert("ZVAL_DOUBLE".to_owned());
                         format!("ZVAL_DOUBLE!(&mut value, {cvalue_val} as f64);")
                     }
                     ArgInfoTypeRepr::Builtin(BuiltinType::String) => {
-                        scope.import_sys.insert("zend_string".to_owned());
-                        scope.import_sys.insert("zend_string_init".to_owned());
-                        scope.import_macros_c.insert("ZVAL_STR".to_owned());
+                        self.scope.import_sys.insert("zend_string".to_owned());
+                        self.scope.import_sys.insert("zend_string_init".to_owned());
+                        self.scope.import_macros_c.insert("ZVAL_STR".to_owned());
                         format!(
                             "let value_str: *mut zend_string = zend_string_init(\
                             \n{space3}{cvalue_val}.as_ptr().cast::<std::ffi::c_char>(),\
@@ -1294,15 +1300,17 @@ impl ArgInfoBuilder<'_> {
             }
             _ => return Err(format!("Unhandled constant initialization: {constant:#?}")),
         };
-        scope.import_sys.insert("zval".to_owned());
-        scope.import_sys.insert("zend_string".to_owned());
-        scope
+        self.scope.import_sys.insert("zval".to_owned());
+        self.scope.import_sys.insert("zend_string".to_owned());
+        self.scope
             .import_sys
             .insert("zend_string_init_interned".to_owned());
-        scope
+        self.scope
             .import_sys
             .insert("zend_declare_typed_class_constant".to_owned());
-        scope.import_sys.insert("zend_string_release_ex".to_owned());
+        self.scope
+            .import_sys
+            .insert("zend_string_release_ex".to_owned());
         Ok(format!(
             "{space}unsafe {{\
             \n{space}{space}let mut value: zval = std::mem::zeroed();\
@@ -1323,11 +1331,7 @@ impl ArgInfoBuilder<'_> {
     }
 
     /// Generate code for registering an attribute for the overall class/interface/enum.
-    fn class_attribute(
-        &self,
-        scope: &mut ImportsUsed,
-        attrib: &Attribute,
-    ) -> Result<String, String> {
+    fn class_attribute(&mut self, attrib: &Attribute) -> Result<String, String> {
         let attrib_name = attrib
             .name
             .parts
@@ -1379,9 +1383,9 @@ impl ArgInfoBuilder<'_> {
                     })
                     .collect::<Result<Vec<_>, _>>()?;
                 for flag in &flags {
-                    scope.import_sys.insert(flag.to_string());
+                    self.scope.import_sys.insert(flag.to_string());
                 }
-                scope.import_macros_c.insert("ZVAL_LONG".to_owned());
+                self.scope.import_macros_c.insert("ZVAL_LONG".to_owned());
                 let init = format!(
                     "ZVAL_LONG!(&mut (*attrib).args[{index}].value, {flags} as i64);",
                     flags = flags.join("|")
@@ -1391,15 +1395,17 @@ impl ArgInfoBuilder<'_> {
                 return Err(format!("Unsupported class attribute: {attrib:?}"));
             }
         }
-        scope.import_sys.insert("zend_string".to_owned());
-        scope
+        self.scope.import_sys.insert("zend_string".to_owned());
+        self.scope
             .import_sys
             .insert("zend_string_init_interned".to_owned());
-        scope.import_sys.insert("zend_attribute".to_owned());
-        scope
+        self.scope.import_sys.insert("zend_attribute".to_owned());
+        self.scope
             .import_sys
             .insert("zend_add_class_attribute".to_owned());
-        scope.import_sys.insert("zend_string_release_ex".to_owned());
+        self.scope
+            .import_sys
+            .insert("zend_string_release_ex".to_owned());
         Ok(format!(
             "{space}unsafe {{\
             \n{space}{space}let name: *mut zend_string = (zend_string_init_interned.expect(\"zend_string_init_interned should be set\"))(\
@@ -1425,7 +1431,6 @@ impl ArgInfoBuilder<'_> {
     /// Generate code for registering an enum case.
     fn build_case(
         &mut self,
-        scope: &mut ImportsUsed,
         case: &EnumCase,
         backing: Option<&BuiltinType>,
     ) -> Result<String, String> {
@@ -1438,13 +1443,13 @@ impl ArgInfoBuilder<'_> {
             }
             return match &value.kind {
                 ExprKind::String(string) => {
-                    scope.import_sys.insert("zval".to_owned());
-                    scope.import_sys.insert("zend_string".to_owned());
-                    scope.import_sys.insert("zend_string_init".to_owned());
-                    scope
+                    self.scope.import_sys.insert("zval".to_owned());
+                    self.scope.import_sys.insert("zend_string".to_owned());
+                    self.scope.import_sys.insert("zend_string_init".to_owned());
+                    self.scope
                         .import_sys
                         .insert("zend_enum_add_case_cstr".to_owned());
-                    scope.import_macros_c.insert("ZVAL_STR".to_owned());
+                    self.scope.import_macros_c.insert("ZVAL_STR".to_owned());
                     Ok(format!(
                         "{space}{{\
                         \n{space3}let mut value: zval = std::mem::zeroed();\
@@ -1463,11 +1468,11 @@ impl ArgInfoBuilder<'_> {
                     ))
                 }
                 ExprKind::Int(num) => {
-                    scope.import_sys.insert("zval".to_owned());
-                    scope
+                    self.scope.import_sys.insert("zval".to_owned());
+                    self.scope
                         .import_sys
                         .insert("zend_enum_add_case_cstr".to_owned());
-                    scope.import_macros_c.insert("ZVAL_LONG".to_owned());
+                    self.scope.import_macros_c.insert("ZVAL_LONG".to_owned());
                     Ok(format!(
                         "{space}{{\
                         \n{space3}let mut value: zval = std::mem::zeroed();\
@@ -1483,7 +1488,7 @@ impl ArgInfoBuilder<'_> {
                 _ => Err(format!("Unhandled enum backing: {case:#?}")),
             };
         }
-        scope
+        self.scope
             .import_sys
             .insert("zend_enum_add_case_cstr".to_owned());
         Ok(format!(
@@ -1502,7 +1507,7 @@ impl ArgInfoBuilder<'_> {
             match self.verification {
                 VerificationMode::Never => (),
                 VerificationMode::Always => {
-                    self.file_uses.import_sys.extend(
+                    self.scope.import_sys.extend(
                         verification_imports
                             .iter()
                             .map(|import| (*import).to_owned()),
@@ -1513,7 +1518,7 @@ impl ArgInfoBuilder<'_> {
                         .iter()
                         .map(|import| (*import).to_owned())
                         .collect::<HashSet<_>>()
-                        - &self.file_uses.import_sys;
+                        - &self.scope.import_sys;
                     if let Some(extra_use) =
                         ImportsUsed::as_use_single(&extra_verification_imports, "rsphp_sys")
                     {
@@ -1527,7 +1532,7 @@ impl ArgInfoBuilder<'_> {
         };
         format!(
             "{}{extra_uses_code}{}\n{}\n",
-            self.file_uses.as_uses(),
+            self.scope.as_uses(),
             verification_code,
             self.parts.join("\n")
         )
