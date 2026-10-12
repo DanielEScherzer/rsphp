@@ -2,6 +2,8 @@ name: verify-generated
 inputs:
   working-directory:
     required: true
+  extra-pathspec:
+    required: true
 runs:
   using: composite
   steps:
@@ -17,5 +19,5 @@ runs:
 
     - name: Check for changed files
       shell: bash
-      run: git diff -a --exit-code HEAD
+      run: git diff -a --exit-code HEAD -- ${{ inputs.extra-pathspec }}
       working-directory: ${{ inputs.working-directory }}
