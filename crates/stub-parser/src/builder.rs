@@ -303,6 +303,10 @@ pub(crate) struct ArgInfoBuilder<'program> {
     namespace: Option<String>,
     /// How registration functions should verify their arguments.
     verification: VerificationMode,
+    /// Whether any class/enum/interface/trait is present in the stub; if not
+    /// then there is nothing to verify and the verification code doesn't need
+    /// to be added.
+    needs_verification: bool,
 }
 
 impl<'program> ArgInfoBuilder<'program> {
@@ -314,6 +318,7 @@ impl<'program> ArgInfoBuilder<'program> {
             parts: vec![],
             namespace: None,
             verification,
+            needs_verification: false,
         }
     }
 }
@@ -750,6 +755,7 @@ impl ArgInfoBuilder<'_> {
                         )?);
                     }
                     method_verifications.push(verification);
+                    self.needs_verification = true;
                 }
                 ClassLikeMember::Property(property) => {
                     properties.push(self.build_property(&property)?);
@@ -1213,9 +1219,14 @@ impl ArgInfoBuilder<'_> {
 
     /// Combine all of the code parts into the arginfo file contents.
     pub(crate) fn assemble(&self) -> String {
+        let verification_code = if self.needs_verification {
+            self.verification.get_infra()
+        } else {
+            String::new()
+        };
         format!(
             "use rsphp_macros_c::*;\nuse rsphp_macros_rs::*;\nuse rsphp_sys::*;\n{}\n{}\n",
-            self.verification.get_infra(),
+            verification_code,
             self.parts.join("\n")
         )
     }
