@@ -1,4 +1,5 @@
 use php_ast::ast::Visibility;
+use std::collections::HashSet;
 use std::fmt::Write as _;
 
 /// How should calls to `register_class_*` methods be verified for correctness?
@@ -102,6 +103,16 @@ impl VerificationData {
         }
     }
 
+    /// Get all of the flags that any of the methods use, for adding `use`
+    /// statements.
+    pub(crate) fn get_all_flags(methods: &[VerificationData]) -> HashSet<String> {
+        let mut result = HashSet::new();
+        for method in methods {
+            result.extend(method.flags.clone());
+        }
+        result
+    }
+
     /// Add a `ZEND_ACC_*` flag based on the visibility to the expected flags.
     pub(crate) fn add_visibility(&mut self, vis: Option<&Visibility>) {
         let flag = match vis {
@@ -135,6 +146,18 @@ impl VerificationData {
         )
     }
 }
+
+/// Imports needed for infrastructure, at a file level.
+pub(crate) const VERIFICATION_RSPHP_SYS_IMPORTS: &[&str] = &[
+    "_ZEND_TYPE_LIST_BIT",
+    "_ZEND_TYPE_LITERAL_NAME_BIT",
+    "_ZEND_TYPE_NAME_BIT",
+    "zend_function_entry",
+    "zend_internal_arg_info",
+    "zend_string",
+    "zend_type",
+    "zend_type_list",
+];
 
 /// Infrastructure for registration verification.
 const VERIFICATION_INFRASTRUCTURE: &[&str] = &[

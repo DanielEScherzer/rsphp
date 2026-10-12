@@ -1,11 +1,8 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `Example` class.
 pub(crate) mod Example {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_CLASS_ENTRY, ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
+    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `Example` class.
@@ -71,8 +68,7 @@ pub(crate) mod Example {
 }
 /// Module for `MyBoolean` enum.
 pub(crate) mod MyBoolean {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr, zend_register_internal_enum};
 
 
     /// Register the `MyBoolean` enum.
@@ -95,8 +91,8 @@ pub(crate) mod MyBoolean {
 }
 /// Module for `Marker` interface.
 pub(crate) mod Marker {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::INIT_CLASS_ENTRY;
+    use rsphp_sys::{zend_class_entry, zend_register_internal_interface};
 
 
     /// Register the `Marker` interface.

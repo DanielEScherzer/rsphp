@@ -1,12 +1,9 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `CustomCasting\CustomCastable` class.
 pub(crate) mod CustomCasting_CustomCastable {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_NS_CLASS_ENTRY, ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE, ZEND_TYPE_INIT_MASK, ZVAL_LONG};
+    use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION;
+    use rsphp_sys::{IS_LONG, MAY_BE_LONG, ZEND_ACC_FINAL, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_class_constant, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags, zend_string, zend_string_init_interned, zend_string_release_ex, zval};
 
     /// Argument information for `CustomCasting\CustomCastable::__construct()`.
     pub(crate) const ARGINFO___CONSTRUCT: [zend_internal_arg_info; 2] = [

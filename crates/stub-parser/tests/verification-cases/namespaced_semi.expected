@@ -1,6 +1,7 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
+use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK;
+use rsphp_sys::{MAY_BE_VOID, zend_internal_arg_info};
+#[cfg(debug_assertions)]
+use rsphp_sys::{_ZEND_TYPE_LIST_BIT, _ZEND_TYPE_LITERAL_NAME_BIT, _ZEND_TYPE_NAME_BIT, zend_function_entry, zend_string, zend_type, zend_type_list};
 #[cfg(debug_assertions)]
 use std::ffi::{c_char, CStr};
 
@@ -210,9 +211,11 @@ fn verify_registration(
 }
 /// Module for `Demo\InDemoNamespace` class.
 pub(crate) mod Demo_InDemoNamespace {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::INIT_NS_CLASS_ENTRY;
+    use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION;
+    use rsphp_sys::{zend_class_entry, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags};
+    #[cfg(debug_assertions)]
+    use rsphp_sys::ZEND_ACC_PUBLIC;
     #[cfg(debug_assertions)]
     use super::verify_registration;
 

@@ -1,11 +1,8 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `Base` class.
 pub(crate) mod Base {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::INIT_CLASS_ENTRY;
+    use rsphp_sys::{zend_class_entry, zend_register_internal_class_with_flags};
 
 
     /// Register the `Base` class.
@@ -26,8 +23,8 @@ pub(crate) mod Base {
 }
 /// Module for `Demo` class.
 pub(crate) mod Demo {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::INIT_CLASS_ENTRY;
+    use rsphp_sys::{zend_class_entry, zend_register_internal_class_with_flags};
 
 
     /// Register the `Demo` class.

@@ -1,6 +1,5 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
+#[cfg(debug_assertions)]
+use rsphp_sys::{_ZEND_TYPE_LIST_BIT, _ZEND_TYPE_LITERAL_NAME_BIT, _ZEND_TYPE_NAME_BIT, zend_function_entry, zend_internal_arg_info, zend_string, zend_type, zend_type_list};
 #[cfg(debug_assertions)]
 use std::ffi::{c_char, CStr};
 
@@ -210,8 +209,7 @@ fn verify_registration(
 }
 /// Module for `CustomCasting\CastableTarget` enum.
 pub(crate) mod CustomCasting_CastableTarget {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr, zend_register_internal_enum};
 
 
     /// Register the `CustomCasting\CastableTarget` enum.
@@ -235,9 +233,11 @@ pub(crate) mod CustomCasting_CastableTarget {
 }
 /// Module for `CustomCasting\HasCustomCast` interface.
 pub(crate) mod CustomCasting_HasCustomCast {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_NS_CLASS_ENTRY, ZEND_ARG_OBJ_INFO};
+    use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION;
+    use rsphp_sys::{zend_class_entry, zend_function_entry, zend_internal_arg_info, zend_register_internal_interface};
+    #[cfg(debug_assertions)]
+    use rsphp_sys::{ZEND_ACC_ABSTRACT, ZEND_ACC_PUBLIC};
     #[cfg(debug_assertions)]
     use super::verify_registration;
 

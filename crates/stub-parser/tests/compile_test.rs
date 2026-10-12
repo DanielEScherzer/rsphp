@@ -33,7 +33,7 @@ fn verify_directory(data_dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
         // There isn't a way to check that library code compiles, need to make
         // things into valid binary targets, i.e. with main functions
         let content_to_compile =
-            format!("#![allow(unused_imports, non_snake_case)]\n\n{content}\n\nfn main() {{}}");
+            format!("#![allow(non_snake_case)]\n\n{content}\n\nfn main() {{}}");
         let generated_content_file = tmp_dir.path().join(arginfo_name);
         fs::write(&generated_content_file, content_to_compile)?;
     }

@@ -1,12 +1,9 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `Demo` class.
 pub(crate) mod Demo {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_CLASS_ENTRY, ZEND_ARG_INFO, ZEND_ARG_INFO_WITH_DEFAULT_VALUE, ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE};
+    use rsphp_macros_rs::{ZEND_ARG_INFO_FOR_FUNCTION, ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK};
+    use rsphp_sys::{IS_LONG, IS_STRING, MAY_BE_LONG, MAY_BE_STRING, MAY_BE_VOID, zend_class_entry, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags};
 
     /// Argument information for `Demo::test1()`.
     pub(crate) const ARGINFO_TEST1: [zend_internal_arg_info; 1] = [

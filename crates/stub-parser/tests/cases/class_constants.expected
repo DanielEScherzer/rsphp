@@ -1,12 +1,9 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `CustomCastable` class.
 pub(crate) mod CustomCastable {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_CLASS_ENTRY, ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE, ZEND_TYPE_INIT_MASK, ZVAL_LONG, ZVAL_UNDEF};
+    use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION;
+    use rsphp_sys::{IS_LONG, MAY_BE_LONG, ZEND_ACC_FINAL, ZEND_ACC_PRIVATE, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_class_constant, zend_declare_typed_property, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_init_interned, zend_string_release, zend_string_release_ex, zval};
 
     /// Argument information for `CustomCastable::__construct()`.
     pub(crate) const ARGINFO___CONSTRUCT: [zend_internal_arg_info; 2] = [
@@ -111,8 +108,8 @@ pub(crate) mod CustomCastable {
 }
 /// Module for `ConstantValues` class.
 pub(crate) mod ConstantValues {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_CLASS_ENTRY, ZEND_TYPE_INIT_MASK, ZVAL_DOUBLE, ZVAL_STR};
+    use rsphp_sys::{MAY_BE_DOUBLE, MAY_BE_STRING, PHP_OS, ZEND_ACC_PUBLIC, ZEND_DEBUG, zend_class_entry, zend_declare_typed_class_constant, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_init_interned, zend_string_release_ex, zval};
 
 
     /// Register the `ConstantValues` class.
@@ -144,8 +141,8 @@ pub(crate) mod ConstantValues {
         unsafe {
             let mut value: zval = std::mem::zeroed();
             let value_str: *mut zend_string = zend_string_init(
-                crate::PHP_OS.as_ptr().cast::<std::ffi::c_char>(),
-                std::ffi::CStr::from_ptr(crate::PHP_OS.as_ptr().cast::<std::ffi::c_char>()).count_bytes(),
+                PHP_OS.as_ptr().cast::<std::ffi::c_char>(),
+                std::ffi::CStr::from_ptr(PHP_OS.as_ptr().cast::<std::ffi::c_char>()).count_bytes(),
                 true);
             ZVAL_STR!(&mut value, value_str);
             let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
@@ -164,8 +161,8 @@ pub(crate) mod ConstantValues {
 }
 /// Module for `ImplicitPublicConstant` class.
 pub(crate) mod ImplicitPublicConstant {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_CLASS_ENTRY, ZEND_TYPE_INIT_MASK, ZVAL_LONG};
+    use rsphp_sys::{MAY_BE_LONG, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_class_constant, zend_register_internal_class_with_flags, zend_string, zend_string_init_interned, zend_string_release_ex, zval};
 
 
     /// Register the `ImplicitPublicConstant` class.

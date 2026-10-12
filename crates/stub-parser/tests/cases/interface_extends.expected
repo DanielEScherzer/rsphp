@@ -1,11 +1,8 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `HasMagic` interface.
 pub(crate) mod HasMagic {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::INIT_CLASS_ENTRY;
+    use rsphp_sys::{zend_class_entry, zend_class_implements, zend_register_internal_interface};
 
 
     /// Register the `HasMagic` interface.

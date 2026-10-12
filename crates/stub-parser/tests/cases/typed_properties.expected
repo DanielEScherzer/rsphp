@@ -1,11 +1,8 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `RSGit\Commit` class.
 pub(crate) mod RSGit_Commit {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_NS_CLASS_ENTRY, ZEND_TYPE_INIT_CLASS, ZVAL_UNDEF};
+    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `RSGit\Commit` class.
@@ -115,9 +112,9 @@ pub(crate) mod RSGit_Commit {
 }
 /// Module for `RSGit\Oid` class.
 pub(crate) mod RSGit_Oid {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_NS_CLASS_ENTRY, ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
+    use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK;
+    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_release, zval};
 
     /// Argument information for `RSGit\Oid::__toString()`.
     pub(crate) const ARGINFO___TOSTRING: [zend_internal_arg_info; 1] = [
@@ -166,8 +163,8 @@ pub(crate) mod RSGit_Oid {
 }
 /// Module for `RSGit\Signature` class.
 pub(crate) mod RSGit_Signature {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_NS_CLASS_ENTRY, ZEND_TYPE_INIT_CLASS, ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
+    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_register_internal_class_with_flags, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `RSGit\Signature` class.

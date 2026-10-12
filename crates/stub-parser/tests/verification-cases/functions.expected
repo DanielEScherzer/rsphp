@@ -1,6 +1,5 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
+use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK;
+use rsphp_sys::{MAY_BE_VOID, zend_internal_arg_info};
 
 /// Argument information for `test1()`.
 pub(crate) const ARGINFO_TEST1: [zend_internal_arg_info; 1] = [

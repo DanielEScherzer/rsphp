@@ -1,12 +1,9 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `Repository` class.
 pub(crate) mod Repository {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{INIT_CLASS_ENTRY, ZEND_ARG_OBJ_INFO, ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE, ZEND_ARG_TYPE_INFO};
+    use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_OBJ_INFO;
+    use rsphp_sys::{IS_ARRAY, IS_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry, zend_function_entry, zend_internal_arg_info, zend_register_internal_class_with_flags};
 
     /// Argument information for `Repository::commit()`.
     pub(crate) const ARGINFO_COMMIT: [zend_internal_arg_info; 6] = [
@@ -38,8 +35,8 @@ pub(crate) mod Repository {
 }
 /// Module for `Oid` class.
 pub(crate) mod Oid {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::INIT_CLASS_ENTRY;
+    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry, zend_register_internal_class_with_flags};
 
 
     /// Register the `Oid` class.
@@ -60,8 +57,8 @@ pub(crate) mod Oid {
 }
 /// Module for `Signature` class.
 pub(crate) mod Signature {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::INIT_CLASS_ENTRY;
+    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry, zend_register_internal_class_with_flags};
 
 
     /// Register the `Signature` class.
