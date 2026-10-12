@@ -39,10 +39,6 @@ pub(crate) enum ArgInfoTypeRepr {
     Union(Vec<ArgInfoTypeRepr>),
 }
 
-#[expect(
-    unused_results,
-    reason = "HashSet used to prevent duplication, just need to include the import"
-)]
 impl ArgInfoTypeRepr {
     /// Create an `ArgInfoTypeRepr` for the given `TypeHintKind`, resolving
     /// names in the given namespace.

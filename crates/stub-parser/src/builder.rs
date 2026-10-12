@@ -64,10 +64,6 @@ impl TryFrom<EnumMemberKind> for ClassLikeMember {
     }
 }
 
-#[expect(
-    unused_results,
-    reason = "HashSet used to prevent duplication, just need to include the import"
-)]
 impl ClassLikeType {
     /// Name of the class/interface/enum.
     fn name(&self) -> &str {
@@ -170,7 +166,6 @@ impl ClassLikeType {
     /// the given number of methods, is in the given namespace, and the overall
     /// program where the class is declared is passed to allow fetching
     /// unprocessed details.
-    #[expect(clippy::too_many_lines, reason = "It's a complicated function")]
     fn init_and_register_code(
         &self,
         scope: &mut ImportsUsed,
@@ -183,22 +178,16 @@ impl ClassLikeType {
             Some(ns) => format!("{ns}\\\\"),
             None => String::new(),
         };
-        let add_interfaces = self.interfaces_applied_code(scope);
-        let (macro_name, macro_args) = match (namespace, method_count) {
-            (Some(ns), 0) => (
-                "INIT_NS_CLASS_ENTRY",
-                format!("(ce, \"{ns}\", \"{name}\", NULL)"),
-            ),
-            (Some(ns), _) => (
-                "INIT_NS_CLASS_ENTRY",
-                format!("(ce, \"{ns}\", \"{name}\", methods)"),
-            ),
-            (None, 0) => ("INIT_CLASS_ENTRY", format!("(ce, \"{name}\", NULL)")),
-            (None, _) => ("INIT_CLASS_ENTRY", format!("(ce, \"{name}\", methods)")),
+        let (macro_name, macro_ns_arg) = match namespace {
+            Some(ns) => ("INIT_NS_CLASS_ENTRY", format!(" \"{ns}\",")),
+            None => ("INIT_CLASS_ENTRY", String::new()),
         };
-        let init_macro = format!("{macro_name}!{macro_args};");
-
-        match self {
+        let init_macro = format!(
+            "{macro_name}!(ce,{macro_ns_arg} \"{name}\", {methods});",
+            methods = if method_count == 0 { "NULL" } else { "methods" }
+        );
+        scope.add_import("rsphp_sys", "zend_class_entry");
+        let result = match self {
             ClassLikeType::Class(class) => {
                 let extends_param = self
                     .parent_class_var()
@@ -208,17 +197,14 @@ impl ClassLikeType {
                     flags.push("ZEND_ACC_FINAL");
                     scope.add_import("rsphp_sys", "ZEND_ACC_FINAL");
                 }
-                match class.doc_comment.as_ref() {
-                    None => (),
-                    Some(comment) => {
-                        if comment.text.contains("@strict-properties") {
-                            flags.push("ZEND_ACC_NO_DYNAMIC_PROPERTIES");
-                            scope.add_import("rsphp_sys", "ZEND_ACC_NO_DYNAMIC_PROPERTIES");
-                        }
-                        if comment.text.contains("@not-serializable") {
-                            flags.push("ZEND_ACC_NOT_SERIALIZABLE");
-                            scope.add_import("rsphp_sys", "ZEND_ACC_NOT_SERIALIZABLE");
-                        }
+                if let Some(comment) = class.doc_comment.as_ref() {
+                    if comment.text.contains("@strict-properties") {
+                        flags.push("ZEND_ACC_NO_DYNAMIC_PROPERTIES");
+                        scope.add_import("rsphp_sys", "ZEND_ACC_NO_DYNAMIC_PROPERTIES");
+                    }
+                    if comment.text.contains("@not-serializable") {
+                        flags.push("ZEND_ACC_NOT_SERIALIZABLE");
+                        scope.add_import("rsphp_sys", "ZEND_ACC_NOT_SERIALIZABLE");
                     }
                 }
                 let flags_str = if flags.is_empty() {
@@ -226,10 +212,9 @@ impl ClassLikeType {
                 } else {
                     flags.join("|")
                 };
-                scope.add_import("rsphp_sys", "zend_class_entry");
                 scope.add_import("rsphp_sys", "zend_register_internal_class_with_flags");
                 scope.add_import("rsphp_macros_c", macro_name);
-                Ok(format!(
+                format!(
                     "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
                     \n{space}{init_macro}\
                     \n{space}let class_entry: *mut zend_class_entry = unsafe {{\
@@ -238,10 +223,9 @@ impl ClassLikeType {
                     \n{space}{space}{space}{extends_param},\
                     \n{space}{space}{space}{flags_str},\
                     \n{space}{space})\
-                    \n{space}}};\
-                    {add_interfaces}",
+                    \n{space}}};",
                     space = "    ",
-                ))
+                )
             }
             ClassLikeType::PhpEnum(php_enum) => {
                 if method_count != 0 {
@@ -252,55 +236,43 @@ impl ClassLikeType {
                     let end: usize = span.end.try_into().expect("Valid usize");
                     program.get(start..end).expect("Valid byte range for span")
                 };
-                let backing = php_enum
-                    .scalar_type
-                    .as_ref()
-                    .map(|type_name| match get_raw_code(type_name.span) {
-                        "string" => Ok(BuiltinType::String),
-                        "int" => Ok(BuiltinType::Int),
-                        _ => Err(format!("Unhandled enum backing type for enum {self:#?}")),
-                    })
-                    .transpose()?;
-                let backing_type_code = match backing {
+                let backing_type_code = match php_enum.scalar_type.as_ref() {
                     None => "IS_UNDEF",
-                    Some(BuiltinType::String) => "IS_STRING",
-                    Some(BuiltinType::Int) => "IS_LONG",
-                    Some(backing_type) => {
-                        return Err(format!("Invalid backing type: {backing_type:?}"));
-                    }
+                    Some(type_name) => match get_raw_code(type_name.span) {
+                        "string" => "IS_STRING",
+                        "int" => "IS_LONG",
+                        _ => return Err(format!("Unhandled enum backing type for enum {self:#?}")),
+                    },
                 };
-                scope.add_import("rsphp_sys", "zend_class_entry");
                 scope.add_import("rsphp_sys", backing_type_code);
                 scope.add_import("rsphp_sys", "zend_register_internal_enum");
-                Ok(format!(
+                format!(
                     "\n{space}let class_entry: *mut zend_class_entry = unsafe {{\
                     \n{space}{space}zend_register_internal_enum(\
                     \n{space}{space}{space}c\"{ns_name_segment}{name}\".as_ptr(),\
                     \n{space}{space}{space}{backing_type_code},\
                     \n{space}{space}{space}std::ptr::null_mut(),\
                     \n{space}{space})\
-                    \n{space}}};\
-                    {add_interfaces}",
+                    \n{space}}};",
                     space = "    ",
-                ))
+                )
             }
             ClassLikeType::Interface(_) => {
-                scope.add_import("rsphp_sys", "zend_class_entry");
                 scope.add_import("rsphp_sys", "zend_register_internal_interface");
                 scope.add_import("rsphp_macros_c", macro_name);
-                Ok(format!(
+                format!(
                     "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
                         \n{space}{init_macro}\
                         \n{space}let class_entry: *mut zend_class_entry = unsafe {{\
                         \n{space}{space}zend_register_internal_interface(\
                         \n{space}{space}{space}std::ptr::from_mut::<zend_class_entry>(&mut ce),\
                         \n{space}{space})\
-                        \n{space}}};\
-                        {add_interfaces}",
+                        \n{space}}};",
                     space = "    ",
-                ))
+                )
             }
-        }
+        };
+        Ok(result + &self.interfaces_applied_code(scope))
     }
     /// The kind of class-like-type this is, one of "enum", "interface", or
     /// "class".
@@ -355,10 +327,6 @@ impl<'program> ArgInfoBuilder<'program> {
     }
 }
 
-#[expect(
-    unused_results,
-    reason = "HashSet used to prevent duplication, just need to include the import"
-)]
 #[expect(clippy::too_many_lines, reason = "Many complicated functions")]
 impl ArgInfoBuilder<'_> {
     /// Get a snippet of the raw code in the program at the location specified

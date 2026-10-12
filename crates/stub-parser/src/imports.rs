@@ -26,7 +26,11 @@ impl ImportsUsed {
         clippy::panic,
         reason = "Indicates a bug in the library, surfaced at build time"
     )]
-    pub(crate) fn add_import<T>(&mut self, module: &str, name: T) -> bool
+    #[expect(
+        unused_results,
+        reason = "HashSet used to prevent duplication, just need to include the import"
+    )]
+    pub(crate) fn add_import<T>(&mut self, module: &str, name: T)
     where
         T: Into<String>,
     {
@@ -35,7 +39,7 @@ impl ImportsUsed {
             "rsphp_macros_c" => self.macros_c.insert(name.into()),
             "rsphp_macros_rs" => self.macros_rs.insert(name.into()),
             _ => panic!("Invalid use for module {module}"),
-        }
+        };
     }
 
     /// Add a few more imports for `rsphp_sys`.
