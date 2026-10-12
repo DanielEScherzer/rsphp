@@ -1,0 +1,110 @@
+
+/// Module for `Example` class.
+pub(crate) mod Example {
+    use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
+    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
+
+
+    /// Register the `Example` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "Example", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE,
+            )
+        };
+
+        let mut property_first_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_first_default_value)); }
+        let property_first_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"first".as_ptr(),
+                "first".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_first_name,
+                std::ptr::from_mut::<zval>(&mut property_first_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
+            );
+        }
+        unsafe {
+            zend_string_release(property_first_name);
+        }
+        
+        let mut property_second_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_second_default_value)); }
+        let property_second_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"second".as_ptr(),
+                "second".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_second_name,
+                std::ptr::from_mut::<zval>(&mut property_second_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
+            );
+        }
+        unsafe {
+            zend_string_release(property_second_name);
+        }
+
+        class_entry
+    }
+}
+/// Module for `MyBoolean` enum.
+pub(crate) mod MyBoolean {
+    use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr};
+
+
+    /// Register the `MyBoolean` enum.
+    pub(crate) fn register_enum() -> *mut zend_class_entry {
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_enum(
+                c"MyBoolean".as_ptr(),
+                IS_UNDEF,
+                std::ptr::null_mut(),
+            )
+        };
+        unsafe {
+            zend_enum_add_case_cstr(class_entry, c"True".as_ptr(), std::ptr::null_mut());
+            zend_enum_add_case_cstr(class_entry, c"False".as_ptr(), std::ptr::null_mut());
+        };
+
+
+        class_entry
+    }
+}
+/// Module for `Marker` interface.
+pub(crate) mod Marker {
+    use rsphp_sys::zend_class_entry;
+
+
+    /// Register the `Marker` interface.
+    pub(crate) fn register_interface() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "Marker", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_interface(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+            )
+        };
+
+
+        class_entry
+    }
+}

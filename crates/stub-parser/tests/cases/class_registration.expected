@@ -1,19 +1,16 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `Demo` class.
 pub(crate) mod Demo {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
+    use rsphp_sys::{MAY_BE_LONG, ZEND_ACC_PRIVATE, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `Demo` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "Demo", NULL);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "Demo", NULL);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 0,

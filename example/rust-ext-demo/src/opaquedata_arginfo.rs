@@ -1,6 +1,5 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
+#[cfg(debug_assertions)]
+use rsphp_sys::{zend_function_entry, zend_internal_arg_info, zend_string, zend_type, zend_type_list};
 #[cfg(debug_assertions)]
 use std::ffi::{c_char, CStr};
 
@@ -40,7 +39,7 @@ fn types_match(expected: &zend_type, actual: &zend_type) -> Option<String> {
         return Some("Expected a pointer to be set in the actual type".to_owned());
     }
     // Compare the values depending on the flags
-    if expected.type_mask & _ZEND_TYPE_LITERAL_NAME_BIT != 0 {
+    if expected.type_mask & rsphp_sys::_ZEND_TYPE_LITERAL_NAME_BIT != 0 {
         // CString pointers
         let expected_name = unsafe { CStr::from_ptr(expected.ptr.cast::<c_char>()) };
         let actual_name = unsafe { CStr::from_ptr(actual.ptr.cast::<c_char>()) };
@@ -49,7 +48,7 @@ fn types_match(expected: &zend_type, actual: &zend_type) -> Option<String> {
         }
         return Some(format!("Expected literal name {expected_name:?}, found {actual_name:?}"));
     }
-    if expected.type_mask & _ZEND_TYPE_NAME_BIT != 0 {
+    if expected.type_mask & rsphp_sys::_ZEND_TYPE_NAME_BIT != 0 {
         // zend_string pointers, compare them by comparing the lengths and values
         let expected_name: &zend_string = unsafe { expected.ptr.cast::<zend_string>().as_ref().expect("Valid pointer") };
         let actual_name: &zend_string = unsafe { actual.ptr.cast::<zend_string>().as_ref().expect("Valid pointer") };
@@ -63,7 +62,7 @@ fn types_match(expected: &zend_type, actual: &zend_type) -> Option<String> {
         }
         return Some(format!("Expected name {expected_slice:?}, found {actual_slice:?}"));
     }
-    if expected.type_mask & _ZEND_TYPE_LIST_BIT != 0 {
+    if expected.type_mask & rsphp_sys::_ZEND_TYPE_LIST_BIT != 0 {
         // zend_type_list pointers
         let expected_list: &zend_type_list = unsafe { expected.ptr.cast::<zend_type_list>().as_ref().expect("Valid pointer") };
         let acutal_list: &zend_type_list = unsafe { actual.ptr.cast::<zend_type_list>().as_ref().expect("Valid pointer") };
@@ -210,9 +209,11 @@ fn verify_registration(
 }
 /// Module for `RustDemo\OpaqueData` class.
 pub(crate) mod RustDemo_OpaqueData {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::ZEND_ARG_TYPE_INFO;
+    use rsphp_macros_rs::{ZEND_ARG_INFO_FOR_FUNCTION, ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK};
+    use rsphp_sys::{MAY_BE_BOOL, MAY_BE_VOID, _IS_BOOL, zend_class_entry, zend_function_entry, zend_internal_arg_info};
+    #[cfg(debug_assertions)]
+    use rsphp_sys::ZEND_ACC_PUBLIC;
     #[cfg(debug_assertions)]
     use super::verify_registration;
 
@@ -254,9 +255,9 @@ pub(crate) mod RustDemo_OpaqueData {
         assert_eq!(5, methods.len(), "RustDemo\\OpaqueData should have 4 methods");
 
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_NS_CLASS_ENTRY!(ce, "RustDemo", "OpaqueData", methods);
+        rsphp_macros_c::INIT_NS_CLASS_ENTRY!(ce, "RustDemo", "OpaqueData", methods);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 0,
