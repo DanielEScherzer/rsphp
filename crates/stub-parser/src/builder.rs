@@ -482,13 +482,13 @@ impl ArgInfoBuilder<'_> {
             }
             ((None, Some(param_mask), param_info, nullable), None) => {
                 if param_mask.contains('|') {
-                    self.scope.sys.extend(param_type_info.mask_uses);
+                    self.scope.extend_sys_imports(param_type_info.mask_uses);
                     (
                         "ZEND_ARG_TYPE_MASK".to_owned(),
                         format!("({by_ref}, \"{name}\", {param_mask}, std::ptr::null())"),
                     )
                 } else {
-                    self.scope.sys.extend(param_type_info.return_uses);
+                    self.scope.extend_sys_imports(param_type_info.return_uses);
                     (
                         format!("ZEND_ARG_{maybe_variadic}TYPE_INFO"),
                         format!(
@@ -507,7 +507,7 @@ impl ArgInfoBuilder<'_> {
                 ),
             ),
             ((Some(param_class), Some(param_mask), _, _), dflt) => {
-                self.scope.sys.extend(param_type_info.mask_uses);
+                self.scope.extend_sys_imports(param_type_info.mask_uses);
                 (
                     format!("ZEND_ARG_{maybe_variadic}OBJ_TYPE_MASK"),
                     format!(
@@ -520,7 +520,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             ((None, _, Some(param_info), nullable), Some(dflt)) => {
-                self.scope.sys.extend(param_type_info.return_uses);
+                self.scope.extend_sys_imports(param_type_info.return_uses);
                 (
                     "ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE".to_owned(),
                     format!(
@@ -602,7 +602,7 @@ impl ArgInfoBuilder<'_> {
                 ),
             ),
             (None, _, Some(info)) if typehint.is_nullable => {
-                self.scope.sys.extend(typehint.return_uses);
+                self.scope.extend_sys_imports(typehint.return_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_INFO",
                     format!(
@@ -612,7 +612,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             (None, Some(mask), _) => {
-                self.scope.sys.extend(typehint.mask_uses);
+                self.scope.extend_sys_imports(typehint.mask_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK",
                     format!(
@@ -622,7 +622,7 @@ impl ArgInfoBuilder<'_> {
                 )
             }
             (Some(class), Some(mask), _) => {
-                self.scope.sys.extend(typehint.mask_uses);
+                self.scope.extend_sys_imports(typehint.mask_uses);
                 (
                     "ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_OBJ_TYPE_INFO",
                     format!(
@@ -960,7 +960,9 @@ impl ArgInfoBuilder<'_> {
                 }
             }
             VerificationMode::DebugAssert => {
-                let extra_flags_in_verification = &flags_in_verification - &self.scope.sys;
+                let extra_flags_in_verification = self
+                    .scope
+                    .excluding_existing_sys_imports(&flags_in_verification);
                 if let Some(extra_use) =
                     ImportsUsed::as_use_single(&extra_flags_in_verification, "rsphp_sys")
                 {
@@ -1422,11 +1424,12 @@ impl ArgInfoBuilder<'_> {
                     }
                 }
                 VerificationMode::DebugAssert => {
-                    let extra_verification_imports = &verification_imports
-                        .iter()
-                        .map(|import| (*import).to_owned())
-                        .collect::<HashSet<_>>()
-                        - &self.scope.sys;
+                    let extra_verification_imports = self.scope.excluding_existing_sys_imports(
+                        &verification_imports
+                            .iter()
+                            .map(|import| (*import).to_owned())
+                            .collect::<HashSet<_>>(),
+                    );
                     if let Some(extra_use) =
                         ImportsUsed::as_use_single(&extra_verification_imports, "rsphp_sys")
                     {

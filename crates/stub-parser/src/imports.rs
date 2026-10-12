@@ -2,10 +2,9 @@ use std::collections::HashSet;
 
 /// Tracker for what imports need to be added to a given scope.
 #[derive(Default)]
-#[expect(clippy::field_scoped_visibility_modifiers, reason = "To be refactored")]
 pub(crate) struct ImportsUsed {
     /// Imports needed from `rsphp_sys`.
-    pub(crate) sys: HashSet<String>,
+    sys: HashSet<String>,
     /// Imports needed from `rsphp_macros_c`.
     macros_c: HashSet<String>,
     /// Imports needed from `rsphp_macros_rs`.
@@ -37,6 +36,23 @@ impl ImportsUsed {
             "rsphp_macros_rs" => self.macros_rs.insert(name.into()),
             _ => panic!("Invalid use for module {module}"),
         }
+    }
+
+    /// Add a few more imports for `rsphp_sys`.
+    pub(crate) fn extend_sys_imports<T>(&mut self, names: T)
+    where
+        T: IntoIterator<Item = String>,
+    {
+        self.sys.extend(names);
+    }
+
+    /// Identify the imports in the provided `HashSet` that are *not* in
+    /// the current imports for `rsphp_sys`.
+    pub(crate) fn excluding_existing_sys_imports(
+        &self,
+        target: &HashSet<String>,
+    ) -> HashSet<String> {
+        target - &self.sys
     }
 
     /// Format all imports.
