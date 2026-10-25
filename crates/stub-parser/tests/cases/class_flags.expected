@@ -64,7 +64,7 @@ pub(crate) mod Demo3 {
 }
 /// Module for `IsAbstract` class.
 pub(crate) mod IsAbstract {
-    use rsphp_sys::zend_class_entry;
+    use rsphp_sys::{ZEND_ACC_ABSTRACT, zend_class_entry};
 
 
     /// Register the `IsAbstract` class.
@@ -75,7 +75,7 @@ pub(crate) mod IsAbstract {
             rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
-                0,
+                ZEND_ACC_ABSTRACT,
             )
         };
 
@@ -85,7 +85,7 @@ pub(crate) mod IsAbstract {
 }
 /// Module for `IsReadOnly` class.
 pub(crate) mod IsReadOnly {
-    use rsphp_sys::{ZEND_ACC_FINAL, zend_class_entry};
+    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_READONLY_CLASS, zend_class_entry};
 
 
     /// Register the `IsReadOnly` class.
@@ -96,7 +96,7 @@ pub(crate) mod IsReadOnly {
             rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
-                ZEND_ACC_FINAL,
+                ZEND_ACC_FINAL|ZEND_ACC_READONLY_CLASS,
             )
         };
 
@@ -106,7 +106,7 @@ pub(crate) mod IsReadOnly {
 }
 /// Module for `AllowsDynamicProperties` class.
 pub(crate) mod AllowsDynamicProperties {
-    use rsphp_sys::{zend_add_class_attribute, zend_class_entry, zend_string, zend_string_init_interned, zend_string_release_ex};
+    use rsphp_sys::{ZEND_ACC_ALLOW_DYNAMIC_PROPERTIES, zend_add_class_attribute, zend_class_entry, zend_string, zend_string_init_interned, zend_string_release_ex};
 
 
     /// Register the `AllowsDynamicProperties` class.
@@ -117,7 +117,7 @@ pub(crate) mod AllowsDynamicProperties {
             rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
-                0,
+                ZEND_ACC_ALLOW_DYNAMIC_PROPERTIES,
             )
         };
 

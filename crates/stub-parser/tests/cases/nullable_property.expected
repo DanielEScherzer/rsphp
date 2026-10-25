@@ -2,7 +2,7 @@
 /// Module for `Reference` class.
 pub(crate) mod Reference {
     use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
-    use rsphp_sys::{MAY_BE_NULL, MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
+    use rsphp_sys::{MAY_BE_NULL, MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, ZEND_ACC_READONLY, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `Reference` class.
@@ -31,7 +31,7 @@ pub(crate) mod Reference {
                 class_entry,
                 property_name_name,
                 std::ptr::from_mut::<zval>(&mut property_name_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
             );
@@ -54,7 +54,7 @@ pub(crate) mod Reference {
                 class_entry,
                 property_shorthand_name,
                 std::ptr::from_mut::<zval>(&mut property_shorthand_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
             );
@@ -77,7 +77,7 @@ pub(crate) mod Reference {
                 class_entry,
                 property_symbolicTarget_name,
                 std::ptr::from_mut::<zval>(&mut property_symbolicTarget_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_MASK!(MAY_BE_STRING|MAY_BE_NULL),
             );

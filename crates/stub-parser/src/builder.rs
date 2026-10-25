@@ -118,6 +118,13 @@ impl ClassLikeType {
             ClassLikeType::Class(class) => &class.attributes,
         }
     }
+    /// If this is a readonly class.
+    fn is_readonly(&self) -> bool {
+        match self {
+            ClassLikeType::Class(class) => class.modifiers.is_readonly,
+            _ => false,
+        }
+    }
     /// Helper to create variable names for references to zend class entries.
     fn make_ce_variable_name(type_name: &Name) -> String {
         "zend_ce_".to_owned()
@@ -176,6 +183,7 @@ impl ClassLikeType {
     /// the given number of methods, is in the given namespace, and the overall
     /// program where the class is declared is passed to allow fetching
     /// unprocessed details.
+    #[expect(clippy::too_many_lines, reason = "Complicated function")]
     fn init_and_register_code(
         &self,
         scope: &mut ImportsUsed,
@@ -203,25 +211,35 @@ impl ClassLikeType {
                     .parent_class_var()
                     .unwrap_or_else(|| "std::ptr::null_mut()".to_owned());
                 let mut flags = vec![];
+                if class.modifiers.is_abstract {
+                    flags.push("ZEND_ACC_ABSTRACT");
+                }
                 if class.modifiers.is_final {
                     flags.push("ZEND_ACC_FINAL");
-                    scope.add_import("rsphp_sys", "ZEND_ACC_FINAL");
+                }
+                if class.modifiers.is_readonly {
+                    flags.push("ZEND_ACC_READONLY_CLASS");
                 }
                 if let Some(comment) = class.doc_comment.as_ref() {
                     if comment.text.contains("@strict-properties") {
                         flags.push("ZEND_ACC_NO_DYNAMIC_PROPERTIES");
-                        scope.add_import("rsphp_sys", "ZEND_ACC_NO_DYNAMIC_PROPERTIES");
                     }
                     if comment.text.contains("@not-serializable") {
                         flags.push("ZEND_ACC_NOT_SERIALIZABLE");
-                        scope.add_import("rsphp_sys", "ZEND_ACC_NOT_SERIALIZABLE");
                     }
+                }
+                if (*class.attributes)
+                    .iter()
+                    .any(|attrib| attrib.name.to_string_repr() == "\\AllowDynamicProperties")
+                {
+                    flags.push("ZEND_ACC_ALLOW_DYNAMIC_PROPERTIES");
                 }
                 let flags_str = if flags.is_empty() {
                     "0".to_owned()
                 } else {
                     flags.join("|")
                 };
+                scope.extend_sys_imports(flags.into_iter().map(str::to_owned));
                 format!(
                     "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
                     \n{space}{init_macro}\
@@ -648,7 +666,11 @@ impl ArgInfoBuilder<'_> {
     }
 
     /// Generate code for a class property.
-    fn build_property(&mut self, prop: &PropertyDecl) -> Result<String, String> {
+    fn build_property(
+        &mut self,
+        prop: &PropertyDecl,
+        class_readonly: bool,
+    ) -> Result<String, String> {
         self.scope.add_import("rsphp_sys", "zval");
         self.scope.add_import("rsphp_sys", "zend_class_entry");
         let prop_name = prop.name.as_str().ok_or("Property name missing")?;
@@ -745,13 +767,45 @@ impl ArgInfoBuilder<'_> {
         };
         let ptr_for_default =
             format!("std::ptr::from_mut::<zval>(&mut property_{prop_name}_default_value)");
+        let mut flags = vec![vis];
+        if class_readonly || prop.modifiers.is_readonly {
+            flags.push("ZEND_ACC_READONLY");
+            self.scope.add_import("rsphp_sys", "ZEND_ACC_READONLY");
+        }
+        if prop.modifiers.is_static {
+            flags.push("ZEND_ACC_STATIC");
+            self.scope.add_import("rsphp_sys", "ZEND_ACC_STATIC");
+        }
+        if prop.modifiers.is_final {
+            flags.push("ZEND_ACC_FINAL");
+            self.scope.add_import("rsphp_sys", "ZEND_ACC_FINAL");
+        }
+        if let Some(set_vis) = prop.modifiers.set_visibility {
+            let set_vis_flag = match set_vis {
+                Visibility::Public => "ZEND_ACC_PUBLIC_SET",
+                Visibility::Protected => "ZEND_ACC_PROTECTED_SET",
+                Visibility::Private => "ZEND_ACC_PRIVATE_SET",
+                unknown => {
+                    return Err(format!(
+                        "Visibility is non-exhaustive, unhandled: {unknown:?}"
+                    ));
+                }
+            };
+            flags.push(set_vis_flag);
+            self.scope.add_import("rsphp_sys", set_vis_flag);
+        }
+        let flags_str = if flags.len() == 1 {
+            flags[0].to_owned()
+        } else {
+            format!("({})", flags.join("|"))
+        };
         let prop_decl = format!(
             "{space}unsafe {{\
             \n{space}{space}zend_declare_typed_property(\
             \n{space}{space}{space}class_entry,\
             \n{space}{space}{space}property_{name}_name,\
             \n{space}{space}{space}{ptr_for_default},\
-            \n{space}{space}{space}{vis} as i32,\
+            \n{space}{space}{space}{flags_str} as i32,\
             \n{space}{space}{space}std::ptr::null_mut(),\
             \n{space}{space}{space}{typemask},\
             \n{space}{space});\
@@ -843,7 +897,7 @@ impl ArgInfoBuilder<'_> {
                     self.needs_verification = true;
                 }
                 ClassLikeMember::Property(property) => {
-                    properties.push(self.build_property(&property)?);
+                    properties.push(self.build_property(&property, wrapped.is_readonly())?);
                 }
                 ClassLikeMember::ClassConst(class_const) => {
                     constants.push(self.build_constant(&class_const)?);

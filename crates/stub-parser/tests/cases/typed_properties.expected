@@ -2,7 +2,7 @@
 /// Module for `RSGit\Commit` class.
 pub(crate) mod RSGit_Commit {
     use rsphp_macros_c::{ZEND_TYPE_INIT_CLASS, ZVAL_UNDEF};
-    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
+    use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, ZEND_ACC_READONLY, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `RSGit\Commit` class.
@@ -38,7 +38,7 @@ pub(crate) mod RSGit_Commit {
                 class_entry,
                 property_id_name,
                 std::ptr::from_mut::<zval>(&mut property_id_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_CLASS!(property_id_type, 0, 0),
             );
@@ -68,7 +68,7 @@ pub(crate) mod RSGit_Commit {
                 class_entry,
                 property_author_name,
                 std::ptr::from_mut::<zval>(&mut property_author_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_CLASS!(property_author_type, 0, 0),
             );
@@ -98,7 +98,7 @@ pub(crate) mod RSGit_Commit {
                 class_entry,
                 property_committer_name,
                 std::ptr::from_mut::<zval>(&mut property_committer_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_CLASS!(property_committer_type, 0, 0),
             );
@@ -114,7 +114,7 @@ pub(crate) mod RSGit_Commit {
 pub(crate) mod RSGit_Oid {
     use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
     use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK;
-    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_function_entry, zend_internal_arg_info, zend_string, zend_string_init, zend_string_release, zval};
+    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, ZEND_ACC_READONLY, zend_class_entry, zend_declare_typed_property, zend_function_entry, zend_internal_arg_info, zend_string, zend_string_init, zend_string_release, zval};
 
     /// Argument information for `RSGit\Oid::__toString()`.
     pub(crate) const ARGINFO___TOSTRING: [zend_internal_arg_info; 1] = [
@@ -149,7 +149,7 @@ pub(crate) mod RSGit_Oid {
                 class_entry,
                 property_asHex_name,
                 std::ptr::from_mut::<zval>(&mut property_asHex_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
             );
@@ -164,7 +164,7 @@ pub(crate) mod RSGit_Oid {
 /// Module for `RSGit\Signature` class.
 pub(crate) mod RSGit_Signature {
     use rsphp_macros_c::{ZEND_TYPE_INIT_CLASS, ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
-    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
+    use rsphp_sys::{MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, ZEND_ACC_READONLY, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
 
     /// Register the `RSGit\Signature` class.
@@ -193,7 +193,7 @@ pub(crate) mod RSGit_Signature {
                 class_entry,
                 property_name_name,
                 std::ptr::from_mut::<zval>(&mut property_name_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
             );
@@ -216,7 +216,7 @@ pub(crate) mod RSGit_Signature {
                 class_entry,
                 property_email_name,
                 std::ptr::from_mut::<zval>(&mut property_email_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_MASK!(MAY_BE_STRING),
             );
@@ -246,7 +246,7 @@ pub(crate) mod RSGit_Signature {
                 class_entry,
                 property_time_name,
                 std::ptr::from_mut::<zval>(&mut property_time_default_value),
-                ZEND_ACC_PUBLIC as i32,
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
                 std::ptr::null_mut(),
                 ZEND_TYPE_INIT_CLASS!(property_time_type, 0, 0),
             );
