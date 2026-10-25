@@ -62,3 +62,75 @@ pub(crate) mod Demo3 {
         class_entry
     }
 }
+/// Module for `IsAbstract` class.
+pub(crate) mod IsAbstract {
+    use rsphp_sys::zend_class_entry;
+
+
+    /// Register the `IsAbstract` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "IsAbstract", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+
+        class_entry
+    }
+}
+/// Module for `IsReadOnly` class.
+pub(crate) mod IsReadOnly {
+    use rsphp_sys::{ZEND_ACC_FINAL, zend_class_entry};
+
+
+    /// Register the `IsReadOnly` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "IsReadOnly", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                ZEND_ACC_FINAL,
+            )
+        };
+
+
+        class_entry
+    }
+}
+/// Module for `AllowsDynamicProperties` class.
+pub(crate) mod AllowsDynamicProperties {
+    use rsphp_sys::{zend_add_class_attribute, zend_attribute, zend_class_entry, zend_string, zend_string_init_interned, zend_string_release_ex};
+
+
+    /// Register the `AllowsDynamicProperties` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "AllowsDynamicProperties", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+
+        unsafe {
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"AllowDynamicProperties".as_ptr(),
+                "AllowDynamicProperties".len(),
+                true,
+            );
+            let attrib: *mut zend_attribute = zend_add_class_attribute(class_entry, name, 0);
+            zend_string_release_ex(name, true);
+        }
+        class_entry
+    }
+}
