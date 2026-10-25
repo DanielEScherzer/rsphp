@@ -106,7 +106,7 @@ pub(crate) mod IsReadOnly {
 }
 /// Module for `AllowsDynamicProperties` class.
 pub(crate) mod AllowsDynamicProperties {
-    use rsphp_sys::{zend_add_class_attribute, zend_attribute, zend_class_entry, zend_string, zend_string_init_interned, zend_string_release_ex};
+    use rsphp_sys::{zend_add_class_attribute, zend_class_entry, zend_string, zend_string_init_interned, zend_string_release_ex};
 
 
     /// Register the `AllowsDynamicProperties` class.
@@ -128,7 +128,7 @@ pub(crate) mod AllowsDynamicProperties {
                 "AllowDynamicProperties".len(),
                 true,
             );
-            let attrib: *mut zend_attribute = zend_add_class_attribute(class_entry, name, 0);
+            zend_add_class_attribute(class_entry, name, 0);
             zend_string_release_ex(name, true);
         }
         class_entry

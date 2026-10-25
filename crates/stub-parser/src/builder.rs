@@ -1309,7 +1309,14 @@ impl ArgInfoBuilder<'_> {
         self.scope.add_import("rsphp_sys", "zend_string");
         self.scope
             .add_import("rsphp_sys", "zend_string_init_interned");
-        self.scope.add_import("rsphp_sys", "zend_attribute");
+        if !param_init.is_empty() {
+            self.scope.add_import("rsphp_sys", "zend_attribute");
+        }
+        let attrib_variable = if param_init.is_empty() {
+            ""
+        } else {
+            "let attrib: *mut zend_attribute = "
+        };
         self.scope
             .add_import("rsphp_sys", "zend_add_class_attribute");
         self.scope.add_import("rsphp_sys", "zend_string_release_ex");
@@ -1320,7 +1327,7 @@ impl ArgInfoBuilder<'_> {
             \n{space}{space}{space}\"{attrib_name}\".len(),\
             \n{space}{space}{space}true,\
             \n{space}{space});\
-            \n{space}{space}let attrib: *mut zend_attribute = zend_add_class_attribute(class_entry, name, {param_count});\
+            \n{space}{space}{attrib_variable}zend_add_class_attribute(class_entry, name, {param_count});\
             \n{space}{space}zend_string_release_ex(name, true);\
             {param_init}\
             \n{space}}}",
