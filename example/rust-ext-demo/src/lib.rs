@@ -10,9 +10,9 @@ use rsphp_macros_c::{
 use rsphp_macros_rs::{ZEND_FE, ZEND_PARSE_ARGS, ZEND_PARSE_PARAMETERS_NONE};
 use rsphp_sys::{
     HashTable, ZEND_CALL_HAS_EXTRA_NAMED_PARAMS, ZEND_RESULT_CODE, display_ini_entries,
-    php_output_write, php_printf, php_var_dump, zend_execute_data, zend_function_entry,
-    zend_module_entry, zend_parse_parameters, zend_register_ini_entries_ex, zend_result,
-    zend_string, zend_string_init, zend_unregister_ini_entries_ex, zval,
+    php_output_write, php_printf, php_var_dump, zend_class_entry, zend_execute_data,
+    zend_function_entry, zend_module_entry, zend_parse_parameters, zend_register_ini_entries_ex,
+    zend_result, zend_string, zend_string_init, zend_unregister_ini_entries_ex, zval,
 };
 use std::ffi::{c_char, c_int};
 
@@ -28,8 +28,10 @@ use opaquedata::{
 mod ini_demo;
 use ini_demo::{class_ini_demo_methods, ini_demo_ptr};
 
+static mut properties_demo_ptr: *mut zend_class_entry = std::ptr::null_mut();
+
 #[rustfmt::skip]
-#[expect(clippy::cast_possible_wrap)]
+#[expect(clippy::cast_possible_wrap, clippy::too_many_lines)]
 mod rustdemo_arginfo;
 #[rustfmt::skip]
 mod opaquedata_arginfo;
@@ -54,6 +56,8 @@ extern "C" fn my_module_init(type_: c_int, module_number: c_int) -> zend_result 
         (*opaquedata_ptr).__bindgen_anon_2.create_object = Some(opaquedata_object_new);
 
         ini_demo_ptr = ini_demo_arginfo::IniDemo::register_class(&class_ini_demo_methods);
+
+        properties_demo_ptr = rustdemo_arginfo::PropertiesDemo::register_class();
 
         zend_register_ini_entries_ex(ini_demo::demo_ini_entries.as_ptr(), module_number, type_);
     }
