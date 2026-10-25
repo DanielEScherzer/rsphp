@@ -491,20 +491,18 @@ impl<const N: usize> __BindgenBitfieldUnit<[u8; N]> {
         }
     }
 }
-pub const ZEND_VERSION: &[u8; 6] = b"4.5.9\0";
+pub const ZEND_VERSION: &[u8; 7] = b"4.5.12\0";
 pub const COOKIE_SEEKER_USES_OFF64_T: u32 = 1;
 pub const DEFAULT_SHORT_OPEN_TAG: &[u8; 2] = b"1\0";
 pub const ENABLE_CHROOT_FUNC: u32 = 1;
 pub const GWINSZ_IN_SYS_IOCTL: u32 = 1;
-pub const ICONV_BROKEN_IGNORE: u32 = 1;
 pub const MAJOR_IN_SYSMACROS: u32 = 1;
 pub const PCRE2_CODE_UNIT_WIDTH: u32 = 8;
-pub const PHP_BUILD_SYSTEM : & [u8 ; 106] = b"Linux 97cb8b99a76e 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 GNU/Linux\0" ;
+pub const PHP_BUILD_SYSTEM : & [u8 ; 106] = b"Linux 77050b0d8e26 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 GNU/Linux\0" ;
 pub const PHP_CAN_SUPPORT_PROC_OPEN: u32 = 1;
-pub const PHP_ICONV_IMPL: &[u8; 6] = b"glibc\0";
 pub const PHP_OS: &[u8; 6] = b"Linux\0";
 pub const PHP_SIGCHILD: u32 = 0;
-pub const PHP_UNAME : & [u8 ; 106] = b"Linux 97cb8b99a76e 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 GNU/Linux\0" ;
+pub const PHP_UNAME : & [u8 ; 106] = b"Linux 77050b0d8e26 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 GNU/Linux\0" ;
 pub const PHP_USE_PHP_CRYPT_R: u32 = 1;
 pub const PHP_WRITE_STDOUT: u32 = 1;
 pub const SIZEOF_INT: u32 = 4;
@@ -697,6 +695,7 @@ pub const ZEND_MM_MAX_SMALL_SIZE: u32 = 3072;
 pub const ZEND_MM_CUSTOM_HEAP_NONE: u32 = 0;
 pub const ZEND_MM_CUSTOM_HEAP_STD: u32 = 1;
 pub const ZEND_MM_CUSTOM_HEAP_DEBUG: u32 = 2;
+pub const ZEND_MM_MAX_ALLOCS_EXIT_STATUS: u32 = 121;
 pub const ZEND_HRTIME_PLATFORM_POSIX: u32 = 0;
 pub const ZEND_HRTIME_PLATFORM_WINDOWS: u32 = 0;
 pub const ZEND_HRTIME_PLATFORM_APPLE_MACH_ABSOLUTE: u32 = 0;
@@ -711,6 +710,7 @@ pub const HASH_UPDATE_INDIRECT: u32 = 4;
 pub const HASH_ADD_NEW: u32 = 8;
 pub const HASH_ADD_NEXT: u32 = 16;
 pub const HASH_LOOKUP: u32 = 32;
+pub const HASH_FALLIBLE: u32 = 64;
 pub const HASH_FLAG_CONSISTENCY: u32 = 3;
 pub const HASH_FLAG_PACKED: u32 = 4;
 pub const HASH_FLAG_UNINITIALIZED: u32 = 8;
@@ -1406,18 +1406,15 @@ pub const YYDEBUG: u32 = 0;
 pub const PHP_DEFAULT_CHARSET: &[u8; 6] = b"UTF-8\0";
 pub const PHP_MAJOR_VERSION: u32 = 8;
 pub const PHP_MINOR_VERSION: u32 = 5;
-pub const PHP_RELEASE_VERSION: u32 = 9;
+pub const PHP_RELEASE_VERSION: u32 = 12;
 pub const PHP_EXTRA_VERSION: &[u8; 1] = b"\0";
-pub const PHP_VERSION: &[u8; 6] = b"8.5.9\0";
-pub const PHP_VERSION_ID: u32 = 80509;
-pub const XML_CONTEXT_BYTES: u32 = 1024;
-pub const XML_DTD: u32 = 1;
-pub const XML_NS: u32 = 1;
+pub const PHP_VERSION: &[u8; 7] = b"8.5.12\0";
+pub const PHP_VERSION_ID: u32 = 80512;
 pub const PHP_OS_FAMILY: &[u8; 6] = b"Linux\0";
 pub const PHP_DEBUG: u32 = 1;
 pub const PHP_DIR_SEPARATOR: u8 = 47u8;
 pub const PHP_EOL: &[u8; 2] = b"\n\0";
-pub const CONFIGURE_COMMAND: &[u8; 54] = b" './configure'  '--enable-debug' '--enable-zend-test'\0";
+pub const CONFIGURE_COMMAND : & [u8 ; 101] = b" './configure'  '--disable-all' '--enable-cli' '--enable-tokenizer' '--enable-debug' '--enable-phar'\0" ;
 pub const PHP_PROG_SENDMAIL: &[u8; 19] = b"/usr/sbin/sendmail\0";
 pub const PEAR_INSTALLDIR: &[u8; 1] = b"\0";
 pub const PHP_INCLUDE_PATH: &[u8; 3] = b".:\0";
@@ -2410,6 +2407,38 @@ const _: () = {
     ["Alignment of _zend_ast_ref"][::std::mem::align_of::<_zend_ast_ref>() - 4usize];
     ["Offset of field: _zend_ast_ref::gc"][::std::mem::offset_of!(_zend_ast_ref, gc) - 0usize];
 };
+pub mod _zend_oom_state {
+    #[allow(unused_imports)]
+    use super::*;
+    pub type Type = ::std::os::raw::c_uint;
+    pub const ZEND_OOM_STATE_NONE: Type = 0;
+    pub const ZEND_OOM_STATE_PENDING: Type = 1;
+    pub const ZEND_OOM_STATE_HANDLING: Type = 2;
+    pub const ZEND_OOM_STATE_HANDLED: Type = 3;
+}
+pub use self::_zend_oom_state::Type as zend_oom_state;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _zend_oom_info {
+    pub state: zend_oom_state,
+    pub lineno: u32,
+    pub message: *mut zend_string,
+    pub filename: *mut zend_string,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _zend_oom_info"][::std::mem::size_of::<_zend_oom_info>() - 24usize];
+    ["Alignment of _zend_oom_info"][::std::mem::align_of::<_zend_oom_info>() - 8usize];
+    ["Offset of field: _zend_oom_info::state"]
+        [::std::mem::offset_of!(_zend_oom_info, state) - 0usize];
+    ["Offset of field: _zend_oom_info::lineno"]
+        [::std::mem::offset_of!(_zend_oom_info, lineno) - 4usize];
+    ["Offset of field: _zend_oom_info::message"]
+        [::std::mem::offset_of!(_zend_oom_info, message) - 8usize];
+    ["Offset of field: _zend_oom_info::filename"]
+        [::std::mem::offset_of!(_zend_oom_info, filename) - 16usize];
+};
+pub type zend_oom_info = _zend_oom_info;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _zend_leak_info {
@@ -5560,6 +5589,7 @@ pub struct _zend_compiler_globals {
     pub multibyte: bool,
     pub detect_unicode: bool,
     pub encoding_declared: bool,
+    pub interned_strings_fallible: bool,
     pub ast: *mut zend_ast,
     pub ast_arena: *mut zend_arena,
     pub delayed_oplines_stack: zend_stack,
@@ -5645,6 +5675,8 @@ const _: () = {
         [::std::mem::offset_of!(_zend_compiler_globals, detect_unicode) - 441usize];
     ["Offset of field: _zend_compiler_globals::encoding_declared"]
         [::std::mem::offset_of!(_zend_compiler_globals, encoding_declared) - 442usize];
+    ["Offset of field: _zend_compiler_globals::interned_strings_fallible"]
+        [::std::mem::offset_of!(_zend_compiler_globals, interned_strings_fallible) - 443usize];
     ["Offset of field: _zend_compiler_globals::ast"]
         [::std::mem::offset_of!(_zend_compiler_globals, ast) - 448usize];
     ["Offset of field: _zend_compiler_globals::ast_arena"]
@@ -6004,10 +6036,11 @@ pub struct _zend_executor_globals {
     pub reserved_stack_size: zend_ulong,
     pub strtod_state: zend_strtod_state,
     pub reserved: [*mut ::std::os::raw::c_void; 6usize],
+    pub delayed_oom: zend_oom_info,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of _zend_executor_globals"][::std::mem::size_of::<_zend_executor_globals>() - 1984usize];
+    ["Size of _zend_executor_globals"][::std::mem::size_of::<_zend_executor_globals>() - 2008usize];
     ["Alignment of _zend_executor_globals"]
         [::std::mem::align_of::<_zend_executor_globals>() - 8usize];
     ["Offset of field: _zend_executor_globals::uninitialized_zval"]
@@ -6188,6 +6221,8 @@ const _: () = {
         [::std::mem::offset_of!(_zend_executor_globals, strtod_state) - 1856usize];
     ["Offset of field: _zend_executor_globals::reserved"]
         [::std::mem::offset_of!(_zend_executor_globals, reserved) - 1936usize];
+    ["Offset of field: _zend_executor_globals::delayed_oom"]
+        [::std::mem::offset_of!(_zend_executor_globals, delayed_oom) - 1984usize];
 };
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -10067,7 +10102,59 @@ unsafe extern "C" {
         __zend_orig_lineno: u32,
     );
     pub fn __zend_strdup(s: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+    pub fn _femalloc(
+        size: usize,
+        __zend_filename: *const ::std::os::raw::c_char,
+        __zend_lineno: u32,
+        __zend_orig_filename: *const ::std::os::raw::c_char,
+        __zend_orig_lineno: u32,
+    ) -> *mut ::std::os::raw::c_void;
+    pub fn _fecalloc(
+        nmemb: usize,
+        size: usize,
+        __zend_filename: *const ::std::os::raw::c_char,
+        __zend_lineno: u32,
+        __zend_orig_filename: *const ::std::os::raw::c_char,
+        __zend_orig_lineno: u32,
+    ) -> *mut ::std::os::raw::c_void;
+    pub fn _ferealloc(
+        ptr: *mut ::std::os::raw::c_void,
+        size: usize,
+        __zend_filename: *const ::std::os::raw::c_char,
+        __zend_lineno: u32,
+        __zend_orig_filename: *const ::std::os::raw::c_char,
+        __zend_orig_lineno: u32,
+    ) -> *mut ::std::os::raw::c_void;
+    pub fn _ferealloc2(
+        ptr: *mut ::std::os::raw::c_void,
+        size: usize,
+        copy_size: usize,
+        __zend_filename: *const ::std::os::raw::c_char,
+        __zend_lineno: u32,
+        __zend_orig_filename: *const ::std::os::raw::c_char,
+        __zend_orig_lineno: u32,
+    ) -> *mut ::std::os::raw::c_void;
+    pub fn _safe_femalloc(
+        nmemb: usize,
+        size: usize,
+        offset: usize,
+        __zend_filename: *const ::std::os::raw::c_char,
+        __zend_lineno: u32,
+        __zend_orig_filename: *const ::std::os::raw::c_char,
+        __zend_orig_lineno: u32,
+    ) -> *mut ::std::os::raw::c_void;
+    pub fn _safe_ferealloc(
+        ptr: *mut ::std::os::raw::c_void,
+        nmemb: usize,
+        size: usize,
+        offset: usize,
+        __zend_filename: *const ::std::os::raw::c_char,
+        __zend_lineno: u32,
+        __zend_orig_filename: *const ::std::os::raw::c_char,
+        __zend_orig_lineno: u32,
+    ) -> *mut ::std::os::raw::c_void;
     pub fn zend_set_memory_limit(memory_limit: usize) -> zend_result;
+    pub fn zend_set_memory_hard_limit_percent(percent: zend_long) -> zend_result;
     pub fn zend_alloc_in_memory_limit_error_reporting() -> bool;
     pub fn start_memory_manager();
     pub fn shutdown_memory_manager(silent: bool, full_shutdown: bool);
@@ -10125,6 +10212,8 @@ unsafe extern "C" {
     pub fn zend_mm_set_heap(new_heap: *mut zend_mm_heap) -> *mut zend_mm_heap;
     pub fn zend_mm_get_heap() -> *mut zend_mm_heap;
     pub fn zend_mm_gc(heap: *mut zend_mm_heap) -> usize;
+    pub fn zend_mm_is_fallible() -> bool;
+    pub fn zend_mm_set_fallible(fallible: bool);
     pub fn zend_mm_is_custom_heap(new_heap: *mut zend_mm_heap) -> bool;
     pub fn zend_mm_set_custom_handlers(
         heap: *mut zend_mm_heap,
@@ -10261,6 +10350,11 @@ unsafe extern "C" {
         data_size: usize,
     ) -> *mut zend_mm_heap;
     pub fn zend_mm_refresh_key_child(heap: *mut zend_mm_heap);
+    pub fn zend_mm_delayed_error_or_panic(delay: bool, format: *const ::std::os::raw::c_char, ...);
+    pub fn zend_handle_delayed_oom();
+    pub fn zend_mm_oom_info_dtor(info: *mut zend_oom_info);
+    pub fn zend_mm_set_max_allocs(max_allocs: u64);
+    pub fn zend_mm_max_allocs_hit() -> bool;
     pub fn zend_llist_init(
         l: *mut zend_llist,
         size: usize,
@@ -10373,6 +10467,12 @@ unsafe extern "C" {
     pub fn zend_string_hash_func(str_: *mut zend_string) -> zend_ulong;
     pub fn zend_hash_func(str_: *const ::std::os::raw::c_char, len: usize) -> zend_ulong;
     pub fn zend_interned_string_find_permanent(str_: *mut zend_string) -> *mut zend_string;
+    pub fn zend_string_finit_existing_interned(
+        str_: *const ::std::os::raw::c_char,
+        len: usize,
+        permanent: bool,
+        fallible: bool,
+    ) -> *mut zend_string;
     pub fn zend_string_concat2(
         str1: *const ::std::os::raw::c_char,
         str1_len: usize,
@@ -10410,8 +10510,18 @@ unsafe extern "C" {
     pub fn zend_string_addref(s: *mut zend_string) -> u32;
     #[link_name = "zend_string_delref__extern"]
     pub fn zend_string_delref(s: *mut zend_string) -> u32;
+    #[link_name = "zend_string_falloc__extern"]
+    pub fn zend_string_falloc(len: usize, persistent: bool, fallible: bool) -> *mut zend_string;
     #[link_name = "zend_string_alloc__extern"]
     pub fn zend_string_alloc(len: usize, persistent: bool) -> *mut zend_string;
+    #[link_name = "zend_string_safe_falloc__extern"]
+    pub fn zend_string_safe_falloc(
+        n: usize,
+        m: usize,
+        l: usize,
+        persistent: bool,
+        fallible: bool,
+    ) -> *mut zend_string;
     #[link_name = "zend_string_safe_alloc__extern"]
     pub fn zend_string_safe_alloc(
         n: usize,
@@ -10425,6 +10535,19 @@ unsafe extern "C" {
         len: usize,
         persistent: bool,
     ) -> *mut zend_string;
+    #[link_name = "zend_string_finit__extern"]
+    pub fn zend_string_finit(
+        str_: *const ::std::os::raw::c_char,
+        len: usize,
+        persistent: bool,
+        fallible: bool,
+    ) -> *mut zend_string;
+    #[link_name = "zend_string_finit_fast__extern"]
+    pub fn zend_string_finit_fast(
+        str_: *const ::std::os::raw::c_char,
+        len: usize,
+        fallible: bool,
+    ) -> *mut zend_string;
     #[link_name = "zend_string_init_fast__extern"]
     pub fn zend_string_init_fast(
         str_: *const ::std::os::raw::c_char,
@@ -10436,11 +10559,25 @@ unsafe extern "C" {
     pub fn zend_string_dup(s: *mut zend_string, persistent: bool) -> *mut zend_string;
     #[link_name = "zend_string_separate__extern"]
     pub fn zend_string_separate(s: *mut zend_string, persistent: bool) -> *mut zend_string;
+    #[link_name = "zend_string_frealloc__extern"]
+    pub fn zend_string_frealloc(
+        s: *mut zend_string,
+        len: usize,
+        persistent: bool,
+        fallible: bool,
+    ) -> *mut zend_string;
     #[link_name = "zend_string_realloc__extern"]
     pub fn zend_string_realloc(
         s: *mut zend_string,
         len: usize,
         persistent: bool,
+    ) -> *mut zend_string;
+    #[link_name = "zend_string_fextend__extern"]
+    pub fn zend_string_fextend(
+        s: *mut zend_string,
+        len: usize,
+        persistent: bool,
+        fallible: bool,
     ) -> *mut zend_string;
     #[link_name = "zend_string_extend__extern"]
     pub fn zend_string_extend(
@@ -10448,11 +10585,27 @@ unsafe extern "C" {
         len: usize,
         persistent: bool,
     ) -> *mut zend_string;
+    #[link_name = "zend_string_ftruncate__extern"]
+    pub fn zend_string_ftruncate(
+        s: *mut zend_string,
+        len: usize,
+        persistent: bool,
+        fallible: bool,
+    ) -> *mut zend_string;
     #[link_name = "zend_string_truncate__extern"]
     pub fn zend_string_truncate(
         s: *mut zend_string,
         len: usize,
         persistent: bool,
+    ) -> *mut zend_string;
+    #[link_name = "zend_string_safe_frealloc__extern"]
+    pub fn zend_string_safe_frealloc(
+        s: *mut zend_string,
+        n: usize,
+        m: usize,
+        l: usize,
+        persistent: bool,
+        fallible: bool,
     ) -> *mut zend_string;
     #[link_name = "zend_string_safe_realloc__extern"]
     pub fn zend_string_safe_realloc(
@@ -10531,6 +10684,10 @@ unsafe extern "C" {
     pub fn zend_hash_extend(ht: *mut HashTable, nSize: u32, packed: bool);
     pub fn zend_hash_discard(ht: *mut HashTable, nNumUsed: u32);
     pub fn zend_hash_packed_grow(ht: *mut HashTable);
+    pub fn zend_hash_real_finit(ht: *mut HashTable, packed: bool, fallible: bool) -> zend_result;
+    pub fn zend_hash_real_finit_packed(ht: *mut HashTable, fallible: bool) -> zend_result;
+    pub fn zend_hash_real_finit_mixed(ht: *mut HashTable, fallible: bool) -> zend_result;
+    pub fn zend_hash_fextend(ht: *mut HashTable, nSize: u32, packed: bool) -> zend_result;
     pub fn zend_hash_add_or_update(
         ht: *mut HashTable,
         key: *mut zend_string,
@@ -10549,6 +10706,16 @@ unsafe extern "C" {
     ) -> *mut zval;
     pub fn zend_hash_add(ht: *mut HashTable, key: *mut zend_string, pData: *mut zval) -> *mut zval;
     pub fn zend_hash_add_new(
+        ht: *mut HashTable,
+        key: *mut zend_string,
+        pData: *mut zval,
+    ) -> *mut zval;
+    pub fn zend_hash_fupdate(
+        ht: *mut HashTable,
+        key: *mut zend_string,
+        pData: *mut zval,
+    ) -> *mut zval;
+    pub fn zend_hash_fadd_new(
         ht: *mut HashTable,
         key: *mut zend_string,
         pData: *mut zval,
@@ -10600,6 +10767,13 @@ unsafe extern "C" {
     -> *mut zval;
     pub fn zend_hash_next_index_insert(ht: *mut HashTable, pData: *mut zval) -> *mut zval;
     pub fn zend_hash_next_index_insert_new(ht: *mut HashTable, pData: *mut zval) -> *mut zval;
+    pub fn zend_hash_index_fupdate(
+        ht: *mut HashTable,
+        h: zend_ulong,
+        pData: *mut zval,
+    ) -> *mut zval;
+    pub fn zend_hash_next_index_finsert(ht: *mut HashTable, pData: *mut zval) -> *mut zval;
+    pub fn zend_hash_next_index_finsert_new(ht: *mut HashTable, pData: *mut zval) -> *mut zval;
     pub fn zend_hash_index_add_empty_element(ht: *mut HashTable, h: zend_ulong) -> *mut zval;
     pub fn zend_hash_add_empty_element(ht: *mut HashTable, key: *mut zend_string) -> *mut zval;
     pub fn zend_hash_str_add_empty_element(
@@ -10659,6 +10833,8 @@ unsafe extern "C" {
     ) -> *mut zval;
     pub fn zend_hash_lookup(ht: *mut HashTable, key: *mut zend_string) -> *mut zval;
     pub fn zend_hash_index_lookup(ht: *mut HashTable, h: zend_ulong) -> *mut zval;
+    pub fn zend_hash_flookup(ht: *mut HashTable, key: *mut zend_string) -> *mut zval;
+    pub fn zend_hash_index_flookup(ht: *mut HashTable, h: zend_ulong) -> *mut zval;
     #[link_name = "zend_hash_exists__extern"]
     pub fn zend_hash_exists(ht: *const HashTable, key: *mut zend_string) -> bool;
     #[link_name = "zend_hash_str_exists__extern"]
@@ -10772,6 +10948,7 @@ unsafe extern "C" {
     pub fn zend_hash_next_free_element(ht: *const HashTable) -> zend_long;
     pub fn zend_hash_rehash(ht: *mut HashTable);
     pub fn _zend_new_array_0() -> *mut HashTable;
+    pub fn zend_new_array_singleton() -> *mut HashTable;
     pub fn _zend_new_array(size: u32) -> *mut HashTable;
     pub fn zend_new_pair(val1: *const zval, val2: *const zval) -> *mut HashTable;
     pub fn zend_array_count(ht: *mut HashTable) -> u32;
@@ -10782,6 +10959,8 @@ unsafe extern "C" {
     pub fn zend_symtable_to_proptable(ht: *mut HashTable) -> *mut HashTable;
     pub fn zend_proptable_to_symtable(ht: *mut HashTable, always_duplicate: bool)
     -> *mut HashTable;
+    pub fn _zend_fnew_array_0() -> *mut HashTable;
+    pub fn _zend_fnew_array(size: u32) -> *mut HashTable;
     pub fn _zend_handle_numeric_str_ex(
         key: *const ::std::os::raw::c_char,
         length: usize,
@@ -10837,6 +11016,12 @@ unsafe extern "C" {
     ) -> *mut zval;
     #[link_name = "zend_symtable_update__extern"]
     pub fn zend_symtable_update(
+        ht: *mut HashTable,
+        key: *mut zend_string,
+        pData: *mut zval,
+    ) -> *mut zval;
+    #[link_name = "zend_symtable_fupdate__extern"]
+    pub fn zend_symtable_fupdate(
         ht: *mut HashTable,
         key: *mut zend_string,
         pData: *mut zval,
@@ -10992,6 +11177,13 @@ unsafe extern "C" {
         ht: *mut HashTable,
         h: zend_ulong,
         pData: *mut ::std::os::raw::c_void,
+    ) -> *mut ::std::os::raw::c_void;
+    #[link_name = "zend_hash_index_fupdate_ptr__extern"]
+    pub fn zend_hash_index_fupdate_ptr(
+        ht: *mut HashTable,
+        h: zend_ulong,
+        pData: *mut ::std::os::raw::c_void,
+        fallible: bool,
     ) -> *mut ::std::os::raw::c_void;
     #[link_name = "zend_hash_index_update_ptr__extern"]
     pub fn zend_hash_index_update_ptr(
@@ -11991,10 +12183,13 @@ unsafe extern "C" {
     ) -> *mut ::std::os::raw::c_char;
     pub fn zend_string_tolower_ex(str_: *mut zend_string, persistent: bool) -> *mut zend_string;
     pub fn zend_string_toupper_ex(str_: *mut zend_string, persistent: bool) -> *mut zend_string;
+    pub fn zend_string_ftolower_ex(str_: *mut zend_string, persistent: bool) -> *mut zend_string;
     #[link_name = "zend_string_tolower__extern"]
     pub fn zend_string_tolower(str_: *mut zend_string) -> *mut zend_string;
     #[link_name = "zend_string_toupper__extern"]
     pub fn zend_string_toupper(str_: *mut zend_string) -> *mut zend_string;
+    #[link_name = "zend_string_ftolower__extern"]
+    pub fn zend_string_ftolower(str_: *mut zend_string) -> *mut zend_string;
     pub fn zend_binary_zval_strcmp(s1: *mut zval, s2: *mut zval) -> ::std::os::raw::c_int;
     pub fn zend_binary_zval_strncmp(
         s1: *mut zval,
@@ -12267,6 +12462,7 @@ unsafe extern "C" {
     pub fn zend_ptr_stack_top(stack: *mut zend_ptr_stack) -> *mut ::std::os::raw::c_void;
     pub fn zend_object_std_init(object: *mut zend_object, ce: *mut zend_class_entry);
     pub fn zend_objects_new(ce: *mut zend_class_entry) -> *mut zend_object;
+    pub fn zend_objects_fnew(ce: *mut zend_class_entry) -> *mut zend_object;
     pub fn zend_objects_clone_members(new_object: *mut zend_object, old_object: *mut zend_object);
     pub fn zend_object_std_dtor(object: *mut zend_object);
     pub fn zend_objects_destroy_object(object: *mut zend_object);
@@ -13526,7 +13722,12 @@ unsafe extern "C" {
         silent: bool,
     ) -> *mut zval;
     pub fn zend_get_type_by_const(type_: ::std::os::raw::c_int) -> *const ::std::os::raw::c_char;
+    #[link_name = "_array_finit__extern"]
+    pub fn _array_finit(arg: *mut zval, size: usize) -> bool;
+    #[link_name = "_array_finit_ex__extern"]
+    pub fn _array_finit_ex(arg: *mut zval, size: usize, packed: bool) -> bool;
     pub fn object_init(arg: *mut zval);
+    pub fn object_finit(arg: *mut zval) -> bool;
     pub fn object_init_ex(arg: *mut zval, ce: *mut zend_class_entry) -> zend_result;
     pub fn object_init_with_constructor(
         arg: *mut zval,
@@ -13995,6 +14196,10 @@ unsafe extern "C" {
     pub fn zend_str_has_nul_byte(str_: *const zend_string) -> bool;
     #[link_name = "zend_char_has_nul_byte__extern"]
     pub fn zend_char_has_nul_byte(s: *const ::std::os::raw::c_char, known_length: usize) -> bool;
+    #[link_name = "ZVAL_FSTRINGL__extern"]
+    pub fn ZVAL_FSTRINGL(z: *mut zval, s: *const ::std::os::raw::c_char, l: usize) -> bool;
+    #[link_name = "ZVAL_FSTRING__extern"]
+    pub fn ZVAL_FSTRING(z: *mut zval, s: *const ::std::os::raw::c_char) -> bool;
     pub fn zend_try_assign_typed_ref_ex(
         ref_: *mut zend_reference,
         zv: *mut zval,
@@ -14448,6 +14653,7 @@ unsafe extern "C" {
     ) -> *mut zend_attribute;
     pub fn zend_register_attribute_ce();
     pub fn zend_attributes_shutdown();
+    pub fn zend_sensitive_parameter_value_init(obj: *mut zend_object, value: *mut zval);
     #[link_name = "zend_ulong_ntz__extern"]
     pub fn zend_ulong_ntz(num: zend_ulong) -> ::std::os::raw::c_int;
     #[link_name = "zend_ulong_nlz__extern"]
@@ -15232,7 +15438,9 @@ unsafe extern "C" {
     );
     pub fn zend_observer_fiber_destroy_notify(destroying: *mut zend_fiber_context);
     pub fn smart_str_erealloc(str_: *mut smart_str, len: usize);
+    pub fn smart_str_ferealloc(str_: *mut smart_str, len: usize, fallible: bool) -> bool;
     pub fn smart_str_realloc(str_: *mut smart_str, len: usize);
+    pub fn smart_str_frealloc(str_: *mut smart_str, len: usize, fallible: bool) -> bool;
     pub fn smart_str_append_escaped(
         str_: *mut smart_str,
         s: *const ::std::os::raw::c_char,
@@ -15260,8 +15468,22 @@ unsafe extern "C" {
         value: *const zval,
         truncate: usize,
     ) -> zend_result;
+    #[link_name = "smart_str_falloc__extern"]
+    pub fn smart_str_falloc(
+        str_: *mut smart_str,
+        len: usize,
+        persistent: bool,
+        fallible: bool,
+    ) -> usize;
     #[link_name = "smart_str_alloc__extern"]
     pub fn smart_str_alloc(str_: *mut smart_str, len: usize, persistent: bool) -> usize;
+    #[link_name = "smart_str_fextend_ex__extern"]
+    pub fn smart_str_fextend_ex(
+        dest: *mut smart_str,
+        len: usize,
+        persistent: bool,
+        fallible: bool,
+    ) -> *mut ::std::os::raw::c_char;
     #[link_name = "smart_str_extend_ex__extern"]
     pub fn smart_str_extend_ex(
         dest: *mut smart_str,
@@ -15288,6 +15510,14 @@ unsafe extern "C" {
     pub fn smart_str_extract(dest: *mut smart_str) -> *mut zend_string;
     #[link_name = "smart_str_appendc_ex__extern"]
     pub fn smart_str_appendc_ex(dest: *mut smart_str, ch: ::std::os::raw::c_char, persistent: bool);
+    #[link_name = "smart_str_fappendl_ex__extern"]
+    pub fn smart_str_fappendl_ex(
+        dest: *mut smart_str,
+        str_: *const ::std::os::raw::c_char,
+        len: usize,
+        persistent: bool,
+        fallible: bool,
+    ) -> bool;
     #[link_name = "smart_str_appendl_ex__extern"]
     pub fn smart_str_appendl_ex(
         dest: *mut smart_str,
@@ -16343,10 +16573,7 @@ unsafe extern "C" {
     pub fn php_init_stream_wrappers(module_number: ::std::os::raw::c_int) -> zend_result;
     pub fn php_shutdown_stream_wrappers(module_number: ::std::os::raw::c_int);
     pub fn php_shutdown_stream_hashes();
-    pub fn zm_deactivate_streams(
-        type_: ::std::os::raw::c_int,
-        module_number: ::std::os::raw::c_int,
-    ) -> zend_result;
+    pub fn zm_post_zend_deactivate_streams() -> zend_result;
     pub fn php_register_url_stream_wrapper(
         protocol: *const ::std::os::raw::c_char,
         wrapper: *const php_stream_wrapper,
@@ -16602,6 +16829,7 @@ unsafe extern "C" {
         type_: ::std::os::raw::c_int,
         module_number: ::std::os::raw::c_int,
     ) -> zend_result;
+    pub fn php_url_scanner_early_rinit();
     pub fn php_url_scanner_adapt_single_url(
         url: *const ::std::os::raw::c_char,
         urllen: usize,
@@ -16701,6 +16929,7 @@ unsafe extern "C" {
     pub fn append_user_shutdown_function(
         shutdown_function_entry: *mut php_shutdown_function_entry,
     ) -> bool;
+    pub fn php_basic_early_rinit();
     pub fn php_call_shutdown_functions();
     pub fn php_free_shutdown_functions();
     pub fn zm_startup_var(
@@ -16739,6 +16968,10 @@ unsafe extern "C" {
         var_hash: *mut php_unserialize_data_t,
     ) -> ::std::os::raw::c_int;
     pub fn php_var_serialize_init() -> php_serialize_data_t;
+    pub fn php_var_serialize_set_incomplete_classes_only(
+        d: php_serialize_data_t,
+        incomplete_classes_only: bool,
+    );
     pub fn php_var_serialize_destroy(d: php_serialize_data_t);
     pub fn php_var_unserialize_init() -> php_unserialize_data_t;
     pub fn php_var_unserialize_destroy(d: php_unserialize_data_t);
@@ -16746,6 +16979,10 @@ unsafe extern "C" {
     pub fn php_var_unserialize_set_allowed_classes(
         d: php_unserialize_data_t,
         classes: *mut HashTable,
+    );
+    pub fn php_var_unserialize_set_incomplete_classes_only(
+        d: php_unserialize_data_t,
+        incomplete_classes_only: bool,
     );
     pub fn php_var_unserialize_set_max_depth(d: php_unserialize_data_t, max_depth: zend_long);
     pub fn php_var_unserialize_get_max_depth(d: php_unserialize_data_t) -> zend_long;
