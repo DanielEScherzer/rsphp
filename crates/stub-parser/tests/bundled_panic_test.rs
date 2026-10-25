@@ -29,12 +29,15 @@ fn verify_walker(walker: WalkDir) -> Result<(), Box<dyn std::error::Error>> {
         // php_date uses global constants to set the class constant
         // php_sql.stub.php uses iterable
         // zend_test splits the doc comment into two for one of the constants
+        // listformatter.stub.php uses #if conditions to specify the definition
+        // of IntlListFromatter::TYPE_AND and ::WIDTH_WIDE,
         skip!(
             "zend_builtin_functions",
             "zend_constants",
             "php_date",
             "php_spl",
             "test",
+            "listformatter",
         );
         let path = entry.into_path();
         // We don't care about the actual result, just that .expect() does not
