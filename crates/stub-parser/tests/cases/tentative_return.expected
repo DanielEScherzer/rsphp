@@ -1,12 +1,8 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `Demo` class.
 pub(crate) mod Demo {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_rs::{ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_OBJ_INFO, ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK};
+    use rsphp_sys::{MAY_BE_ARRAY, MAY_BE_LONG, MAY_BE_STRING, zend_class_entry, zend_function_entry, zend_internal_arg_info};
 
     /// Argument information for `Demo::test1()`.
     pub(crate) const ARGINFO_TEST1: [zend_internal_arg_info; 1] = [
@@ -28,9 +24,9 @@ pub(crate) mod Demo {
         assert_eq!(4, methods.len(), "Demo should have 3 methods");
 
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "Demo", methods);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "Demo", methods);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 0,

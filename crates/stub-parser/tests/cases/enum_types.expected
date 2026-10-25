@@ -1,17 +1,13 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `Unbacked` enum.
 pub(crate) mod Unbacked {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr};
 
 
     /// Register the `Unbacked` enum.
     pub(crate) fn register_enum() -> *mut zend_class_entry {
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_enum(
+            rsphp_sys::zend_register_internal_enum(
                 c"Unbacked".as_ptr(),
                 IS_UNDEF,
                 std::ptr::null_mut(),
@@ -28,14 +24,14 @@ pub(crate) mod Unbacked {
 }
 /// Module for `IntBacked` enum.
 pub(crate) mod IntBacked {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::ZVAL_LONG;
+    use rsphp_sys::{IS_LONG, zend_class_entry, zend_enum_add_case_cstr, zval};
 
 
     /// Register the `IntBacked` enum.
     pub(crate) fn register_enum() -> *mut zend_class_entry {
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_enum(
+            rsphp_sys::zend_register_internal_enum(
                 c"IntBacked".as_ptr(),
                 IS_LONG,
                 std::ptr::null_mut(),
@@ -60,14 +56,14 @@ pub(crate) mod IntBacked {
 }
 /// Module for `StringBacked` enum.
 pub(crate) mod StringBacked {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::ZVAL_STR;
+    use rsphp_sys::{IS_STRING, zend_class_entry, zend_enum_add_case_cstr, zend_string, zend_string_init, zval};
 
 
     /// Register the `StringBacked` enum.
     pub(crate) fn register_enum() -> *mut zend_class_entry {
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_enum(
+            rsphp_sys::zend_register_internal_enum(
                 c"StringBacked".as_ptr(),
                 IS_STRING,
                 std::ptr::null_mut(),

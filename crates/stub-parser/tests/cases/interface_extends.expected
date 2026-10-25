@@ -1,19 +1,15 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `HasMagic` interface.
 pub(crate) mod HasMagic {
-    use rsphp_macros_c::*;
-    use rsphp_sys::*;
+    use rsphp_sys::{zend_class_entry, zend_class_implements};
 
 
     /// Register the `HasMagic` interface.
     pub(crate) fn register_interface(zend_ce_Countable: *mut zend_class_entry, zend_ce_Stringable: *mut zend_class_entry) -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "HasMagic", NULL);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "HasMagic", NULL);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_interface(
+            rsphp_sys::zend_register_internal_interface(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
             )
         };

@@ -119,16 +119,24 @@ void zend_string_forget_hash_val__extern(zend_string *s) { zend_string_forget_ha
 uint32_t zend_string_refcount__extern(const zend_string *s) { return zend_string_refcount(s); }
 uint32_t zend_string_addref__extern(zend_string *s) { return zend_string_addref(s); }
 uint32_t zend_string_delref__extern(zend_string *s) { return zend_string_delref(s); }
+zend_string * zend_string_falloc__extern(size_t len, bool persistent, bool fallible) { return zend_string_falloc(len, persistent, fallible); }
 zend_string * zend_string_alloc__extern(size_t len, bool persistent) { return zend_string_alloc(len, persistent); }
+zend_string * zend_string_safe_falloc__extern(size_t n, size_t m, size_t l, bool persistent, bool fallible) { return zend_string_safe_falloc(n, m, l, persistent, fallible); }
 zend_string * zend_string_safe_alloc__extern(size_t n, size_t m, size_t l, bool persistent) { return zend_string_safe_alloc(n, m, l, persistent); }
 zend_string * zend_string_init__extern(const char *str, size_t len, bool persistent) { return zend_string_init(str, len, persistent); }
+zend_string * zend_string_finit__extern(const char *str, size_t len, bool persistent, bool fallible) { return zend_string_finit(str, len, persistent, fallible); }
+zend_string * zend_string_finit_fast__extern(const char *str, size_t len, bool fallible) { return zend_string_finit_fast(str, len, fallible); }
 zend_string * zend_string_init_fast__extern(const char *str, size_t len) { return zend_string_init_fast(str, len); }
 zend_string * zend_string_copy__extern(zend_string *s) { return zend_string_copy(s); }
 zend_string * zend_string_dup__extern(zend_string *s, bool persistent) { return zend_string_dup(s, persistent); }
 zend_string * zend_string_separate__extern(zend_string *s, bool persistent) { return zend_string_separate(s, persistent); }
+zend_string * zend_string_frealloc__extern(zend_string *s, size_t len, bool persistent, bool fallible) { return zend_string_frealloc(s, len, persistent, fallible); }
 zend_string * zend_string_realloc__extern(zend_string *s, size_t len, bool persistent) { return zend_string_realloc(s, len, persistent); }
+zend_string * zend_string_fextend__extern(zend_string *s, size_t len, bool persistent, bool fallible) { return zend_string_fextend(s, len, persistent, fallible); }
 zend_string * zend_string_extend__extern(zend_string *s, size_t len, bool persistent) { return zend_string_extend(s, len, persistent); }
+zend_string * zend_string_ftruncate__extern(zend_string *s, size_t len, bool persistent, bool fallible) { return zend_string_ftruncate(s, len, persistent, fallible); }
 zend_string * zend_string_truncate__extern(zend_string *s, size_t len, bool persistent) { return zend_string_truncate(s, len, persistent); }
+zend_string * zend_string_safe_frealloc__extern(zend_string *s, size_t n, size_t m, size_t l, bool persistent, bool fallible) { return zend_string_safe_frealloc(s, n, m, l, persistent, fallible); }
 zend_string * zend_string_safe_realloc__extern(zend_string *s, size_t n, size_t m, size_t l, bool persistent) { return zend_string_safe_realloc(s, n, m, l, persistent); }
 void zend_string_free__extern(zend_string *s) { zend_string_free(s); }
 void zend_string_efree__extern(zend_string *s) { zend_string_efree(s); }
@@ -171,6 +179,7 @@ zval * zend_hash_str_find_ind__extern(const HashTable *ht, const char *str, size
 bool zend_hash_str_exists_ind__extern(const HashTable *ht, const char *str, size_t len) { return zend_hash_str_exists_ind(ht, str, len); }
 zval * zend_symtable_add_new__extern(HashTable *ht, zend_string *key, zval *pData) { return zend_symtable_add_new(ht, key, pData); }
 zval * zend_symtable_update__extern(HashTable *ht, zend_string *key, zval *pData) { return zend_symtable_update(ht, key, pData); }
+zval * zend_symtable_fupdate__extern(HashTable *ht, zend_string *key, zval *pData) { return zend_symtable_fupdate(ht, key, pData); }
 zval * zend_symtable_update_ind__extern(HashTable *ht, zend_string *key, zval *pData) { return zend_symtable_update_ind(ht, key, pData); }
 zend_result zend_symtable_del__extern(HashTable *ht, zend_string *key) { return zend_symtable_del(ht, key); }
 zend_result zend_symtable_del_ind__extern(HashTable *ht, zend_string *key) { return zend_symtable_del_ind(ht, key); }
@@ -198,6 +207,7 @@ void * zend_hash_update_mem__extern(HashTable *ht, zend_string *key, void *pData
 void * zend_hash_str_update_mem__extern(HashTable *ht, const char *str, size_t len, void *pData, size_t size) { return zend_hash_str_update_mem(ht, str, len, pData, size); }
 void * zend_hash_index_add_ptr__extern(HashTable *ht, zend_ulong h, void *pData) { return zend_hash_index_add_ptr(ht, h, pData); }
 void * zend_hash_index_add_new_ptr__extern(HashTable *ht, zend_ulong h, void *pData) { return zend_hash_index_add_new_ptr(ht, h, pData); }
+void * zend_hash_index_fupdate_ptr__extern(HashTable *ht, zend_ulong h, void *pData, bool fallible) { return zend_hash_index_fupdate_ptr(ht, h, pData, fallible); }
 void * zend_hash_index_update_ptr__extern(HashTable *ht, zend_ulong h, void *pData) { return zend_hash_index_update_ptr(ht, h, pData); }
 void * zend_hash_index_add_mem__extern(HashTable *ht, zend_ulong h, void *pData, size_t size) { return zend_hash_index_add_mem(ht, h, pData, size); }
 void * zend_hash_next_index_insert_ptr__extern(HashTable *ht, void *pData) { return zend_hash_next_index_insert_ptr(ht, pData); }
@@ -279,6 +289,7 @@ bool try_convert_to_string__extern(zval *op) { return try_convert_to_string(op);
 bool i_zend_is_true__extern(const zval *op) { return i_zend_is_true(op); }
 zend_string * zend_string_tolower__extern(zend_string *str) { return zend_string_tolower(str); }
 zend_string * zend_string_toupper__extern(zend_string *str) { return zend_string_toupper(str); }
+zend_string * zend_string_ftolower__extern(zend_string *str) { return zend_string_ftolower(str); }
 void fast_long_increment_function__extern(zval *op1) { fast_long_increment_function(op1); }
 void fast_long_decrement_function__extern(zval *op1) { fast_long_decrement_function(op1); }
 void fast_long_add_function__extern(zval *result, zval *op1, zval *op2) { fast_long_add_function(result, op1, op2); }
@@ -357,6 +368,8 @@ HashTable * zend_class_constants_table__extern(zend_class_entry *ce) { return ze
 zval * zend_class_default_properties_table__extern(zend_class_entry *ce) { return zend_class_default_properties_table(ce); }
 void zend_class_set_backed_enum_table__extern(zend_class_entry *ce, HashTable *backed_enum_table) { zend_class_set_backed_enum_table(ce, backed_enum_table); }
 HashTable * zend_class_backed_enum_table__extern(zend_class_entry *ce) { return zend_class_backed_enum_table(ce); }
+bool _array_finit__extern(zval *arg, size_t size) { return _array_finit(arg, size); }
+bool _array_finit_ex__extern(zval *arg, size_t size, bool packed) { return _array_finit_ex(arg, size, packed); }
 void add_assoc_long__extern(zval *arg, const char *key, zend_long n) { add_assoc_long(arg, key, n); }
 void add_assoc_null__extern(zval *arg, const char *key) { add_assoc_null(arg, key); }
 void add_assoc_bool__extern(zval *arg, const char *key, bool b) { add_assoc_bool(arg, key, b); }
@@ -398,6 +411,8 @@ const char * zend_get_object_type__extern(const zend_class_entry *ce) { return z
 const char * zend_get_object_type_uc__extern(const zend_class_entry *ce) { return zend_get_object_type_uc(ce); }
 bool zend_str_has_nul_byte__extern(const zend_string *str) { return zend_str_has_nul_byte(str); }
 bool zend_char_has_nul_byte__extern(const char *s, size_t known_length) { return zend_char_has_nul_byte(s, known_length); }
+bool ZVAL_FSTRINGL__extern(zval *z, const char *s, size_t l) { return ZVAL_FSTRINGL(z, s, l); }
+bool ZVAL_FSTRING__extern(zval *z, const char *s) { return ZVAL_FSTRING(z, s); }
 zval * zend_try_array_init_size__extern(zval *zv, uint32_t size) { return zend_try_array_init_size(zv, size); }
 zval * zend_try_array_init__extern(zval *zv) { return zend_try_array_init(zv); }
 bool zend_parse_arg_bool_ex__extern(const zval *arg, bool *dest, bool *is_null, bool check_null, uint32_t arg_num, bool frameless) { return zend_parse_arg_bool_ex(arg, dest, is_null, check_null, arg_num, frameless); }
@@ -481,7 +496,9 @@ void zend_observer_fcall_end__extern(zend_execute_data *execute_data, zval *retu
 void zend_observer_function_declared_notify__extern(zend_op_array *op_array, zend_string *name) { zend_observer_function_declared_notify(op_array, name); }
 void zend_observer_class_linked_notify__extern(zend_class_entry *ce, zend_string *name) { zend_observer_class_linked_notify(ce, name); }
 void zend_observer_error_notify__extern(int type, zend_string *error_filename, uint32_t error_lineno, zend_string *message) { zend_observer_error_notify(type, error_filename, error_lineno, message); }
+size_t smart_str_falloc__extern(smart_str *str, size_t len, bool persistent, bool fallible) { return smart_str_falloc(str, len, persistent, fallible); }
 size_t smart_str_alloc__extern(smart_str *str, size_t len, bool persistent) { return smart_str_alloc(str, len, persistent); }
+char * smart_str_fextend_ex__extern(smart_str *dest, size_t len, bool persistent, bool fallible) { return smart_str_fextend_ex(dest, len, persistent, fallible); }
 char * smart_str_extend_ex__extern(smart_str *dest, size_t len, bool persistent) { return smart_str_extend_ex(dest, len, persistent); }
 char * smart_str_extend__extern(smart_str *dest, size_t length) { return smart_str_extend(dest, length); }
 void smart_str_free_ex__extern(smart_str *str, bool persistent) { smart_str_free_ex(str, persistent); }
@@ -493,6 +510,7 @@ void smart_str_trim_to_size__extern(smart_str *dest) { smart_str_trim_to_size(de
 zend_string * smart_str_extract_ex__extern(smart_str *str, bool persistent) { return smart_str_extract_ex(str, persistent); }
 zend_string * smart_str_extract__extern(smart_str *dest) { return smart_str_extract(dest); }
 void smart_str_appendc_ex__extern(smart_str *dest, char ch, bool persistent) { smart_str_appendc_ex(dest, ch, persistent); }
+bool smart_str_fappendl_ex__extern(smart_str *dest, const char *str, size_t len, bool persistent, bool fallible) { return smart_str_fappendl_ex(dest, str, len, persistent, fallible); }
 void smart_str_appendl_ex__extern(smart_str *dest, const char *str, size_t len, bool persistent) { smart_str_appendl_ex(dest, str, len, persistent); }
 void smart_str_append_ex__extern(smart_str *dest, const zend_string *src, bool persistent) { smart_str_append_ex(dest, src, persistent); }
 void smart_str_append_smart_str_ex__extern(smart_str *dest, const smart_str *src, bool persistent) { smart_str_append_smart_str_ex(dest, src, persistent); }

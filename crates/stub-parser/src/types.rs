@@ -1,6 +1,8 @@
 use php_ast::ast::{BuiltinType, NameKind};
 use php_ast::owned::{Name, TypeHintKind};
 
+use crate::imports::ImportsUsed;
+
 /// Information for a typehint for a function or parameter.
 #[derive(Debug)]
 #[expect(
@@ -12,8 +14,12 @@ pub(crate) struct FunctionTypehint {
     pub(crate) class_info: Option<String>,
     /// Info for type masks.
     pub(crate) mask_info: Option<String>,
+    /// `rsphp_sys` imports to include when using the type mask.
+    pub(crate) mask_uses: Vec<String>,
     /// Info for return types.
     pub(crate) return_info: Option<String>,
+    /// `rsphp_sys` imports to use when including the return information.
+    pub(crate) return_uses: Vec<String>,
     /// Whether the type is nullable.
     pub(crate) is_nullable: bool,
 }
@@ -80,6 +86,7 @@ impl ArgInfoTypeRepr {
     /// second is the string to actually use.
     pub(crate) fn property_type_code(
         &self,
+        scope: &mut ImportsUsed,
         namespace: Option<&String>,
         name_str: &str,
     ) -> Result<(Option<String>, String), String> {
@@ -88,48 +95,70 @@ impl ArgInfoTypeRepr {
             None => String::new(),
         };
         match self {
-            ArgInfoTypeRepr::Builtin(_) => Ok((
-                None,
-                format!("ZEND_TYPE_INIT_MASK!({})", self.type_info()?.1),
-            )),
+            ArgInfoTypeRepr::Builtin(_) => {
+                let type_info = self.type_info()?;
+                scope.add_import("rsphp_sys", type_info.1);
+                scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_MASK");
+                Ok((None, format!("ZEND_TYPE_INIT_MASK!({})", type_info.1)))
+            }
             ArgInfoTypeRepr::Nullable(inner) => match **inner {
-                ArgInfoTypeRepr::Builtin(_) => Ok((
-                    None,
-                    format!("ZEND_TYPE_INIT_MASK!({}|MAY_BE_NULL)", inner.type_info()?.1),
-                )),
-                ArgInfoTypeRepr::Named(_) | ArgInfoTypeRepr::FullyQualifiedNamed(_) => Ok((
-                    inner.property_type_code(namespace, name_str)?.0,
-                    format!("ZEND_TYPE_INIT_CLASS!(property_{name_str}_type, 0, MAY_BE_NULL)"),
-                )),
+                ArgInfoTypeRepr::Builtin(_) => {
+                    let type_info = inner.type_info()?;
+                    scope.add_import("rsphp_sys", type_info.1);
+                    scope.add_import("rsphp_sys", "MAY_BE_NULL");
+                    scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_MASK");
+                    Ok((
+                        None,
+                        format!("ZEND_TYPE_INIT_MASK!({}|MAY_BE_NULL)", type_info.1),
+                    ))
+                }
+                ArgInfoTypeRepr::Named(_) | ArgInfoTypeRepr::FullyQualifiedNamed(_) => {
+                    scope.add_import("rsphp_sys", "MAY_BE_NULL");
+                    scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_CLASS");
+                    Ok((
+                        inner.property_type_code(scope, namespace, name_str)?.0,
+                        format!("ZEND_TYPE_INIT_CLASS!(property_{name_str}_type, 0, MAY_BE_NULL)"),
+                    ))
+                }
                 _ => Err(format!("Unhandled type code: {self:?}")),
             },
-            ArgInfoTypeRepr::Named(raw_name) => Ok((
-                Some(format!(
-                    "{space}let property_{name_str}_type: *mut zend_string = unsafe {{\
-                        \n{space}{space}zend_string_init(\
-                        \n{space}{space}{space}c\"{name}\".as_ptr(),\
-                        \n{space}{space}{space}\"{name}\".len(),\
-                        \n{space}{space}{space}true,\
-                        \n{space}{space})\
-                        \n{space}}};",
-                    name = format!("{namespace_prefix}{raw_name}"),
-                    space = "    "
-                )),
-                format!("ZEND_TYPE_INIT_CLASS!(property_{name_str}_type, 0, 0)"),
-            )),
-            ArgInfoTypeRepr::FullyQualifiedNamed(name) => Ok((
-                Some(format!(
-                    "{space}let property_{name_str}_type: *mut zend_string = unsafe {{\
-                        \n{space}{space}zend_string_init(\
-                        \n{space}{space}{space}c\"{name}\".as_ptr(),\
-                        \n{space}{space}{space}\"{name}\".len(),\
-                        \n{space}{space}{space}true,\
-                        \n{space}{space})\
-                        \n{space}}};",
-                    space = "    "
-                )),
-                format!("ZEND_TYPE_INIT_CLASS!(property_{name_str}_type, 0, 0)"),
-            )),
+            ArgInfoTypeRepr::Named(raw_name) => {
+                scope.add_import("rsphp_sys", "zend_string");
+                scope.add_import("rsphp_sys", "zend_string_init");
+                scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_CLASS");
+                Ok((
+                    Some(format!(
+                        "{space}let property_{name_str}_type: *mut zend_string = unsafe {{\
+                            \n{space}{space}zend_string_init(\
+                            \n{space}{space}{space}c\"{name}\".as_ptr(),\
+                            \n{space}{space}{space}\"{name}\".len(),\
+                            \n{space}{space}{space}true,\
+                            \n{space}{space})\
+                            \n{space}}};",
+                        name = format!("{namespace_prefix}{raw_name}"),
+                        space = "    "
+                    )),
+                    format!("ZEND_TYPE_INIT_CLASS!(property_{name_str}_type, 0, 0)"),
+                ))
+            }
+            ArgInfoTypeRepr::FullyQualifiedNamed(name) => {
+                scope.add_import("rsphp_sys", "zend_string");
+                scope.add_import("rsphp_sys", "zend_string_init");
+                scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_CLASS");
+                Ok((
+                    Some(format!(
+                        "{space}let property_{name_str}_type: *mut zend_string = unsafe {{\
+                            \n{space}{space}zend_string_init(\
+                            \n{space}{space}{space}c\"{name}\".as_ptr(),\
+                            \n{space}{space}{space}\"{name}\".len(),\
+                            \n{space}{space}{space}true,\
+                            \n{space}{space})\
+                            \n{space}}};",
+                        space = "    "
+                    )),
+                    format!("ZEND_TYPE_INIT_CLASS!(property_{name_str}_type, 0, 0)"),
+                ))
+            }
             ArgInfoTypeRepr::Union(inner) => {
                 if inner
                     .iter()
@@ -139,6 +168,10 @@ impl ArgInfoTypeRepr {
                         .iter()
                         .map(|inner_type| inner_type.type_info().map(|inner_info| inner_info.1))
                         .collect::<Result<_, _>>()?;
+                    for inner_flag in &parts {
+                        scope.add_import("rsphp_sys", *inner_flag);
+                    }
+                    scope.add_import("rsphp_macros_c", "ZEND_TYPE_INIT_MASK");
                     Ok((None, format!("ZEND_TYPE_INIT_MASK!({})", parts.join("|"))))
                 } else {
                     Err(format!("Unhandled union: {inner:?}"))
@@ -161,12 +194,19 @@ impl ArgInfoTypeRepr {
             Some(ns) => format!("{ns}\\\\"),
             None => String::new(),
         };
+        let mut mask_uses = vec![];
+        let mut return_uses = vec![];
         let (class_type, mask, for_info) = match without_null {
-            ArgInfoTypeRepr::Builtin(_) => (
-                None,
-                Some(without_null.type_info()?.1.to_owned()),
-                Some(without_null.type_info()?.0.to_owned()),
-            ),
+            ArgInfoTypeRepr::Builtin(_) => {
+                let type_info = without_null.type_info()?;
+                mask_uses.push(type_info.1.to_owned());
+                return_uses.push(type_info.0.to_owned());
+                (
+                    None,
+                    Some(type_info.1.to_owned()),
+                    Some(type_info.0.to_owned()),
+                )
+            }
             ArgInfoTypeRepr::Named(name) => (Some(format!("{namespace_prefix}{name}")), None, None),
             ArgInfoTypeRepr::FullyQualifiedNamed(name) => (Some(name.clone()), None, None),
             ArgInfoTypeRepr::Union(inner) => {
@@ -178,28 +218,36 @@ impl ArgInfoTypeRepr {
                 if inner_repr.iter().any(|repr| repr.is_nullable) {
                     return Err(format!("Union {inner:#?} contains nullable types"));
                 }
-                let mask_parts = inner_repr
-                    .iter()
-                    .filter_map(|repr| repr.mask_info.clone())
-                    .collect::<Vec<_>>();
-                let info_parts = inner_repr
-                    .iter()
-                    .filter_map(|repr| repr.return_info.clone())
-                    .collect::<Vec<_>>();
-                let name_parts = inner_repr
-                    .iter()
-                    .filter_map(|repr| repr.class_info.clone())
-                    .collect::<Vec<_>>();
+                let mut total_mask_parts = vec![];
+                let mut total_info_parts = vec![];
+                let mut total_name_parts = vec![];
+                for inner_type in inner_repr {
+                    if let Some(info) = inner_type.mask_info {
+                        total_mask_parts.push(info);
+                    }
+                    if let Some(return_info) = inner_type.return_info {
+                        total_info_parts.push(return_info);
+                    }
+                    if let Some(class_info) = inner_type.class_info {
+                        total_name_parts.push(class_info);
+                    }
+                    mask_uses.extend(inner_type.mask_uses);
+                    return_uses.extend(inner_type.return_uses);
+                }
                 // Might only contain basic types
-                if name_parts.is_empty() {
-                    (None, Some(mask_parts.join("|")), Some(info_parts.join("|")))
-                } else if mask_parts.is_empty() {
-                    (Some(name_parts.join("|")), None, None)
+                if total_name_parts.is_empty() {
+                    (
+                        None,
+                        Some(total_mask_parts.join("|")),
+                        Some(total_info_parts.join("|")),
+                    )
+                } else if total_mask_parts.is_empty() {
+                    (Some(total_name_parts.join("|")), None, None)
                 } else {
                     (
-                        Some(name_parts.join("|")),
-                        Some(mask_parts.join("|")),
-                        Some(info_parts.join("|")),
+                        Some(total_name_parts.join("|")),
+                        Some(total_mask_parts.join("|")),
+                        Some(total_info_parts.join("|")),
                     )
                 }
             }
@@ -210,13 +258,15 @@ impl ArgInfoTypeRepr {
         Ok(FunctionTypehint {
             class_info: class_type,
             mask_info: mask,
+            mask_uses,
             return_info: for_info,
+            return_uses,
             is_nullable,
         })
     }
 
     /// For builtin types, get the `IS_*` and `MAY_BE_*` flags.
-    pub(crate) fn type_info(&self) -> Result<(&str, &str), String> {
+    fn type_info(&self) -> Result<(&str, &str), String> {
         let ArgInfoTypeRepr::Builtin(php_type) = self else {
             return Err(format!("type_info() called for {self:#?}"));
         };

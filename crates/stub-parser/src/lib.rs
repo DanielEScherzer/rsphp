@@ -14,6 +14,9 @@ pub use crate::errors::ErrorCode;
 mod builder;
 use crate::builder::ArgInfoBuilder;
 
+/// Module for `ImportsUsed`.
+mod imports;
+
 /// Module for `ArgInfoTypeRepr`.
 mod types;
 

@@ -1,12 +1,9 @@
-use rsphp_macros_c::*;
-use rsphp_macros_rs::*;
-use rsphp_sys::*;
 
 /// Module for `CustomCastable` class.
 pub(crate) mod CustomCastable {
-    use rsphp_macros_c::*;
-    use rsphp_macros_rs::*;
-    use rsphp_sys::*;
+    use rsphp_macros_c::ZVAL_LONG;
+    use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION;
+    use rsphp_sys::{ZEND_ATTRIBUTE_TARGET_CLASS, zend_add_class_attribute, zend_attribute, zend_class_entry, zend_function_entry, zend_internal_arg_info, zend_string, zend_string_init_interned, zend_string_release_ex};
 
     /// Argument information for `CustomCastable::__construct()`.
     pub(crate) const ARGINFO___CONSTRUCT: [zend_internal_arg_info; 1] = [
@@ -18,9 +15,9 @@ pub(crate) mod CustomCastable {
         assert_eq!(2, methods.len(), "CustomCastable should have 1 methods");
 
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
-        INIT_CLASS_ENTRY!(ce, "CustomCastable", methods);
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "CustomCastable", methods);
         let class_entry: *mut zend_class_entry = unsafe {
-            zend_register_internal_class_with_flags(
+            rsphp_sys::zend_register_internal_class_with_flags(
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
                 std::ptr::null_mut(),
                 0,
