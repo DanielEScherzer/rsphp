@@ -3,7 +3,6 @@ pub(crate) mod Demo {
     use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_EMPTY_ARRAY, ZVAL_EMPTY_STRING, ZVAL_FALSE, ZVAL_INTERNED_STR, ZVAL_LONG, ZVAL_NULL, ZVAL_TRUE};
     use rsphp_sys::{MAY_BE_ANY, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
-
     /// Register the `Demo` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };

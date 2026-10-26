@@ -52,7 +52,6 @@ pub(crate) mod Demo {
             )
         };
 
-
         class_entry
     }
 }

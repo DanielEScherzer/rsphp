@@ -25,7 +25,6 @@ pub(crate) mod Demo_InDemoNamespace {
             )
         };
 
-
         class_entry
     }
 }
@@ -57,7 +56,6 @@ pub(crate) mod Other_InOtherNamespace {
                 0,
             )
         };
-
 
         class_entry
     }

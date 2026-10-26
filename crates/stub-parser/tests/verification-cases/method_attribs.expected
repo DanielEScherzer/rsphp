@@ -245,7 +245,6 @@ pub(crate) mod Demo {
             )
         };
 
-
         unsafe {
             let fn_ptr: *mut zend_function = zend_hash_str_find_ptr(
                 std::ptr::from_ref::<HashTable>(&(*class_entry).function_table),

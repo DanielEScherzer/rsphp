@@ -3,7 +3,6 @@ pub(crate) mod Reference {
     use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
     use rsphp_sys::{MAY_BE_NULL, MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, ZEND_ACC_READONLY, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
-
     /// Register the `Reference` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };

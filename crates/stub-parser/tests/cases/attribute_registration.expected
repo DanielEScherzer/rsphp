@@ -23,7 +23,6 @@ pub(crate) mod CustomCastable {
             )
         };
 
-
         unsafe {
             let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
                 c"Attribute".as_ptr(),

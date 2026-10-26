@@ -2,7 +2,6 @@
 pub(crate) mod Demo {
     use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry};
 
-
     /// Register the `Demo` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
@@ -15,14 +14,12 @@ pub(crate) mod Demo {
             )
         };
 
-
         class_entry
     }
 }
 /// Module for `Demo2` class.
 pub(crate) mod Demo2 {
     use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, zend_class_entry};
-
 
     /// Register the `Demo2` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
@@ -36,14 +33,12 @@ pub(crate) mod Demo2 {
             )
         };
 
-
         class_entry
     }
 }
 /// Module for `Demo3` class.
 pub(crate) mod Demo3 {
     use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry};
-
 
     /// Register the `Demo3` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
@@ -57,14 +52,12 @@ pub(crate) mod Demo3 {
             )
         };
 
-
         class_entry
     }
 }
 /// Module for `IsAbstract` class.
 pub(crate) mod IsAbstract {
     use rsphp_sys::{ZEND_ACC_ABSTRACT, zend_class_entry};
-
 
     /// Register the `IsAbstract` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
@@ -78,14 +71,12 @@ pub(crate) mod IsAbstract {
             )
         };
 
-
         class_entry
     }
 }
 /// Module for `IsReadOnly` class.
 pub(crate) mod IsReadOnly {
     use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_READONLY_CLASS, zend_class_entry};
-
 
     /// Register the `IsReadOnly` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
@@ -99,14 +90,12 @@ pub(crate) mod IsReadOnly {
             )
         };
 
-
         class_entry
     }
 }
 /// Module for `AllowsDynamicProperties` class.
 pub(crate) mod AllowsDynamicProperties {
     use rsphp_sys::{ZEND_ACC_ALLOW_DYNAMIC_PROPERTIES, zend_add_class_attribute, zend_class_entry, zend_string, zend_string_init_interned, zend_string_release_ex};
-
 
     /// Register the `AllowsDynamicProperties` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
@@ -119,7 +108,6 @@ pub(crate) mod AllowsDynamicProperties {
                 ZEND_ACC_ALLOW_DYNAMIC_PROPERTIES,
             )
         };
-
 
         unsafe {
             let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(

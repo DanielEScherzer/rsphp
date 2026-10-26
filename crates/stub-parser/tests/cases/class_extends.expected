@@ -2,7 +2,6 @@
 pub(crate) mod Base {
     use rsphp_sys::zend_class_entry;
 
-
     /// Register the `Base` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
@@ -15,14 +14,12 @@ pub(crate) mod Base {
             )
         };
 
-
         class_entry
     }
 }
 /// Module for `Demo` class.
 pub(crate) mod Demo {
     use rsphp_sys::zend_class_entry;
-
 
     /// Register the `Demo` class.
     pub(crate) fn register_class(zend_ce_Base: *mut zend_class_entry) -> *mut zend_class_entry {
@@ -35,7 +32,6 @@ pub(crate) mod Demo {
                 0,
             )
         };
-
 
         class_entry
     }

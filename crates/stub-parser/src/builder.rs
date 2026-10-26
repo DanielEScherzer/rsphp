@@ -1491,6 +1491,10 @@ impl ArgInfoBuilder<'_> {
             verification_code,
             self.parts.join("\n")
         );
-        result.trim().to_owned() + "\n"
+        let trimmed = result.trim().to_owned() + "\n";
+        if let Ok(regex) = Regex::new("\n\n\n+") {
+            return regex.replace_all(&trimmed, "\n\n").into_owned();
+        }
+        trimmed
     }
 }
