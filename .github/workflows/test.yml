@@ -95,7 +95,9 @@ jobs:
         uses: ./php/php-src/ext/rust-ext/.github/actions/verify-generated
         with:
           working-directory: php/php-src/ext/rust-ext
-          extra-pathspec: ':(exclude)crates/sys/bindings.rs'
+          extra-pathspec: >
+            ':(exclude)crates/sys/bindings.rs'
+            ':(exclude)crates/sys/reexport.c'
 
   test:
     name: >
