@@ -66,6 +66,23 @@ fn main() {
         // type which is only declared in a C file. Also cannot manually reexport
         // so just block it entirely
         .blocklist_function("zend_lazy_object_get_instance")
+        // __m128i isn't FFI safe in zend_simd.h and those functions cannot be
+        // marked with target_feature, rust-lang/rust-bindgen#3533
+        .blocklist_function("_mm_sll_epi16")
+        .blocklist_function("_mm_sll_epi32")
+        .blocklist_function("_mm_sll_epi64")
+        .blocklist_function("_mm_sra_epi16")
+        .blocklist_function("_mm_sra_epi32")
+        .blocklist_function("_mm_srl_epi16")
+        .blocklist_function("_mm_srl_epi32")
+        .blocklist_function("_mm_srl_epi64")
+        .blocklist_function("_mm_madd_epi16")
+        .blocklist_function("_mm_mulhi_epi16")
+        .blocklist_function("_mm_mulhi_epu16")
+        .blocklist_function("_mm_mullo_epi16")
+        .blocklist_function("_mm_mul_epu32")
+        .blocklist_function("_mm_sad_epu8")
+        .blocklist_function("_mm_movemask_epi8")
         .default_enum_style(EnumVariation::ModuleConsts)
         .merge_extern_blocks(true)
         // SLOW and didn't actually add anything
