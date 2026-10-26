@@ -36,8 +36,7 @@ jobs:
       Run clippy (${{ matrix.php }},
       php ${{ matrix.php_debug && 'debug' || 'release' }},
       ${{ matrix.php_zts && 'ZTS' || 'NTS' }},
-      rust ${{ matrix.rust }})
-    runs-on: ubuntu-latest
+      rust ${{ matrix.rust }} on ${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -45,6 +44,8 @@ jobs:
         rust: ["1.99.0"]
         php_zts: [true, false]
         php_debug: [true, false]
+        os: ["ubuntu-24.04", "ubuntu-24.04-arm"]
+    runs-on: ${{ matrix.os }}
     steps:
       # We need to clone and configure PHP so that bindings can be generated
       # in the build script for clippy; need to build it so that php-config
@@ -94,15 +95,16 @@ jobs:
         uses: ./php/php-src/ext/rust-ext/.github/actions/verify-generated
         with:
           working-directory: php/php-src/ext/rust-ext
-          extra-pathspec: ':(exclude)crates/sys/bindings.rs'
+          extra-pathspec: >
+            ':(exclude)crates/sys/bindings.rs'
+            ':(exclude)crates/sys/reexport.c'
 
   test:
     name: >
       Run tests (${{ matrix.php }},
       php ${{ matrix.php_debug && 'debug' || 'release' }},
       ${{ matrix.php_zts && 'ZTS' || 'NTS' }},
-      rust ${{ matrix.rust }})
-    runs-on: ubuntu-latest
+      rust ${{ matrix.rust }} on ${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -110,6 +112,8 @@ jobs:
         rust: ["1.99.0"]
         php_zts: [true, false]
         php_debug: [true, false]
+        os: ["ubuntu-24.04", "ubuntu-24.04-arm"]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout PHP
         uses: actions/checkout@v7
