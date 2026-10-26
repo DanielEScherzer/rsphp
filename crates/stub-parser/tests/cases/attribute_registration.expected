@@ -1,4 +1,3 @@
-
 /// Module for `CustomCastable` class.
 pub(crate) mod CustomCastable {
     use rsphp_macros_c::ZVAL_LONG;
@@ -23,7 +22,6 @@ pub(crate) mod CustomCastable {
                 0,
             )
         };
-
 
         unsafe {
             let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(

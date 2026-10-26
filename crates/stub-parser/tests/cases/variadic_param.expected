@@ -1,4 +1,3 @@
-
 /// Module for `Demo` class.
 pub(crate) mod Demo {
     use rsphp_macros_c::ZEND_ARG_VARIADIC_TYPE_INFO;
@@ -24,7 +23,6 @@ pub(crate) mod Demo {
                 0,
             )
         };
-
 
         class_entry
     }

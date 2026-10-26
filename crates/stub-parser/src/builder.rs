@@ -959,7 +959,7 @@ impl ArgInfoBuilder<'_> {
             {class_attributes_str}\
             \n{space}class_entry\
             \n}}",
-            properties.join("\n    "),
+            properties.join("\n"),
             constants.join("\n"),
             methods_param = registration_params.join(", "),
             module_parts = module_parts.join("\n"),
@@ -1485,11 +1485,16 @@ impl ArgInfoBuilder<'_> {
         } else {
             String::new()
         };
-        format!(
-            "{}{extra_uses_code}{}\n{}\n",
+        let result = format!(
+            "{}{extra_uses_code}{}\n{}",
             self.scope.as_uses(),
             verification_code,
             self.parts.join("\n")
-        )
+        );
+        let trimmed = result.trim().to_owned() + "\n";
+        if let Ok(regex) = Regex::new("\n\n\n+") {
+            return regex.replace_all(&trimmed, "\n\n").into_owned();
+        }
+        trimmed
     }
 }

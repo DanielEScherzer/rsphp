@@ -1,9 +1,7 @@
-
 /// Module for `Reference` class.
 pub(crate) mod Reference {
     use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
     use rsphp_sys::{MAY_BE_NULL, MAY_BE_STRING, ZEND_ACC_FINAL, ZEND_ACC_NOT_SERIALIZABLE, ZEND_ACC_NO_DYNAMIC_PROPERTIES, ZEND_ACC_PUBLIC, ZEND_ACC_READONLY, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
-
 
     /// Register the `Reference` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
@@ -39,7 +37,7 @@ pub(crate) mod Reference {
         unsafe {
             zend_string_release(property_name_name);
         }
-        
+
         let mut property_shorthand_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_shorthand_default_value)); }
         let property_shorthand_name: *mut zend_string = unsafe {
@@ -62,7 +60,7 @@ pub(crate) mod Reference {
         unsafe {
             zend_string_release(property_shorthand_name);
         }
-        
+
         let mut property_symbolicTarget_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_symbolicTarget_default_value)); }
         let property_symbolicTarget_name: *mut zend_string = unsafe {

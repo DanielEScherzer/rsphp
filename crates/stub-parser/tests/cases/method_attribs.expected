@@ -1,4 +1,3 @@
-
 /// Module for `Demo` class.
 pub(crate) mod Demo {
     use rsphp_macros_c::{ZSTR_KNOWN, ZSTR_LEN, ZVAL_STR};
@@ -23,7 +22,6 @@ pub(crate) mod Demo {
                 0,
             )
         };
-
 
         unsafe {
             let fn_ptr: *mut zend_function = zend_hash_str_find_ptr(

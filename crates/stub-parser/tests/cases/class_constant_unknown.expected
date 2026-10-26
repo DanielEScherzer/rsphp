@@ -1,9 +1,7 @@
-
 /// Module for `Demo` class.
 pub(crate) mod Demo {
     use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_LONG};
     use rsphp_sys::{MAY_BE_LONG, ZEND_ACC_DEPRECATED, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_class_constant, zend_string, zend_string_init_interned, zend_string_release_ex, zval};
-
 
     /// Register the `Demo` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {

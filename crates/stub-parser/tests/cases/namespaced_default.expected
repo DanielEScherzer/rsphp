@@ -1,4 +1,3 @@
-
 /// Module for `CustomCasting\CustomCastable` class.
 pub(crate) mod CustomCasting_CustomCastable {
     use rsphp_macros_c::{ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE, ZEND_TYPE_INIT_MASK, ZVAL_LONG};

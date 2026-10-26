@@ -1,9 +1,7 @@
-
 /// Module for `Demo` enum.
 pub(crate) mod Demo {
     use rsphp_macros_c::ZVAL_STR;
     use rsphp_sys::{IS_STRING, zend_class_entry, zend_enum_add_case_cstr, zend_string, zend_string_init, zval};
-
 
     /// Register the `Demo` enum.
     pub(crate) fn register_enum() -> *mut zend_class_entry {
@@ -36,7 +34,6 @@ pub(crate) mod Demo {
                 zend_enum_add_case_cstr(class_entry, c"BAR".as_ptr(), std::ptr::from_mut::<zval>(&mut value));
             }
         };
-
 
         class_entry
     }

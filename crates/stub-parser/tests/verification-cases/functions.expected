@@ -5,4 +5,3 @@ use rsphp_sys::{MAY_BE_VOID, zend_internal_arg_info};
 pub(crate) const ARGINFO_TEST1: [zend_internal_arg_info; 1] = [
     ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_VOID, 0),
 ];
-

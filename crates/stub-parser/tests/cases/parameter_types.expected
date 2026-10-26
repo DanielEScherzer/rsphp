@@ -31,4 +31,3 @@ pub(crate) const ARGINFO_CLASSMASKUNION: [zend_internal_arg_info; 2] = [
     ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 1, MAY_BE_VOID, 0),
     ZEND_ARG_OBJ_TYPE_MASK!(0, "param", "stdClass", MAY_BE_LONG|MAY_BE_BOOL, NULL),
 ];
-

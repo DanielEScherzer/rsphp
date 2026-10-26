@@ -1,8 +1,6 @@
-
 /// Module for `HasMagic` interface.
 pub(crate) mod HasMagic {
     use rsphp_sys::{zend_class_entry, zend_class_implements};
-
 
     /// Register the `HasMagic` interface.
     pub(crate) fn register_interface(zend_ce_Countable: *mut zend_class_entry, zend_ce_Stringable: *mut zend_class_entry) -> *mut zend_class_entry {
@@ -21,7 +19,6 @@ pub(crate) mod HasMagic {
                 zend_ce_Stringable,
             )
         };
-
 
         class_entry
     }

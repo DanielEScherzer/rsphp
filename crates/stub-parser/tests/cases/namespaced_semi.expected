@@ -25,7 +25,6 @@ pub(crate) mod Demo_InDemoNamespace {
             )
         };
 
-
         class_entry
     }
 }
@@ -33,4 +32,3 @@ pub(crate) mod Demo_InDemoNamespace {
 pub(crate) const ARGINFO_DEMO_INDEMONAMESPACE: [zend_internal_arg_info; 1] = [
     ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_VOID, 0),
 ];
-

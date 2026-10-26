@@ -1,8 +1,6 @@
-
 /// Module for `CustomCasting\CastableTarget` enum.
 pub(crate) mod CustomCasting_CastableTarget {
     use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr};
-
 
     /// Register the `CustomCasting\CastableTarget` enum.
     pub(crate) fn register_enum() -> *mut zend_class_entry {
@@ -18,7 +16,6 @@ pub(crate) mod CustomCasting_CastableTarget {
             zend_enum_add_case_cstr(class_entry, c"CAST_FLOAT".as_ptr(), std::ptr::null_mut());
             zend_enum_add_case_cstr(class_entry, c"CAST_LONG".as_ptr(), std::ptr::null_mut());
         };
-
 
         class_entry
     }
@@ -46,7 +43,6 @@ pub(crate) mod CustomCasting_HasCustomCast {
                 std::ptr::from_mut::<zend_class_entry>(&mut ce),
             )
         };
-
 
         class_entry
     }
