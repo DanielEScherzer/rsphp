@@ -114,13 +114,19 @@ impl VerificationData {
     }
 
     /// Add a `ZEND_ACC_*` flag based on the visibility to the expected flags.
-    pub(crate) fn add_visibility(&mut self, vis: Option<&Visibility>) {
+    pub(crate) fn add_visibility(&mut self, vis: Option<&Visibility>) -> Result<(), String> {
         let flag = match vis {
             None | Some(Visibility::Public) => "ZEND_ACC_PUBLIC",
             Some(Visibility::Protected) => "ZEND_ACC_PROTECTED",
             Some(Visibility::Private) => "ZEND_ACC_PRIVATE",
+            Some(unknown) => {
+                return Err(format!(
+                    "Visibility is non-exhaustive, unhandled: {unknown:?}"
+                ));
+            }
         };
         self.add_flag(flag);
+        Ok(())
     }
 
     /// Add the specified flag to the expected flags.

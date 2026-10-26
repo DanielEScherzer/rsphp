@@ -15,3 +15,10 @@ final class Demo2 {}
  * @not-serializable
  */
 final class Demo3 {}
+
+abstract class IsAbstract {}
+
+final readonly class IsReadOnly {}
+
+#[\AllowDynamicProperties]
+class AllowsDynamicProperties {}

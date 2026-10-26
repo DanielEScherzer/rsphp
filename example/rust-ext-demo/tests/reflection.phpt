@@ -82,7 +82,7 @@ Extension [ <persistent> extension #%d rustdemo version 0.1.0 ] {
     }
   }
 
-  - Classes [3] {
+  - Classes [4] {
     Class [ <internal:rustdemo> class RSDemo ] {
 
       - Constants [0] {
@@ -212,6 +212,38 @@ Extension [ <persistent> extension #%d rustdemo version 0.1.0 ] {
       }
 
       - Properties [0] {
+      }
+
+      - Methods [0] {
+      }
+    }
+
+    Class [ <internal:rustdemo> class PropertiesDemo ] {
+
+      - Constants [0] {
+      }
+
+      - Static properties [1] {
+        Property [ public static mixed $is_static ]
+      }
+
+      - Static methods [0] {
+      }
+
+      - Properties [13] {
+        Property [ public mixed $is_public ]
+        Property [ protected mixed $is_protected ]
+        Property [ private mixed $is_private ]
+        Property [ public protected(set) readonly mixed $pub_readonly ]
+        Property [ protected readonly mixed $prot_readonly ]
+        Property [ private readonly mixed $priv_readonly ]
+        Property [ public readonly mixed $pub_pub_readonly ]
+        Property [ public protected(set) readonly mixed $pub_prot_readonly ]
+        Property [ final public private(set) readonly mixed $pub_priv_readonly ]
+        Property [ protected readonly mixed $prot_prot_readonly ]
+        Property [ final protected private(set) readonly mixed $prot_priv_readonly ]
+        Property [ private readonly mixed $priv_priv_readonly ]
+        Property [ final public mixed $is_final ]
       }
 
       - Methods [0] {

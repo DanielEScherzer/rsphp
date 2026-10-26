@@ -343,3 +343,346 @@ pub(crate) mod RSDemo {
         class_entry
     }
 }
+/// Module for `PropertiesDemo` class.
+pub(crate) mod PropertiesDemo {
+    use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
+    use rsphp_sys::{MAY_BE_ANY, ZEND_ACC_FINAL, ZEND_ACC_PRIVATE, ZEND_ACC_PRIVATE_SET, ZEND_ACC_PROTECTED, ZEND_ACC_PROTECTED_SET, ZEND_ACC_PUBLIC, ZEND_ACC_PUBLIC_SET, ZEND_ACC_READONLY, ZEND_ACC_STATIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
+
+
+    /// Register the `PropertiesDemo` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "PropertiesDemo", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+        let mut property_is_public_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_public_default_value)); }
+        let property_is_public_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"is_public".as_ptr(),
+                "is_public".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_is_public_name,
+                std::ptr::from_mut::<zval>(&mut property_is_public_default_value),
+                ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_is_public_name);
+        }
+        
+        let mut property_is_protected_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_protected_default_value)); }
+        let property_is_protected_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"is_protected".as_ptr(),
+                "is_protected".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_is_protected_name,
+                std::ptr::from_mut::<zval>(&mut property_is_protected_default_value),
+                ZEND_ACC_PROTECTED as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_is_protected_name);
+        }
+        
+        let mut property_is_private_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_private_default_value)); }
+        let property_is_private_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"is_private".as_ptr(),
+                "is_private".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_is_private_name,
+                std::ptr::from_mut::<zval>(&mut property_is_private_default_value),
+                ZEND_ACC_PRIVATE as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_is_private_name);
+        }
+        
+        let mut property_pub_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_pub_readonly_default_value)); }
+        let property_pub_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"pub_readonly".as_ptr(),
+                "pub_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_pub_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_pub_readonly_default_value),
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_pub_readonly_name);
+        }
+        
+        let mut property_prot_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_prot_readonly_default_value)); }
+        let property_prot_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"prot_readonly".as_ptr(),
+                "prot_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_prot_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_prot_readonly_default_value),
+                (ZEND_ACC_PROTECTED|ZEND_ACC_READONLY) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_prot_readonly_name);
+        }
+        
+        let mut property_priv_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_priv_readonly_default_value)); }
+        let property_priv_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"priv_readonly".as_ptr(),
+                "priv_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_priv_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_priv_readonly_default_value),
+                (ZEND_ACC_PRIVATE|ZEND_ACC_READONLY) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_priv_readonly_name);
+        }
+        
+        let mut property_pub_pub_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_pub_pub_readonly_default_value)); }
+        let property_pub_pub_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"pub_pub_readonly".as_ptr(),
+                "pub_pub_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_pub_pub_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_pub_pub_readonly_default_value),
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY|ZEND_ACC_PUBLIC_SET) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_pub_pub_readonly_name);
+        }
+        
+        let mut property_pub_prot_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_pub_prot_readonly_default_value)); }
+        let property_pub_prot_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"pub_prot_readonly".as_ptr(),
+                "pub_prot_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_pub_prot_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_pub_prot_readonly_default_value),
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY|ZEND_ACC_PROTECTED_SET) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_pub_prot_readonly_name);
+        }
+        
+        let mut property_pub_priv_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_pub_priv_readonly_default_value)); }
+        let property_pub_priv_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"pub_priv_readonly".as_ptr(),
+                "pub_priv_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_pub_priv_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_pub_priv_readonly_default_value),
+                (ZEND_ACC_PUBLIC|ZEND_ACC_READONLY|ZEND_ACC_PRIVATE_SET) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_pub_priv_readonly_name);
+        }
+        
+        let mut property_prot_prot_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_prot_prot_readonly_default_value)); }
+        let property_prot_prot_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"prot_prot_readonly".as_ptr(),
+                "prot_prot_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_prot_prot_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_prot_prot_readonly_default_value),
+                (ZEND_ACC_PROTECTED|ZEND_ACC_READONLY|ZEND_ACC_PROTECTED_SET) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_prot_prot_readonly_name);
+        }
+        
+        let mut property_prot_priv_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_prot_priv_readonly_default_value)); }
+        let property_prot_priv_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"prot_priv_readonly".as_ptr(),
+                "prot_priv_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_prot_priv_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_prot_priv_readonly_default_value),
+                (ZEND_ACC_PROTECTED|ZEND_ACC_READONLY|ZEND_ACC_PRIVATE_SET) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_prot_priv_readonly_name);
+        }
+        
+        let mut property_priv_priv_readonly_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_priv_priv_readonly_default_value)); }
+        let property_priv_priv_readonly_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"priv_priv_readonly".as_ptr(),
+                "priv_priv_readonly".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_priv_priv_readonly_name,
+                std::ptr::from_mut::<zval>(&mut property_priv_priv_readonly_default_value),
+                (ZEND_ACC_PRIVATE|ZEND_ACC_READONLY|ZEND_ACC_PRIVATE_SET) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_priv_priv_readonly_name);
+        }
+        
+        let mut property_is_static_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_static_default_value)); }
+        let property_is_static_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"is_static".as_ptr(),
+                "is_static".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_is_static_name,
+                std::ptr::from_mut::<zval>(&mut property_is_static_default_value),
+                (ZEND_ACC_PUBLIC|ZEND_ACC_STATIC) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_is_static_name);
+        }
+        
+        let mut property_is_final_default_value: zval = unsafe { std::mem::zeroed() };
+        unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_final_default_value)); }
+        let property_is_final_name: *mut zend_string = unsafe {
+            zend_string_init(
+                c"is_final".as_ptr(),
+                "is_final".len(),
+                true,
+            )
+        };
+        unsafe {
+            zend_declare_typed_property(
+                class_entry,
+                property_is_final_name,
+                std::ptr::from_mut::<zval>(&mut property_is_final_default_value),
+                (ZEND_ACC_PUBLIC|ZEND_ACC_FINAL) as i32,
+                std::ptr::null_mut(),
+                ZEND_TYPE_INIT_MASK!(MAY_BE_ANY),
+            );
+        }
+        unsafe {
+            zend_string_release(property_is_final_name);
+        }
+
+        class_entry
+    }
+}

@@ -193,8 +193,8 @@ c_str_macro = "1.0.3"
 cc = "1.7.0"
 clap = { version = "4.6.7", features = ["derive"] }
 diff = "0.1.13"
-php-ast = "0.21.0"
-php-rs-parser = "0.21.0"
+php-ast = "0.26.0"
+php-rs-parser = "0.26.0"
 proc-macro2 = "1.0.107"
 regex = "1.13.1"
 rsphp-build-tools = { version = "0.1.1", path = "./crates/build-tools" }

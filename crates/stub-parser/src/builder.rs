@@ -2,7 +2,7 @@ use crate::VerificationMode;
 use crate::imports::ImportsUsed;
 use crate::types::ArgInfoTypeRepr;
 use crate::verification::{VERIFICATION_RSPHP_SYS_IMPORTS, VerificationData};
-use php_ast::ast::{BuiltinType, Visibility};
+use php_ast::ast::{BuiltinType, NameKind, Visibility};
 use php_ast::owned::{
     Attribute, ClassConstDecl, ClassDecl, ClassMemberKind, Comment, EnumCase, EnumDecl,
     EnumMemberKind, Expr, ExprKind, FunctionDecl, Ident, InterfaceDecl, MethodDecl, Name,
@@ -38,7 +38,7 @@ enum ClassLikeMember {
     ClassConst(ClassConstDecl),
 }
 impl TryFrom<ClassMemberKind> for ClassLikeMember {
-    type Error = &'static str;
+    type Error = String;
 
     fn try_from(orig: ClassMemberKind) -> Result<Self, Self::Error> {
         match orig {
@@ -47,19 +47,29 @@ impl TryFrom<ClassMemberKind> for ClassLikeMember {
             ClassMemberKind::ClassConst(class_const) => {
                 Ok(ClassLikeMember::ClassConst(class_const))
             }
-            ClassMemberKind::TraitUse(_) => Err("PHP does not support traits on internal classes"),
+            ClassMemberKind::TraitUse(_) => {
+                Err("PHP does not support traits on internal classes".to_owned())
+            }
+            _ => Err(format!(
+                "ClassMemberKind is non-exhaustive, unhandled: {orig:?}"
+            )),
         }
     }
 }
 impl TryFrom<EnumMemberKind> for ClassLikeMember {
-    type Error = &'static str;
+    type Error = String;
 
     fn try_from(orig: EnumMemberKind) -> Result<Self, Self::Error> {
         match orig {
             EnumMemberKind::Case(case) => Ok(ClassLikeMember::EnumCase(case)),
             EnumMemberKind::Method(method) => Ok(ClassLikeMember::Method(method)),
             EnumMemberKind::ClassConst(class_const) => Ok(ClassLikeMember::ClassConst(class_const)),
-            EnumMemberKind::TraitUse(_) => Err("PHP does not support traits on internal classes"),
+            EnumMemberKind::TraitUse(_) => {
+                Err("PHP does not support traits on internal classes".to_owned())
+            }
+            _ => Err(format!(
+                "EnumMemberKind is non-exhaustive, unhandled: {orig:?}"
+            )),
         }
     }
 }
@@ -72,7 +82,7 @@ impl ClassLikeType {
             ClassLikeType::Interface(interface) => &interface.name,
             ClassLikeType::Class(class) => class.name.as_ref().expect("Not an anonymous class"),
         };
-        ident.as_ref().expect("Valid name")
+        ident.as_str().expect("Valid name")
     }
     /// Body of the class/interface/enum.
     fn body_members(&self) -> Vec<ClassLikeMember> {
@@ -106,6 +116,13 @@ impl ClassLikeType {
             ClassLikeType::PhpEnum(php_enum) => &php_enum.attributes,
             ClassLikeType::Interface(interface) => &interface.attributes,
             ClassLikeType::Class(class) => &class.attributes,
+        }
+    }
+    /// If this is a readonly class.
+    fn is_readonly(&self) -> bool {
+        match self {
+            ClassLikeType::Class(class) => class.modifiers.is_readonly,
+            _ => false,
         }
     }
     /// Helper to create variable names for references to zend class entries.
@@ -174,10 +191,7 @@ impl ClassLikeType {
         program: &str,
     ) -> Result<String, String> {
         let name = self.name();
-        let ns_name_segment = match namespace {
-            Some(ns) => format!("{ns}\\\\"),
-            None => String::new(),
-        };
+        let ns_name_segment = namespace.map(|ns| format!("{ns}\\\\")).unwrap_or_default();
         let (macro_name, macro_ns_arg) = match namespace {
             Some(ns) => ("INIT_NS_CLASS_ENTRY", format!(" \"{ns}\",")),
             None => ("INIT_CLASS_ENTRY", String::new()),
@@ -193,25 +207,35 @@ impl ClassLikeType {
                     .parent_class_var()
                     .unwrap_or_else(|| "std::ptr::null_mut()".to_owned());
                 let mut flags = vec![];
+                if class.modifiers.is_abstract {
+                    flags.push("ZEND_ACC_ABSTRACT");
+                }
                 if class.modifiers.is_final {
                     flags.push("ZEND_ACC_FINAL");
-                    scope.add_import("rsphp_sys", "ZEND_ACC_FINAL");
+                }
+                if class.modifiers.is_readonly {
+                    flags.push("ZEND_ACC_READONLY_CLASS");
                 }
                 if let Some(comment) = class.doc_comment.as_ref() {
                     if comment.text.contains("@strict-properties") {
                         flags.push("ZEND_ACC_NO_DYNAMIC_PROPERTIES");
-                        scope.add_import("rsphp_sys", "ZEND_ACC_NO_DYNAMIC_PROPERTIES");
                     }
                     if comment.text.contains("@not-serializable") {
                         flags.push("ZEND_ACC_NOT_SERIALIZABLE");
-                        scope.add_import("rsphp_sys", "ZEND_ACC_NOT_SERIALIZABLE");
                     }
+                }
+                if (*class.attributes)
+                    .iter()
+                    .any(|attrib| attrib.name.to_string_repr() == "\\AllowDynamicProperties")
+                {
+                    flags.push("ZEND_ACC_ALLOW_DYNAMIC_PROPERTIES");
                 }
                 let flags_str = if flags.is_empty() {
                     "0".to_owned()
                 } else {
                     flags.join("|")
                 };
+                scope.extend_sys_imports(flags.into_iter().map(str::to_owned));
                 format!(
                     "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
                     \n{space}{init_macro}\
@@ -254,18 +278,16 @@ impl ClassLikeType {
                     space = "    ",
                 )
             }
-            ClassLikeType::Interface(_) => {
-                format!(
-                    "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
-                        \n{space}{init_macro}\
-                        \n{space}let class_entry: *mut zend_class_entry = unsafe {{\
-                        \n{space}{space}rsphp_sys::zend_register_internal_interface(\
-                        \n{space}{space}{space}std::ptr::from_mut::<zend_class_entry>(&mut ce),\
-                        \n{space}{space})\
-                        \n{space}}};",
-                    space = "    ",
-                )
-            }
+            ClassLikeType::Interface(_) => format!(
+                "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
+                    \n{space}{init_macro}\
+                    \n{space}let class_entry: *mut zend_class_entry = unsafe {{\
+                    \n{space}{space}rsphp_sys::zend_register_internal_interface(\
+                    \n{space}{space}{space}std::ptr::from_mut::<zend_class_entry>(&mut ce),\
+                    \n{space}{space})\
+                    \n{space}}};",
+                space = "    ",
+            ),
         };
         Ok(result + &self.interfaces_applied_code(scope))
     }
@@ -384,6 +406,11 @@ impl ArgInfoBuilder<'_> {
                 self.namespace = old_namespace;
                 result?;
             }
+            _ => {
+                return Err(format!(
+                    "NamespaceBody is non-exhaustive, unhandled: {namespace:?}"
+                ));
+            }
         }
         Ok(())
     }
@@ -398,7 +425,7 @@ impl ArgInfoBuilder<'_> {
         });
         let name = param
             .name
-            .as_ref()
+            .as_str()
             .ok_or_else(|| "Parameter name is missing".to_owned())?;
         let mut default = param
             .default
@@ -611,14 +638,14 @@ impl ArgInfoBuilder<'_> {
 
     /// Generate code for a global function.
     fn function(&mut self, func: &FunctionDecl) -> Result<(), String> {
-        let fn_name = func.name.as_ref().expect("No errors");
+        let fn_name = func.name.as_str().expect("No errors");
         let ns_segment = match &self.namespace {
             Some(ns) => format!("{}_", ns.to_uppercase()),
             None => String::new(),
         };
         let doc_name = match &self.namespace {
             Some(ns) => format!("{ns}\\{fn_name}"),
-            None => fn_name.to_string(),
+            None => fn_name.to_owned(),
         };
         let fn_result = self.build_function(
             &func.params,
@@ -633,10 +660,14 @@ impl ArgInfoBuilder<'_> {
     }
 
     /// Generate code for a class property.
-    fn build_property(&mut self, prop: &PropertyDecl) -> Result<String, String> {
+    fn build_property(
+        &mut self,
+        prop: &PropertyDecl,
+        class_readonly: bool,
+    ) -> Result<String, String> {
         self.scope.add_import("rsphp_sys", "zval");
         self.scope.add_import("rsphp_sys", "zend_class_entry");
-        let prop_name = prop.name.as_ref().ok_or("Property name missing")?;
+        let prop_name = prop.name.as_str().ok_or("Property name missing")?;
         let prop_default_create = format!(
             "{space}let mut property_{name}_default_value: zval = unsafe {{ std::mem::zeroed() }};",
             name = prop_name,
@@ -661,7 +692,7 @@ impl ArgInfoBuilder<'_> {
             Some(Expr {
                 kind: ExprKind::String(string),
                 span: _,
-            }) if **string == *"" => ("ZVAL_EMPTY_STRING", None, None),
+            }) if (**string).is_empty() => ("ZVAL_EMPTY_STRING", None, None),
             Some(Expr {
                 kind: ExprKind::Array(array),
                 span: _,
@@ -671,9 +702,9 @@ impl ArgInfoBuilder<'_> {
                 span: _,
             }) => ("ZVAL_LONG", Some(num.to_string()), None),
             Some(Expr {
-                kind: ExprKind::Identifier(ident),
+                kind: ExprKind::Name(name),
                 span: _,
-            }) if **ident == *"E_ERROR" => {
+            }) if name.kind == NameKind::Unqualified && *name.parts == ["E_ERROR".into()] => {
                 self.scope.add_import("rsphp_sys", "E_ERROR");
                 ("ZVAL_LONG", Some("E_ERROR".to_owned()), None)
             }
@@ -681,7 +712,7 @@ impl ArgInfoBuilder<'_> {
                 kind: ExprKind::String(string),
                 span: _,
             }) => {
-                self.scope.add_import("rsphp_sys", "zend_string_init");
+                let real_string = string.to_str().ok_or("Strings must be valid UTF-8")?;
                 (
                     "ZVAL_INTERNED_STR",
                     Some(format!("property_{prop_name}_default_str")),
@@ -689,7 +720,7 @@ impl ArgInfoBuilder<'_> {
                         "{space}let property_{name}_default_str = unsafe {{ zend_string_init(c\"{s}\".as_ptr(), \"{s}\".len(), true) }};\n",
                         name = prop_name,
                         space = "    ",
-                        s = string
+                        s = real_string
                     )),
                 )
             }
@@ -709,12 +740,16 @@ impl ArgInfoBuilder<'_> {
         );
         self.scope.add_import("rsphp_sys", "zend_string");
         self.scope.add_import("rsphp_sys", "zend_string_init");
-        let vis = match prop.visibility {
+        let vis = match prop.modifiers.visibility {
             None | Some(Visibility::Public) => "ZEND_ACC_PUBLIC",
             Some(Visibility::Protected) => "ZEND_ACC_PROTECTED",
             Some(Visibility::Private) => "ZEND_ACC_PRIVATE",
+            Some(unknown) => {
+                return Err(format!(
+                    "Visibility is non-exhaustive, unhandled: {unknown:?}"
+                ));
+            }
         };
-        self.scope.add_import("rsphp_sys", vis);
         let (type_declaration, type_code) = match prop.type_hint.as_ref() {
             Some(type_hint) => {
                 ArgInfoTypeRepr::try_from(type_hint.kind.clone(), self.namespace.as_ref())?
@@ -724,13 +759,43 @@ impl ArgInfoBuilder<'_> {
         };
         let ptr_for_default =
             format!("std::ptr::from_mut::<zval>(&mut property_{prop_name}_default_value)");
+        let mut flags = vec![vis];
+        if class_readonly || prop.modifiers.is_readonly {
+            flags.push("ZEND_ACC_READONLY");
+        }
+        if prop.modifiers.is_static {
+            flags.push("ZEND_ACC_STATIC");
+        }
+        if prop.modifiers.is_final {
+            flags.push("ZEND_ACC_FINAL");
+        }
+        if let Some(set_vis) = prop.modifiers.set_visibility {
+            let set_vis_flag = match set_vis {
+                Visibility::Public => "ZEND_ACC_PUBLIC_SET",
+                Visibility::Protected => "ZEND_ACC_PROTECTED_SET",
+                Visibility::Private => "ZEND_ACC_PRIVATE_SET",
+                unknown => {
+                    return Err(format!(
+                        "Visibility is non-exhaustive, unhandled: {unknown:?}"
+                    ));
+                }
+            };
+            flags.push(set_vis_flag);
+        }
+        let flags_str = if flags.len() == 1 {
+            flags[0].to_owned()
+        } else {
+            format!("({})", flags.join("|"))
+        };
+        self.scope
+            .extend_sys_imports(flags.into_iter().map(str::to_owned));
         let prop_decl = format!(
             "{space}unsafe {{\
             \n{space}{space}zend_declare_typed_property(\
             \n{space}{space}{space}class_entry,\
             \n{space}{space}{space}property_{name}_name,\
             \n{space}{space}{space}{ptr_for_default},\
-            \n{space}{space}{space}{vis} as i32,\
+            \n{space}{space}{space}{flags_str} as i32,\
             \n{space}{space}{space}std::ptr::null_mut(),\
             \n{space}{space}{space}{typemask},\
             \n{space}{space});\
@@ -794,7 +859,7 @@ impl ArgInfoBuilder<'_> {
         for member in wrapped.body_members() {
             match member {
                 ClassLikeMember::Method(method) => {
-                    let fn_name = method.name.as_ref().expect("No errors");
+                    let fn_name = method.name.as_str().expect("No errors");
                     let name_constant = format!("ARGINFO_{}", fn_name.to_uppercase());
                     module_parts.push(self.build_function(
                         &method.params,
@@ -804,10 +869,9 @@ impl ArgInfoBuilder<'_> {
                         method.return_type.as_ref(),
                         &format!("{doc_name}::{fn_name}"),
                     )?);
-                    let mut verification =
-                        VerificationData::new(fn_name.to_string(), name_constant);
-                    verification.add_visibility(method.visibility.as_ref());
-                    verification.add_flag_if(method.is_static, "ZEND_ACC_STATIC");
+                    let mut verification = VerificationData::new(fn_name.to_owned(), name_constant);
+                    verification.add_visibility(method.modifiers.visibility.as_ref())?;
+                    verification.add_flag_if(method.modifiers.is_static, "ZEND_ACC_STATIC");
                     verification.add_flag_if(
                         matches!(wrapped, ClassLikeType::Interface(_)),
                         "ZEND_ACC_ABSTRACT",
@@ -823,7 +887,7 @@ impl ArgInfoBuilder<'_> {
                     self.needs_verification = true;
                 }
                 ClassLikeMember::Property(property) => {
-                    properties.push(self.build_property(&property)?);
+                    properties.push(self.build_property(&property, wrapped.is_readonly())?);
                 }
                 ClassLikeMember::ClassConst(class_const) => {
                     constants.push(self.build_constant(&class_const)?);
@@ -996,15 +1060,16 @@ impl ArgInfoBuilder<'_> {
                 param_init.push(init);
             }
             match &arg
-                .value
+                .value()
                 .as_ref()
                 .ok_or("Missing argument value in attribute")?
                 .kind
             {
                 ExprKind::String(string) => {
+                    let real_string = string.to_str().ok_or("Strings must be valid UTF-8")?;
                     let alloc = format!(
-                        "let arg_{index}_value = zend_string_init(c\"{string}\".as_ptr(), \
-                            \"{string}\".len(), true);",
+                        "let arg_{index}_value = zend_string_init(c\"{real_string}\".as_ptr(), \
+                            \"{real_string}\".len(), true);",
                     );
                     self.scope.add_import("rsphp_sys", "zend_string_init");
                     param_init.push(alloc);
@@ -1088,12 +1153,17 @@ impl ArgInfoBuilder<'_> {
     fn build_constant(&mut self, constant: &ClassConstDecl) -> Result<String, String> {
         let constant_name = constant
             .name
-            .as_ref()
+            .as_str()
             .ok_or_else(|| "Constant name is missing".to_owned())?;
-        let vis = match constant.visibility {
+        let vis = match constant.modifiers.visibility {
             None | Some(Visibility::Public) => "ZEND_ACC_PUBLIC",
             Some(Visibility::Protected) => "ZEND_ACC_PROTECTED",
             Some(Visibility::Private) => "ZEND_ACC_PRIVATE",
+            Some(unknown) => {
+                return Err(format!(
+                    "Visibility is non-exhaustive, unhandled: {unknown:?}"
+                ));
+            }
         };
         self.scope.add_import("rsphp_sys", vis);
         let type_repr = ArgInfoTypeRepr::try_from(
@@ -1133,7 +1203,9 @@ impl ArgInfoBuilder<'_> {
                 self.scope.add_import("rsphp_macros_c", "ZVAL_NULL");
                 "ZVAL_NULL!(&mut value);".to_owned()
             }
-            ExprKind::Identifier(ident) if *ident == "UNKNOWN".into() => {
+            ExprKind::Name(name)
+                if name.kind == NameKind::Unqualified && *name.parts == ["UNKNOWN".into()] =>
+            {
                 let cvalue_re = Regex::new(r"@cvalue (\S+)").map_err(|err| err.to_string())?;
                 let mut cvalue_val = cvalue_re
                     .captures(
@@ -1227,7 +1299,8 @@ impl ArgInfoBuilder<'_> {
             if arg.name.is_some() {
                 return Err("Attributes with named arguments are not supported yet".to_owned());
             }
-            let value = self.get_raw_code(arg.value.as_ref().ok_or("Only missing with PFA")?.span);
+            let value =
+                self.get_raw_code(arg.value().as_ref().ok_or("Only missing with PFA")?.span);
             if attrib_name == "Attribute" || attrib_name == "\\Attribute" {
                 // We can handle these
                 let flags: Vec<&'static str> = value
@@ -1280,7 +1353,14 @@ impl ArgInfoBuilder<'_> {
         self.scope.add_import("rsphp_sys", "zend_string");
         self.scope
             .add_import("rsphp_sys", "zend_string_init_interned");
-        self.scope.add_import("rsphp_sys", "zend_attribute");
+        if !param_init.is_empty() {
+            self.scope.add_import("rsphp_sys", "zend_attribute");
+        }
+        let attrib_variable = if param_init.is_empty() {
+            ""
+        } else {
+            "let attrib: *mut zend_attribute = "
+        };
         self.scope
             .add_import("rsphp_sys", "zend_add_class_attribute");
         self.scope.add_import("rsphp_sys", "zend_string_release_ex");
@@ -1291,7 +1371,7 @@ impl ArgInfoBuilder<'_> {
             \n{space}{space}{space}\"{attrib_name}\".len(),\
             \n{space}{space}{space}true,\
             \n{space}{space});\
-            \n{space}{space}let attrib: *mut zend_attribute = zend_add_class_attribute(class_entry, name, {param_count});\
+            \n{space}{space}{attrib_variable}zend_add_class_attribute(class_entry, name, {param_count});\
             \n{space}{space}zend_string_release_ex(name, true);\
             {param_init}\
             \n{space}}}",
@@ -1312,7 +1392,7 @@ impl ArgInfoBuilder<'_> {
         case: &EnumCase,
         backing: Option<&BuiltinType>,
     ) -> Result<String, String> {
-        let case_name = case.name.as_ref().expect("No errors");
+        let case_name = case.name.as_str().expect("No errors");
         if let Some(value) = &case.value {
             if backing.is_none() {
                 return Err(format!(
@@ -1321,6 +1401,7 @@ impl ArgInfoBuilder<'_> {
             }
             return match &value.kind {
                 ExprKind::String(string) => {
+                    let real_string = string.to_str().ok_or("Strings must be valid UTF-8")?;
                     self.scope.add_import("rsphp_sys", "zval");
                     self.scope.add_import("rsphp_sys", "zend_string");
                     self.scope.add_import("rsphp_sys", "zend_string_init");
@@ -1339,7 +1420,7 @@ impl ArgInfoBuilder<'_> {
                         \n{space3}zend_enum_add_case_cstr(class_entry, c\"{name}\".as_ptr(), std::ptr::from_mut::<zval>(&mut value));\
                         \n{space}{space}}}",
                         name = case_name,
-                        val = string,
+                        val = real_string,
                         space = "    ",
                         space3 = "            ",
                     ))

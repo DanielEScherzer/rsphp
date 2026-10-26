@@ -64,6 +64,7 @@ impl ArgInfoTypeRepr {
                         ArgInfoTypeRepr::FullyQualifiedNamed(ns.to_owned() + "\\" + &joined),
                     ),
                     (NameKind::Error, _) => Err(format!("Type hint name error: {value:?}")),
+                    (_, _) => Err(format!("NameKind is non-exhaustive, unhandled: {kind:?}")),
                 }
             }
             TypeHintKind::Nullable(inner) => Ok(ArgInfoTypeRepr::Nullable(Box::new(
@@ -79,6 +80,9 @@ impl ArgInfoTypeRepr {
             TypeHintKind::Intersection(_) => {
                 Err("Intersection type hints not yet supported".to_owned())
             }
+            _ => Err(format!(
+                "TypeHintKind is non-exhaustive, unhandled: {value:?}"
+            )),
         }
     }
 
@@ -271,10 +275,10 @@ impl ArgInfoTypeRepr {
             return Err(format!("type_info() called for {self:#?}"));
         };
         match php_type {
-            BuiltinType::Int | BuiltinType::Integer => Ok(("IS_LONG", "MAY_BE_LONG")),
-            BuiltinType::Float | BuiltinType::Double => Ok(("IS_DOUBLE", "MAY_BE_DOUBLE")),
+            BuiltinType::Int => Ok(("IS_LONG", "MAY_BE_LONG")),
+            BuiltinType::Float => Ok(("IS_DOUBLE", "MAY_BE_DOUBLE")),
             BuiltinType::String => Ok(("IS_STRING", "MAY_BE_STRING")),
-            BuiltinType::Bool | BuiltinType::Boolean => Ok(("_IS_BOOL", "MAY_BE_BOOL")),
+            BuiltinType::Bool => Ok(("_IS_BOOL", "MAY_BE_BOOL")),
             BuiltinType::Void => Ok(("IS_VOID", "MAY_BE_VOID")),
             BuiltinType::Never => Ok(("IS_NEVER", "MAY_BE_NEVER")),
             BuiltinType::Mixed => Ok(("IS_MIXED", "MAY_BE_ANY")),
@@ -292,6 +296,9 @@ impl ArgInfoTypeRepr {
             BuiltinType::Null => Ok(("IS_NULL", "MAY_BE_NULL")),
             BuiltinType::True => Ok(("IS_TRUE", "MAY_BE_TRUE")),
             BuiltinType::False => Ok(("IS_FALSE", "MAY_BE_FALSE")),
+            unknown => Err(format!(
+                "BuiltinType is non-exhaustive, unhandled: {unknown:?}"
+            )),
         }
     }
 }
