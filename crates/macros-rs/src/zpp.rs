@@ -239,10 +239,22 @@ macro_rules! __impl__ZEND_PARSE_ARGS {
         $crate::__impl__ZEND_PARSE_ARGS!(@make_spec [ $( $p )+ "f!" ] [ $( $args )* ] )
     };
     ( @make_spec [ $( $p:expr )+ ] [ Z_PARAM_LONG( $v:expr ) $( $args:tt )* ] ) => {
-        $crate::__impl__ZEND_PARSE_ARGS!(@make_spec [ $( $p )+ "l" ] [ $( $args )* ])
+        {
+            // Force the correct type, the inferred i32 might be a different size
+            // than the expected zend_long, leading to the next parameter overwriting
+            // this one
+            let _type_check: rsphp_sys::zend_long = $v;
+            $crate::__impl__ZEND_PARSE_ARGS!(@make_spec [ $( $p )+ "l" ] [ $( $args )* ])
+        }
     };
     ( @make_spec [ $( $p:expr )+ ] [ Z_PARAM_LONG_OR_NULL( $v1:expr, $v2:expr ) $( $args:tt )* ] ) => {
-        $crate::__impl__ZEND_PARSE_ARGS!(@make_spec [ $( $p )+ "l!" ] [ $( $args )* ])
+        {
+            // Force the correct type, the inferred i32 might be a different size
+            // than the expected zend_long, leading to the next parameter overwriting
+            // this one
+            let _type_check: rsphp_sys::zend_long = $v1;
+            $crate::__impl__ZEND_PARSE_ARGS!(@make_spec [ $( $p )+ "l!" ] [ $( $args )* ])
+        }
     };
     ( @make_spec [ $( $p:expr )+ ] [ Z_PARAM_DOUBLE( $v:expr ) $( $args:tt )* ] ) => {
         $crate::__impl__ZEND_PARSE_ARGS!(@make_spec [ $( $p )+ "d" ] [ $( $args )* ])

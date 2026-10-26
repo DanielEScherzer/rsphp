@@ -11,8 +11,9 @@ use rsphp_macros_rs::{ZEND_FE, ZEND_PARSE_ARGS, ZEND_PARSE_PARAMETERS_NONE};
 use rsphp_sys::{
     HashTable, ZEND_CALL_HAS_EXTRA_NAMED_PARAMS, ZEND_RESULT_CODE, display_ini_entries,
     php_output_write, php_printf, php_var_dump, zend_class_entry, zend_execute_data,
-    zend_function_entry, zend_module_entry, zend_parse_parameters, zend_register_ini_entries_ex,
-    zend_result, zend_string, zend_string_init, zend_unregister_ini_entries_ex, zval,
+    zend_function_entry, zend_long, zend_module_entry, zend_parse_parameters,
+    zend_register_ini_entries_ex, zend_result, zend_string, zend_string_init,
+    zend_unregister_ini_entries_ex, zval,
 };
 use std::ffi::{c_char, c_int};
 
@@ -200,11 +201,13 @@ extern "C" fn dump_named_variadic_args(
     }
 }
 extern "C" fn zpp_testing(execute_data: *mut zend_execute_data, return_value: *mut zval) {
+    // Types are needed to make sure that integer sizes are correct, otherwise
+    // rust will use 4 bytes for the long, but php expects 8 bytes
     let mut bool_val = true;
     let mut nullable_bool_val = true;
     let mut nullable_bool_null = false;
-    let mut long_val = 1;
-    let mut nullable_long_val = 1;
+    let mut long_val: zend_long = 1;
+    let mut nullable_long_val: zend_long = 1;
     let mut nullable_long_null = false;
     let mut double_val = 1.0;
     let mut nullable_double_val = 1.0;
