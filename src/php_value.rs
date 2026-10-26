@@ -3,7 +3,7 @@ use rsphp_macros_c::{
     ZVAL_STR_COPY, ZVAL_STRINGL, ZVAL_TRUE, ZVAL_UNDEF,
 };
 use rsphp_sys::{zend_long, zend_string, zval};
-use std::ffi::CString;
+use std::ffi::{CString, c_char};
 
 use crate::PHPObject;
 
@@ -97,7 +97,7 @@ impl PHPValue {
                 PHPStringSource::EmptyString => unsafe { ZVAL_EMPTY_STRING!(zval_p) },
                 // SAFETY: pointer must be valid, upheld by caller
                 PHPStringSource::RustString(string) => unsafe {
-                    ZVAL_STRINGL!(zval_p, string.as_ptr().cast::<i8>(), string.len());
+                    ZVAL_STRINGL!(zval_p, string.as_ptr().cast::<c_char>(), string.len());
                 },
                 // SAFETY: pointer must be valid, upheld by caller
                 PHPStringSource::ZendStringToCopy(str_ptr) => unsafe {
@@ -109,12 +109,12 @@ impl PHPValue {
                 },
                 // SAFETY: pointer must be valid, upheld by caller
                 PHPStringSource::CString(string) => unsafe {
-                    ZVAL_STRINGL!(zval_p, string.as_ptr().cast::<i8>(), string.count_bytes());
+                    ZVAL_STRINGL!(zval_p, string.as_ptr(), string.count_bytes());
                 },
                 #[cfg(feature = "bstr")]
                 // SAFETY: pointer must be valid, upheld by caller
                 PHPStringSource::BString(string) => unsafe {
-                    ZVAL_STRINGL!(zval_p, string.as_ptr().cast::<i8>(), string.len())
+                    ZVAL_STRINGL!(zval_p, string.as_ptr().cast::<c_char>(), string.len())
                 },
             },
             // SAFETY: pointer must be valid, upheld by caller
