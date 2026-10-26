@@ -183,7 +183,6 @@ impl ClassLikeType {
     /// the given number of methods, is in the given namespace, and the overall
     /// program where the class is declared is passed to allow fetching
     /// unprocessed details.
-    #[expect(clippy::too_many_lines, reason = "Complicated function")]
     fn init_and_register_code(
         &self,
         scope: &mut ImportsUsed,
@@ -192,10 +191,7 @@ impl ClassLikeType {
         program: &str,
     ) -> Result<String, String> {
         let name = self.name();
-        let ns_name_segment = match namespace {
-            Some(ns) => format!("{ns}\\\\"),
-            None => String::new(),
-        };
+        let ns_name_segment = namespace.map(|ns| format!("{ns}\\\\")).unwrap_or_default();
         let (macro_name, macro_ns_arg) = match namespace {
             Some(ns) => ("INIT_NS_CLASS_ENTRY", format!(" \"{ns}\",")),
             None => ("INIT_CLASS_ENTRY", String::new()),
@@ -282,18 +278,16 @@ impl ClassLikeType {
                     space = "    ",
                 )
             }
-            ClassLikeType::Interface(_) => {
-                format!(
-                    "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
-                        \n{space}{init_macro}\
-                        \n{space}let class_entry: *mut zend_class_entry = unsafe {{\
-                        \n{space}{space}rsphp_sys::zend_register_internal_interface(\
-                        \n{space}{space}{space}std::ptr::from_mut::<zend_class_entry>(&mut ce),\
-                        \n{space}{space})\
-                        \n{space}}};",
-                    space = "    ",
-                )
-            }
+            ClassLikeType::Interface(_) => format!(
+                "\n{space}let mut ce: zend_class_entry = unsafe {{ std::mem::zeroed() }};\
+                    \n{space}{init_macro}\
+                    \n{space}let class_entry: *mut zend_class_entry = unsafe {{\
+                    \n{space}{space}rsphp_sys::zend_register_internal_interface(\
+                    \n{space}{space}{space}std::ptr::from_mut::<zend_class_entry>(&mut ce),\
+                    \n{space}{space})\
+                    \n{space}}};",
+                space = "    ",
+            ),
         };
         Ok(result + &self.interfaces_applied_code(scope))
     }
@@ -718,7 +712,6 @@ impl ArgInfoBuilder<'_> {
                 kind: ExprKind::String(string),
                 span: _,
             }) => {
-                self.scope.add_import("rsphp_sys", "zend_string_init");
                 let real_string = string.to_str().ok_or("Strings must be valid UTF-8")?;
                 (
                     "ZVAL_INTERNED_STR",
@@ -757,7 +750,6 @@ impl ArgInfoBuilder<'_> {
                 ));
             }
         };
-        self.scope.add_import("rsphp_sys", vis);
         let (type_declaration, type_code) = match prop.type_hint.as_ref() {
             Some(type_hint) => {
                 ArgInfoTypeRepr::try_from(type_hint.kind.clone(), self.namespace.as_ref())?
@@ -770,15 +762,12 @@ impl ArgInfoBuilder<'_> {
         let mut flags = vec![vis];
         if class_readonly || prop.modifiers.is_readonly {
             flags.push("ZEND_ACC_READONLY");
-            self.scope.add_import("rsphp_sys", "ZEND_ACC_READONLY");
         }
         if prop.modifiers.is_static {
             flags.push("ZEND_ACC_STATIC");
-            self.scope.add_import("rsphp_sys", "ZEND_ACC_STATIC");
         }
         if prop.modifiers.is_final {
             flags.push("ZEND_ACC_FINAL");
-            self.scope.add_import("rsphp_sys", "ZEND_ACC_FINAL");
         }
         if let Some(set_vis) = prop.modifiers.set_visibility {
             let set_vis_flag = match set_vis {
@@ -792,13 +781,14 @@ impl ArgInfoBuilder<'_> {
                 }
             };
             flags.push(set_vis_flag);
-            self.scope.add_import("rsphp_sys", set_vis_flag);
         }
         let flags_str = if flags.len() == 1 {
             flags[0].to_owned()
         } else {
             format!("({})", flags.join("|"))
         };
+        self.scope
+            .extend_sys_imports(flags.into_iter().map(str::to_owned));
         let prop_decl = format!(
             "{space}unsafe {{\
             \n{space}{space}zend_declare_typed_property(\
