@@ -23,7 +23,7 @@ package.keywords = ["php"]
 package.license = "MIT"
 package.repository = "https://github.com/DanielEScherzer/rsphp"
 package.rust-version = "1.99.0"
-package.version = "0.1.1"
+package.version = "0.1.2"
 
 members = ["crates/*"]
 
@@ -197,11 +197,11 @@ php-ast = "0.26.0"
 php-rs-parser = "0.26.0"
 proc-macro2 = "1.0.107"
 regex = "1.13.1"
-rsphp-build-tools = { version = "0.1.1", path = "./crates/build-tools" }
-rsphp-macros-c = { version = "0.1.1", path = "./crates/macros-c" }
-rsphp-macros-rs = { version = "0.1.1", path = "./crates/macros-rs" }
-rsphp-stub-parser = { version = "0.1.1", path = "./crates/stub-parser" }
-rsphp-sys = { version = "0.1.1", path = "./crates/sys" }
+rsphp-build-tools = { version = "0.1.2", path = "./crates/build-tools" }
+rsphp-macros-c = { version = "0.1.2", path = "./crates/macros-c" }
+rsphp-macros-rs = { version = "0.1.2", path = "./crates/macros-rs" }
+rsphp-stub-parser = { version = "0.1.2", path = "./crates/stub-parser" }
+rsphp-sys = { version = "0.1.2", path = "./crates/sys" }
 tempdir = "0.3.7"
 trybuild = "1.0.122"
 walkdir = "2.5.0"
