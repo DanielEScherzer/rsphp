@@ -268,7 +268,6 @@ pub(crate) mod IniDemo {
             )
         };
 
-
         class_entry
     }
 }

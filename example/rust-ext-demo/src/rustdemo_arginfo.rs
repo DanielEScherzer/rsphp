@@ -348,7 +348,6 @@ pub(crate) mod PropertiesDemo {
     use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};
     use rsphp_sys::{MAY_BE_ANY, ZEND_ACC_FINAL, ZEND_ACC_PRIVATE, ZEND_ACC_PRIVATE_SET, ZEND_ACC_PROTECTED, ZEND_ACC_PROTECTED_SET, ZEND_ACC_PUBLIC, ZEND_ACC_PUBLIC_SET, ZEND_ACC_READONLY, ZEND_ACC_STATIC, zend_class_entry, zend_declare_typed_property, zend_string, zend_string_init, zend_string_release, zval};
 
-
     /// Register the `PropertiesDemo` class.
     pub(crate) fn register_class() -> *mut zend_class_entry {
         let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
@@ -383,7 +382,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_is_public_name);
         }
-        
+
         let mut property_is_protected_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_protected_default_value)); }
         let property_is_protected_name: *mut zend_string = unsafe {
@@ -406,7 +405,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_is_protected_name);
         }
-        
+
         let mut property_is_private_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_private_default_value)); }
         let property_is_private_name: *mut zend_string = unsafe {
@@ -429,7 +428,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_is_private_name);
         }
-        
+
         let mut property_pub_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_pub_readonly_default_value)); }
         let property_pub_readonly_name: *mut zend_string = unsafe {
@@ -452,7 +451,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_pub_readonly_name);
         }
-        
+
         let mut property_prot_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_prot_readonly_default_value)); }
         let property_prot_readonly_name: *mut zend_string = unsafe {
@@ -475,7 +474,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_prot_readonly_name);
         }
-        
+
         let mut property_priv_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_priv_readonly_default_value)); }
         let property_priv_readonly_name: *mut zend_string = unsafe {
@@ -498,7 +497,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_priv_readonly_name);
         }
-        
+
         let mut property_pub_pub_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_pub_pub_readonly_default_value)); }
         let property_pub_pub_readonly_name: *mut zend_string = unsafe {
@@ -521,7 +520,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_pub_pub_readonly_name);
         }
-        
+
         let mut property_pub_prot_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_pub_prot_readonly_default_value)); }
         let property_pub_prot_readonly_name: *mut zend_string = unsafe {
@@ -544,7 +543,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_pub_prot_readonly_name);
         }
-        
+
         let mut property_pub_priv_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_pub_priv_readonly_default_value)); }
         let property_pub_priv_readonly_name: *mut zend_string = unsafe {
@@ -567,7 +566,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_pub_priv_readonly_name);
         }
-        
+
         let mut property_prot_prot_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_prot_prot_readonly_default_value)); }
         let property_prot_prot_readonly_name: *mut zend_string = unsafe {
@@ -590,7 +589,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_prot_prot_readonly_name);
         }
-        
+
         let mut property_prot_priv_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_prot_priv_readonly_default_value)); }
         let property_prot_priv_readonly_name: *mut zend_string = unsafe {
@@ -613,7 +612,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_prot_priv_readonly_name);
         }
-        
+
         let mut property_priv_priv_readonly_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_priv_priv_readonly_default_value)); }
         let property_priv_priv_readonly_name: *mut zend_string = unsafe {
@@ -636,7 +635,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_priv_priv_readonly_name);
         }
-        
+
         let mut property_is_static_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_static_default_value)); }
         let property_is_static_name: *mut zend_string = unsafe {
@@ -659,7 +658,7 @@ pub(crate) mod PropertiesDemo {
         unsafe {
             zend_string_release(property_is_static_name);
         }
-        
+
         let mut property_is_final_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_is_final_default_value)); }
         let property_is_final_name: *mut zend_string = unsafe {

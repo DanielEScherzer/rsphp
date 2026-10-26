@@ -264,7 +264,6 @@ pub(crate) mod RustDemo_OpaqueData {
             )
         };
 
-
         class_entry
     }
 }
