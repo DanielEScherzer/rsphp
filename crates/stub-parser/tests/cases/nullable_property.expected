@@ -1,4 +1,3 @@
-
 /// Module for `Reference` class.
 pub(crate) mod Reference {
     use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_UNDEF};

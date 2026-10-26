@@ -1,4 +1,3 @@
-
 /// Module for `RSGit\Commit` class.
 pub(crate) mod RSGit_Commit {
     use rsphp_macros_c::{ZEND_TYPE_INIT_CLASS, ZVAL_UNDEF};

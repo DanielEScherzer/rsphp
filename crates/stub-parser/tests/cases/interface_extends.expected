@@ -1,4 +1,3 @@
-
 /// Module for `HasMagic` interface.
 pub(crate) mod HasMagic {
     use rsphp_sys::{zend_class_entry, zend_class_implements};

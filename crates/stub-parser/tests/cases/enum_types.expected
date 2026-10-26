@@ -1,4 +1,3 @@
-
 /// Module for `Unbacked` enum.
 pub(crate) mod Unbacked {
     use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr};

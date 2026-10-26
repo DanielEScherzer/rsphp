@@ -1,4 +1,3 @@
-
 /// Module for `CustomCastable` class.
 pub(crate) mod CustomCastable {
     use rsphp_macros_c::ZVAL_LONG;

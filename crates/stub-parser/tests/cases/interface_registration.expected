@@ -1,4 +1,3 @@
-
 /// Module for `CustomCasting\CastableTarget` enum.
 pub(crate) mod CustomCasting_CastableTarget {
     use rsphp_sys::{IS_UNDEF, zend_class_entry, zend_enum_add_case_cstr};

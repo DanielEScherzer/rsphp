@@ -1485,11 +1485,12 @@ impl ArgInfoBuilder<'_> {
         } else {
             String::new()
         };
-        format!(
-            "{}{extra_uses_code}{}\n{}\n",
+        let result = format!(
+            "{}{extra_uses_code}{}\n{}",
             self.scope.as_uses(),
             verification_code,
             self.parts.join("\n")
-        )
+        );
+        result.trim().to_owned() + "\n"
     }
 }

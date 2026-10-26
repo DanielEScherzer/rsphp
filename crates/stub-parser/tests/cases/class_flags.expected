@@ -1,4 +1,3 @@
-
 /// Module for `Demo` class.
 pub(crate) mod Demo {
     use rsphp_sys::{ZEND_ACC_FINAL, ZEND_ACC_NO_DYNAMIC_PROPERTIES, zend_class_entry};

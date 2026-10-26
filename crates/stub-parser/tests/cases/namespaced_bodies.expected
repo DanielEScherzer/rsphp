@@ -66,4 +66,3 @@ pub(crate) mod Other_InOtherNamespace {
 pub(crate) const ARGINFO_OTHER_INOTHERNAMESPACE: [zend_internal_arg_info; 1] = [
     ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_ANY, 0),
 ];
-

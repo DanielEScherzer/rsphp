@@ -1,4 +1,3 @@
-
 /// Module for `Base` class.
 pub(crate) mod Base {
     use rsphp_sys::zend_class_entry;

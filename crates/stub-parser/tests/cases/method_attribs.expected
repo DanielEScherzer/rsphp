@@ -1,4 +1,3 @@
-
 /// Module for `Demo` class.
 pub(crate) mod Demo {
     use rsphp_macros_c::{ZSTR_KNOWN, ZSTR_LEN, ZVAL_STR};

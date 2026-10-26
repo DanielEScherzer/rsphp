@@ -1,4 +1,3 @@
-
 /// Module for `IDemo` interface.
 pub(crate) mod IDemo {
     use rsphp_sys::zend_class_entry;

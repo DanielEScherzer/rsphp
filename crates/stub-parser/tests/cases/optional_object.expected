@@ -1,4 +1,3 @@
-
 /// Module for `Repository` class.
 pub(crate) mod Repository {
     use rsphp_macros_c::{ZEND_ARG_OBJ_INFO, ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE, ZEND_ARG_TYPE_INFO};
