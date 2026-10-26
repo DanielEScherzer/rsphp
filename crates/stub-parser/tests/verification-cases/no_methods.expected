@@ -39,7 +39,7 @@ pub(crate) mod Example {
         unsafe {
             zend_string_release(property_first_name);
         }
-        
+
         let mut property_second_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_second_default_value)); }
         let property_second_name: *mut zend_string = unsafe {

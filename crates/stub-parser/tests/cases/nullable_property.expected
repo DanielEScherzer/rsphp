@@ -39,7 +39,7 @@ pub(crate) mod Reference {
         unsafe {
             zend_string_release(property_name_name);
         }
-        
+
         let mut property_shorthand_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_shorthand_default_value)); }
         let property_shorthand_name: *mut zend_string = unsafe {
@@ -62,7 +62,7 @@ pub(crate) mod Reference {
         unsafe {
             zend_string_release(property_shorthand_name);
         }
-        
+
         let mut property_symbolicTarget_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_symbolicTarget_default_value)); }
         let property_symbolicTarget_name: *mut zend_string = unsafe {

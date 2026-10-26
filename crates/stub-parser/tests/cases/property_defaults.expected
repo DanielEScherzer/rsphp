@@ -39,7 +39,7 @@ pub(crate) mod Demo {
         unsafe {
             zend_string_release(property_is_null_name);
         }
-        
+
         let mut property_bool_false_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_FALSE!(std::ptr::from_mut::<zval>(&mut property_bool_false_default_value)); }
         let property_bool_false_name: *mut zend_string = unsafe {
@@ -62,7 +62,7 @@ pub(crate) mod Demo {
         unsafe {
             zend_string_release(property_bool_false_name);
         }
-        
+
         let mut property_bool_true_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_TRUE!(std::ptr::from_mut::<zval>(&mut property_bool_true_default_value)); }
         let property_bool_true_name: *mut zend_string = unsafe {
@@ -85,7 +85,7 @@ pub(crate) mod Demo {
         unsafe {
             zend_string_release(property_bool_true_name);
         }
-        
+
         let mut property_str_empty_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_EMPTY_STRING!(std::ptr::from_mut::<zval>(&mut property_str_empty_default_value)); }
         let property_str_empty_name: *mut zend_string = unsafe {
@@ -108,7 +108,7 @@ pub(crate) mod Demo {
         unsafe {
             zend_string_release(property_str_empty_name);
         }
-        
+
         let mut property_str_other_default_value: zval = unsafe { std::mem::zeroed() };
         let property_str_other_default_str = unsafe { zend_string_init(c"foo".as_ptr(), "foo".len(), true) };
 
@@ -133,7 +133,7 @@ pub(crate) mod Demo {
         unsafe {
             zend_string_release(property_str_other_name);
         }
-        
+
         let mut property_arr_empty_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_EMPTY_ARRAY!(std::ptr::from_mut::<zval>(&mut property_arr_empty_default_value)); }
         let property_arr_empty_name: *mut zend_string = unsafe {
@@ -156,7 +156,7 @@ pub(crate) mod Demo {
         unsafe {
             zend_string_release(property_arr_empty_name);
         }
-        
+
         let mut property_int_5_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_LONG!(std::ptr::from_mut::<zval>(&mut property_int_5_default_value), 5); }
         let property_int_5_name: *mut zend_string = unsafe {

@@ -46,7 +46,7 @@ pub(crate) mod RSGit_Commit {
         unsafe {
             zend_string_release(property_id_name);
         }
-        
+
         let mut property_author_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_author_default_value)); }
         let property_author_name: *mut zend_string = unsafe {
@@ -76,7 +76,7 @@ pub(crate) mod RSGit_Commit {
         unsafe {
             zend_string_release(property_author_name);
         }
-        
+
         let mut property_committer_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_committer_default_value)); }
         let property_committer_name: *mut zend_string = unsafe {
@@ -201,7 +201,7 @@ pub(crate) mod RSGit_Signature {
         unsafe {
             zend_string_release(property_name_name);
         }
-        
+
         let mut property_email_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_email_default_value)); }
         let property_email_name: *mut zend_string = unsafe {
@@ -224,7 +224,7 @@ pub(crate) mod RSGit_Signature {
         unsafe {
             zend_string_release(property_email_name);
         }
-        
+
         let mut property_time_default_value: zval = unsafe { std::mem::zeroed() };
         unsafe { ZVAL_UNDEF!(std::ptr::from_mut::<zval>(&mut property_time_default_value)); }
         let property_time_name: *mut zend_string = unsafe {
