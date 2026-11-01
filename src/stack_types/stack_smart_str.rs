@@ -4,11 +4,6 @@ use rsphp_sys::{
 };
 use std::ops::Deref;
 
-pub struct StackSmartStr {
-    /// The wrapped smart string.
-    inner: smart_str,
-}
-
 /// Rust handling of stack-allocated [`rsphp_sys::smart_str`] values.
 ///
 /// Can be dereferenced into the underlying `smart_str`.
@@ -18,6 +13,11 @@ pub struct StackSmartStr {
 /// # Panics
 ///
 /// Panics when extracting a string that is not valid UTF8.
+pub struct StackSmartStr {
+    /// The wrapped smart string.
+    inner: smart_str,
+}
+
 #[expect(clippy::new_without_default, reason = "Default is not appropriate")]
 impl StackSmartStr {
     /// Create a new empty [`rsphp_sys::smart_str`].

@@ -2,6 +2,7 @@ use rsphp_sys::{php_info_print_table_end, php_info_print_table_row, php_info_pri
 
 use std::ffi::CString;
 
+/// A utility for printing out extension information tables.
 pub struct InfoTablePrinter {
     /// If nothing is printed then we don't need to open and close the table.
     have_printed: bool,

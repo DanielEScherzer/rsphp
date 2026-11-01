@@ -2,7 +2,9 @@
 use rsphp_sys::{zend_attribute, zend_attribute_arg};
 use std::ops::Range;
 
+/// Extension trait for [`rsphp_sys::zend_attribute`].
 pub trait ZendAttributeExt {
+    /// Get an iterator over the arguments of the attribute.
     fn args(&self) -> ZendAttributeArgIter<'_>;
 }
 

@@ -2,11 +2,21 @@
 use rsphp_sys::zend_extension;
 use std::ffi::CStr;
 
+/// Extension trait for [`rsphp_sys::zend_extension`].
 pub trait ZendExtensionExt {
+    /// Get the name of the extension.
     fn get_name(&self) -> &str;
+
+    /// Get the version of the extension, if set.
     fn get_version(&self) -> Option<&str>;
+
+    /// Get the author of the extension, if set.
     fn get_author(&self) -> Option<&str>;
+
+    /// Get the URL of the extension, if set.
     fn get_url(&self) -> Option<&str>;
+
+    /// Get the copyright information of the extension, if set.
     fn get_copyright(&self) -> Option<&str>;
 }
 

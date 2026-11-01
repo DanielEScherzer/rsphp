@@ -2,6 +2,11 @@ use rsphp_sys::{zval, zval_ptr_dtor, zval_ptr_dtor_nogc};
 use std::convert::AsRef;
 use std::ops::Deref;
 
+/// Rust handling of stack-allocated [`rsphp_sys::zval`] values.
+///
+/// Can be dereferenced into the underlying zval.
+///
+/// Calls [`rsphp_sys::zval_ptr_dtor`] automatically on drop.
 pub struct StackZval {
     /// The wrapped zval.
     inner: zval,
@@ -10,11 +15,6 @@ pub struct StackZval {
     gc: bool,
 }
 
-/// Rust handling of stack-allocated [`rsphp_sys::zval`] values.
-///
-/// Can be dereferenced into the underlying zval.
-///
-/// Calls [`rsphp_sys::zval_ptr_dtor`] automatically on drop.
 #[expect(clippy::new_without_default, reason = "Default is not appropriate")]
 impl StackZval {
     /// Create a new uninitialized [`rsphp_sys::zval`].

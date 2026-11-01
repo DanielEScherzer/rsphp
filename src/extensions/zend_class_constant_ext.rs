@@ -1,7 +1,11 @@
 //! Extension trait for [`rsphp_sys::zend_class_constant`].
 use rsphp_sys::zend_class_constant;
 
+/// Extension trait for [`rsphp_sys::zend_class_constant`].
 pub trait ZendClassConstantExt {
+    /// Get the flags of the constant.
+    ///
+    /// This is equivalent to [`rsphp_macros_c::ZEND_CLASS_CONST_FLAGS!()`].
     fn get_flags(&self) -> u32;
 }
 

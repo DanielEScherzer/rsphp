@@ -2,8 +2,14 @@
 use rsphp_sys::{instanceof_function, zend_class_entry, zend_class_name};
 use std::ops::Range;
 
+/// Extension trait for [`rsphp_sys::zend_class_entry`].
 pub trait ZendClassEntryExt {
+    /// Get an iterator over the names of the traits used by this class entry.
     fn get_trait_names(&self) -> ZendClassEntryTraitNamesIter<'_>;
+
+    /// Check if this class is an instance of some other class.
+    ///
+    /// Wrapper around [`rsphp_sys::instanceof_function()`].
     fn instance_of(&self, other: &zend_class_entry) -> bool;
 }
 
