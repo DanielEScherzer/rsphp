@@ -446,7 +446,6 @@ version = "0.1.2"
 dependencies = [
  "bstr",
  "rsphp-macros-c",
- "rsphp-macros-rs",
  "rsphp-sys",
 ]
 

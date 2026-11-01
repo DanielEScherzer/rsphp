@@ -2,11 +2,14 @@ use crate::stack_types::StackZendString;
 use rsphp_macros_c::{CG, EG, Z_OBJ, ZSTR_KNOWN, ZVAL_LONG, ZVAL_STR};
 use rsphp_sys::{
     _zend_known_string_id::ZEND_STR_CODE, _zend_known_string_id::ZEND_STR_MESSAGE, E_ERROR,
-    instanceof_function, object_init_ex, zend_ce_error, zend_ce_throwable, zend_class_entry,
-    zend_error_noreturn, zend_throw_exception_internal, zend_update_property_ex, zval,
+    ZEND_RESULT_CODE, instanceof_function, object_init_ex, zend_ce_error, zend_ce_throwable,
+    zend_class_entry, zend_error_noreturn, zend_throw_exception_internal, zend_update_property_ex,
+    zval,
 };
 
 /// Method holder for methods relating to throwing exceptions and errors.
+#[derive(Copy, Clone, Debug)]
+#[non_exhaustive]
 pub struct PHPExceptions;
 
 impl PHPExceptions {
@@ -66,7 +69,12 @@ impl PHPExceptions {
         let mut exception_zv: zval = unsafe { std::mem::zeroed() };
         // SAFETY: object_init_ex() is given a valid class entry and a valid
         // zval pointer
-        unsafe { object_init_ex(&raw mut exception_zv, ce) };
+        let result = unsafe { object_init_ex(&raw mut exception_zv, ce) };
+        assert_eq!(
+            ZEND_RESULT_CODE::SUCCESS,
+            result,
+            "Exception object initialization must succeed"
+        );
 
         {
             // SAFETY: zvals can be initialized with zero bytes

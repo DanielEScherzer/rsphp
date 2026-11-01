@@ -1,5 +1,5 @@
 use rsphp_sys::{zval, zval_ptr_dtor, zval_ptr_dtor_nogc};
-use std::convert::AsRef;
+use std::fmt;
 use std::ops::Deref;
 
 /// Rust handling of stack-allocated [`rsphp_sys::zval`] values.
@@ -40,6 +40,8 @@ impl StackZval {
         std::ptr::from_mut(&mut self.inner)
     }
 
+    /// Run [`rsphp_sys::zval_ptr_dtor_nogc()`] rather than [`rsphp_sys::zval_ptr_dtor()`]
+    /// when the object is dropped.
     pub fn set_no_gc_dtor(&mut self) {
         self.gc = false;
     }
@@ -68,5 +70,15 @@ impl AsRef<zval> for StackZval {
     /// Access an immutable reference to the contained instance.
     fn as_ref(&self) -> &zval {
         &self.inner
+    }
+}
+
+impl fmt::Debug for StackZval {
+    #[expect(clippy::pointer_format, reason = "No better options")]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("StackZval")
+            .field("inner", &format!("{:p}", std::ptr::from_ref(&self.inner)))
+            .field("gc", &self.gc)
+            .finish()
     }
 }

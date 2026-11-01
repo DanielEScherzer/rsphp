@@ -2,6 +2,7 @@ use rsphp_macros_c::{ZSTR_LEN, ZSTR_VAL};
 use rsphp_sys::{
     smart_str, smart_str_0, smart_str_extract, smart_str_free, zend_string, zend_string_release,
 };
+use std::fmt;
 use std::ops::Deref;
 
 /// Rust handling of stack-allocated [`rsphp_sys::smart_str`] values.
@@ -77,5 +78,14 @@ impl Deref for StackSmartStr {
     type Target = smart_str;
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+impl fmt::Debug for StackSmartStr {
+    #[expect(clippy::pointer_format, reason = "No better options")]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("StackSmartStr")
+            .field("inner", &format!("{:p}", std::ptr::from_ref(&self.inner)))
+            .finish()
     }
 }

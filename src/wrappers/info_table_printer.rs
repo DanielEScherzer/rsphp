@@ -3,12 +3,17 @@ use rsphp_sys::{php_info_print_table_end, php_info_print_table_row, php_info_pri
 use std::ffi::CString;
 
 /// A utility for printing out extension information tables.
+#[derive(Debug)]
 pub struct InfoTablePrinter {
     /// If nothing is printed then we don't need to open and close the table.
     have_printed: bool,
 }
 
 impl InfoTablePrinter {
+    /// Print the given rows.
+    ///
+    /// See [`InfoTablePrinter::row()`] for the conditions under which this
+    /// method may panic.
     pub fn print(rows: &[&[&str]]) {
         let mut printer = InfoTablePrinter::new();
         for row in rows {
@@ -17,6 +22,7 @@ impl InfoTablePrinter {
     }
 
     #[must_use]
+    /// Create a new information table printer.
     pub fn new() -> Self {
         InfoTablePrinter {
             have_printed: false,
@@ -28,8 +34,15 @@ impl InfoTablePrinter {
     /// # Panics
     ///
     /// Panics if any string contains interior null bytes, which cannot be
-    /// handled by a C function that uses null-terminated strings, or if
-    /// more than two values are printed for the same row.
+    /// handled by a C function that uses null-terminated strings.
+    ///
+    /// # Caveats
+    ///
+    /// Given that [`rsphp_sys::php_info_print_table_row()`] is variadic and
+    /// the Rust code here needs to call it with a known number of arguments,
+    /// if more than two values in the row are desired this method will print
+    /// the first two values and then a warning; do your own printing or request
+    /// that the limit be increased if needed.
     #[expect(clippy::missing_asserts_for_indexing, reason = "Length checked")]
     pub fn row(&mut self, values: &[&str]) {
         if values.is_empty() {
@@ -50,14 +63,23 @@ impl InfoTablePrinter {
             return;
         }
         let str2 = CString::new(values[1]).expect("Should be valid");
-        if values.len() == 2 {
+        if values.len() >= 2 {
             // SAFETY: all pointers are null-terminated strings, and the number
             // given in the first parameter matches the number of subsequent
             // arguments
             unsafe { php_info_print_table_row(2, str1.as_ptr(), str2.as_ptr()) };
             return;
         }
-        panic!("Unhandled number of values: {}", values.len());
+        if values.len() > 2 {
+            // Safety: pointer is for a null-terminated string, correct number
+            // of arguments given
+            unsafe {
+                php_info_print_table_row(
+                    1,
+                    c"WARNING: rsphp::wrappers::InfoTablePrinter::row() truncated some values",
+                );
+            }
+        }
     }
 }
 

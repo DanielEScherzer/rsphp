@@ -9,6 +9,7 @@ use std::ops::Deref;
 /// Can be dereferenced into the underlying `zend_string`.
 ///
 /// Calls [`rsphp_sys::zend_string_release_ex`] automatically on drop.
+#[derive(Debug)]
 pub struct StackZendString {
     /// The wrapped string.
     inner: *mut zend_string,

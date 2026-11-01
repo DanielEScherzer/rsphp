@@ -19,6 +19,7 @@ impl ZendTypeListExt for &zend_type_list {
 }
 
 /// Iterator over the types in a [`rsphp_sys::zend_type_list`].
+#[derive(Debug)]
 pub struct ZendTypeListIter<'list> {
     /// The target [`rsphp_sys::zend_type_list`].
     raw: &'list zend_type_list,
