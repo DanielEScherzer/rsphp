@@ -1,5 +1,5 @@
 # rsphp-sys
 
-FFI bindings for PHP's ABIC, see the main [rsphp] README for more information.
+FFI bindings for PHP's ABI, see the main [rsphp] README for more information.
 
 [rsphp]: https://github.com/DanielEScherzer/rsphp
