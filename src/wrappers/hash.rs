@@ -6,6 +6,7 @@ use rsphp_sys::{Bucket, HashTable, IS_UNDEF, zend_string, zval};
 
 /// Representation of a *non packed* hash table, for read-only iteration
 /// though the underlying values can be modified.
+#[derive(Debug)]
 pub struct HashMapRepr<'table> {
     /// The underlying table.
     _raw: *const HashTable,
@@ -105,6 +106,7 @@ impl<'table> Iterator for HashMapRepr<'table> {
 
 /// Representation of a *potentially packed* hash table, for read-only iteration
 /// though the underlying values can be modified.
+#[derive(Debug)]
 pub struct HashRepr<'table> {
     /// The underlying table.
     raw: *const HashTable,
@@ -119,6 +121,7 @@ pub struct HashRepr<'table> {
 }
 
 impl HashRepr<'_> {
+    /// Create a new [`HashRepr`] from the given reference.
     #[must_use]
     pub fn from_reference(reference: &HashTable) -> Self {
         // SAFETY: pointer created from a reference is valid
@@ -164,15 +167,14 @@ impl<'table> Iterator for HashRepr<'table> {
         }
         let current_val: *mut zval = self.next_elem;
         let hash: u64;
-        let key: *mut zend_string;
         // SAFETY: pointer must be valid
-        if unsafe { HT_IS_PACKED!(self.raw) } {
+        let key: *mut zend_string = if unsafe { HT_IS_PACKED!(self.raw) } {
             // SAFETY: pointer addition fits in isize and is part of the same
             // allocation
             self.next_elem = unsafe { self.next_elem.add(1) };
             hash = self.index;
             self.index += 1;
-            key = std::ptr::null_mut();
+            std::ptr::null_mut()
         } else {
             let bucket: *mut Bucket = self.next_elem.cast::<Bucket>();
             // SAFETY: pointer addition fits in isize and is part of the same
@@ -183,8 +185,8 @@ impl<'table> Iterator for HashRepr<'table> {
             // SAFETY: known to be a valid bucket in the table
             hash = unsafe { (*bucket).h };
             // SAFETY: known to be a valid bucket in the table
-            key = unsafe { (*bucket).key };
-        }
+            unsafe { (*bucket).key }
+        };
 
         self.count_remaining -= 1;
         // SAFETY: hash tables should only hold valid values
@@ -200,6 +202,7 @@ impl<'table> Iterator for HashRepr<'table> {
 
 /// Representation of a *definitely packed* hash table, for read-only iteration
 /// though the underlying values can be modified.
+#[derive(Debug)]
 pub struct HashPackedRepr<'table> {
     /// The underlying table.
     _raw: *const HashTable,

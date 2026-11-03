@@ -2,8 +2,12 @@
 use rsphp_sys::zend_module_dep;
 use std::ffi::CStr;
 
+/// Extension trait for [`rsphp_sys::zend_module_dep`].
 pub trait ZendModuleDepExt {
+    /// Get the relationship constraint of the dependency, if set.
     fn get_relation(&self) -> Option<&str>;
+
+    /// Get the version for the relationship constraint of the dependency, if set.
     fn get_version(&self) -> Option<&str>;
 }
 

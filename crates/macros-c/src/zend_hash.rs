@@ -56,11 +56,15 @@ macro_rules! ZVAL_EMPTY_ARRAY {
 #[macro_export]
 macro_rules! ZEND_HASH_ELEMENT_SIZE {
     ($ht:expr) => {
-        std::mem::size_of::<rsphp_sys::zval>()
-            + ((!$crate::HT_FLAGS!($ht) & rsphp_sys::HASH_FLAG_PACKED) as usize)
-                * ((std::mem::size_of::<rsphp_sys::Bucket>()
-                    - std::mem::size_of::<rsphp_sys::zval>())
-                    / (rsphp_sys::HASH_FLAG_PACKED as usize))
+        #[expect(clippy::integer_division, reason = "Matches C version")]
+        // Need a block so that attribute can be applied
+        {
+            std::mem::size_of::<rsphp_sys::zval>()
+                + ((!$crate::HT_FLAGS!($ht) & rsphp_sys::HASH_FLAG_PACKED) as usize)
+                    * ((std::mem::size_of::<rsphp_sys::Bucket>()
+                        - std::mem::size_of::<rsphp_sys::zval>())
+                        / (rsphp_sys::HASH_FLAG_PACKED as usize))
+        }
     };
 }
 

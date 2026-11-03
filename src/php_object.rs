@@ -1,10 +1,14 @@
 use rsphp_macros_c::Z_OBJ;
 use rsphp_sys::{ZEND_RESULT_CODE, object_init_ex, zend_class_entry, zend_object, zval};
-use std::convert::{AsMut, AsRef};
 use std::ptr::NonNull;
 
 /// Wrapper around a [`rsphp_sys::zend_object`] that is known to exist and
 /// be valid.
+#[expect(
+    missing_copy_implementations,
+    reason = "Copies should not be made without considering reference counting"
+)]
+#[derive(Debug)]
 pub struct PHPObject {
     /// The wrapped object.
     ptr: NonNull<zend_object>,
@@ -108,6 +112,7 @@ impl PHPObject {
         }
     }
 
+    /// Get the class entry for this object, if possible.
     #[must_use]
     pub fn get_class(&self) -> Option<&zend_class_entry> {
         // SAFETY: pointer must be valid
@@ -116,6 +121,7 @@ impl PHPObject {
         unsafe { obj_ref.ce.as_ref() }
     }
 
+    /// Get a mutable pointer to the object, for passing to FFI.
     #[must_use]
     pub fn ptr(&self) -> *mut zend_object {
         self.ptr.as_ptr()

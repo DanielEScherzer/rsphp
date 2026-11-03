@@ -4,16 +4,17 @@ use rsphp_sys::{zend_string, zend_string_init, zend_string_release_ex};
 use std::ffi::c_char;
 use std::ops::Deref;
 
-pub struct StackZendString {
-    /// The wrapped string.
-    inner: *mut zend_string,
-}
-
 /// Rust handling of Rust-tracked [`rsphp_sys::zend_string`] pointer.
 ///
 /// Can be dereferenced into the underlying `zend_string`.
 ///
 /// Calls [`rsphp_sys::zend_string_release_ex`] automatically on drop.
+#[derive(Debug)]
+pub struct StackZendString {
+    /// The wrapped string.
+    inner: *mut zend_string,
+}
+
 impl StackZendString {
     /// Create a new [`rsphp_sys::zend_string`] for the given `&str`.
     #[must_use]

@@ -5,10 +5,31 @@ use rsphp_sys::{
     zend_arg_info,
 };
 
+/// Extension trait for [`rsphp_sys::zend_arg_info`].
 pub trait ZendArgInfoExt {
+    /// Get the "send" mode for the argument.
+    ///
+    /// The result should be one of
+    /// - [`rsphp_sys::ZEND_SEND_BY_VAL`]
+    /// - [`rsphp_sys::ZEND_SEND_BY_REF`]
+    /// - [`rsphp_sys::ZEND_SEND_PREFER_REF`]
+    ///
+    /// This is equivalent to [`rsphp_macros_c::ZEND_ARG_SEND_MODE!()`].
     fn send_mode(&self) -> u8;
+
+    /// Check if an argument is marked as variadic.
+    ///
+    /// This is equivalent to [`rsphp_macros_c::ZEND_ARG_IS_VARIADIC!()`].
     fn is_variadic(&self) -> bool;
+
+    /// Check if an argument is marked as promoted.
+    ///
+    /// This is equivalent to [`rsphp_macros_c::ZEND_ARG_IS_PROMOTED!()`].
     fn is_promoted(&self) -> bool;
+
+    /// Check if an argument is marked as having a tentative type.
+    ///
+    /// This is equivalent to [`rsphp_macros_c::ZEND_ARG_TYPE_IS_TENTATIVE!()`].
     fn is_tentative(&self) -> bool;
 }
 

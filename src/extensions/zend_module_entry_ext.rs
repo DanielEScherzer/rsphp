@@ -2,8 +2,12 @@
 use rsphp_sys::zend_module_entry;
 use std::ffi::CStr;
 
+/// Extension trait for [`rsphp_sys::zend_module_entry`].
 pub trait ZendModuleEntryExt {
+    /// Get the name of the module entry.
     fn get_name(&self) -> &str;
+
+    /// Get the version of the module entry, if set.
     fn get_version(&self) -> Option<&str>;
 }
 
