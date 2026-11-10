@@ -21,7 +21,7 @@ impl PHPExceptions {
     ///
     /// # Panics
     ///
-    /// `ce` must be a subclass of `zend_ce_throwable`.
+    /// `ce` must be a subclass of [`rsphp_sys::zend_ce_throwable`].
     pub unsafe fn throw(ce: *mut zend_class_entry, message: &str) {
         // SAFETY: upheld by caller
         unsafe { PHPExceptions::do_throw(ce, message, None) };
@@ -35,7 +35,7 @@ impl PHPExceptions {
     ///
     /// # Panics
     ///
-    /// `ce` must be a subclass of `zend_ce_throwable`.
+    /// `ce` must be a subclass of [`rsphp_sys::zend_ce_throwable`].
     pub unsafe fn throw_with_code(ce: *mut zend_class_entry, message: &str, code: i64) {
         // SAFETY: upheld by caller
         unsafe { PHPExceptions::do_throw(ce, message, Some(code)) };
@@ -47,7 +47,7 @@ impl PHPExceptions {
     ///
     /// # Panics
     ///
-    /// `ce` must be a subclass of `zend_ce_throwable`.
+    /// `ce` must be a subclass of [`rsphp_sys::zend_ce_throwable`].
     unsafe fn do_throw(ce: *mut zend_class_entry, message: &str, code_opt: Option<i64>) {
         // Valid UTF8 can contain interior null bytes, in which case the use
         // of strlen() in zend_throw_exception() will be problematic. But

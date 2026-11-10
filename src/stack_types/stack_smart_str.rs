@@ -9,7 +9,7 @@ use std::ops::Deref;
 ///
 /// Can be dereferenced into the underlying `smart_str`.
 ///
-/// Calls [`rsphp_sys::smart_str_free`] automatically on drop.
+/// Calls [`rsphp_sys::smart_str_free()`] automatically on drop.
 ///
 /// # Panics
 ///

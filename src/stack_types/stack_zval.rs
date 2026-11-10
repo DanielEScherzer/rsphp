@@ -6,7 +6,8 @@ use std::ops::Deref;
 ///
 /// Can be dereferenced into the underlying zval.
 ///
-/// Calls [`rsphp_sys::zval_ptr_dtor`] automatically on drop.
+/// Calls [`rsphp_sys::zval_ptr_dtor()`] or [`rsphp_sys::zval_ptr_dtor_nogc()`]
+/// automatically on drop.
 pub struct StackZval {
     /// The wrapped zval.
     inner: zval,
@@ -19,7 +20,7 @@ pub struct StackZval {
 impl StackZval {
     /// Create a new uninitialized [`rsphp_sys::zval`].
     ///
-    /// Because [`rsphp_sys::IS_UNDEF`] has the value of 0, using [`std::mem::zeroed`]
+    /// Because [`rsphp_sys::IS_UNDEF`] has the value of 0, using [`std::mem::zeroed()`]
     /// results in a zval marked as `IS_UNDEF`.
     #[must_use]
     pub fn new() -> Self {
