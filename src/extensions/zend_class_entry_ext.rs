@@ -1,9 +1,16 @@
 //! Extension trait for [`rsphp_sys::zend_class_entry`].
 use rsphp_sys::{instanceof_function, zend_class_entry, zend_class_name};
+use std::fmt;
 use std::ops::Range;
 
+/// Extension trait for [`rsphp_sys::zend_class_entry`].
 pub trait ZendClassEntryExt {
+    /// Get an iterator over the names of the traits used by this class entry.
     fn get_trait_names(&self) -> ZendClassEntryTraitNamesIter<'_>;
+
+    /// Check if this class is an instance of some other class.
+    ///
+    /// Wrapper around [`rsphp_sys::instanceof_function()`].
     fn instance_of(&self, other: &zend_class_entry) -> bool;
 }
 
@@ -57,5 +64,15 @@ impl Iterator for ZendClassEntryTraitNamesIter<'_> {
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.range.size_hint()
+    }
+}
+
+impl fmt::Debug for ZendClassEntryTraitNamesIter<'_> {
+    #[expect(clippy::pointer_format, reason = "No better options")]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ZendClassEntryTraitNamesIter")
+            .field("raw", &format!("{:p}", std::ptr::from_ref(self.raw)))
+            .field("range", &self.range)
+            .finish()
     }
 }

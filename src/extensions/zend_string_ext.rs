@@ -2,9 +2,13 @@
 use rsphp_macros_c::{ZSTR_LEN, ZSTR_VAL};
 use rsphp_sys::zend_string;
 
+/// Extension trait for [`rsphp_sys::zend_string`].
 pub trait ZendStringExt {
+    /// Read the string as a slice.
     fn as_slice(&self) -> &[u8];
+
     #[cfg(feature = "bstr")]
+    /// Read the string as a [`bstr::BStr`].
     fn as_bstr(&self) -> &bstr::BStr {
         bstr::BStr::new(self.as_slice())
     }

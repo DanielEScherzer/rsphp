@@ -4,6 +4,7 @@ use rsphp_macros_c::{
 };
 use rsphp_sys::{zend_long, zend_string, zval};
 use std::ffi::{CString, c_char};
+use std::fmt;
 
 use crate::PHPObject;
 
@@ -26,14 +27,38 @@ enum PHPStringSource {
     BString(bstr::BString),
 }
 
+impl fmt::Debug for PHPStringSource {
+    #[expect(clippy::pointer_format, reason = "No better options")]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            PHPStringSource::EmptyString => write!(f, "PHPStringSource::EmptyString"),
+            PHPStringSource::RustString(string) => {
+                write!(f, "PHPStringSource::RustString({string})")
+            }
+            PHPStringSource::ZendStringWithoutCopy(string) => {
+                write!(f, "PHPStringSource::ZendStringWithoutCopy({string:p})")
+            }
+            PHPStringSource::ZendStringToCopy(string) => {
+                write!(f, "PHPStringSource::ZendStringToCopy({string:p})")
+            }
+            PHPStringSource::CString(string) => write!(f, "PHPStringSource::CString({string:?})"),
+            #[cfg(feature = "bstr")]
+            PHPStringSource::BString(string) => write!(f, "PHPStringSource::BString({string:?})"),
+        }
+    }
+}
+
 /// Helper to force all string constructions to go through the API of this crate
 /// rather than being constructed manually.
+#[derive(Debug)]
 pub struct PHPStringWrapper {
     /// The actual string.
     inner: PHPStringSource,
 }
 
 /// A value to apply to a PHP `zval`.
+#[non_exhaustive]
+#[derive(Debug)]
 pub enum PHPValue {
     /// None - do not change the value.
     _None,
@@ -114,7 +139,7 @@ impl PHPValue {
                 #[cfg(feature = "bstr")]
                 // SAFETY: pointer must be valid, upheld by caller
                 PHPStringSource::BString(string) => unsafe {
-                    ZVAL_STRINGL!(zval_p, string.as_ptr().cast::<c_char>(), string.len())
+                    ZVAL_STRINGL!(zval_p, string.as_ptr().cast::<c_char>(), string.len());
                 },
             },
             // SAFETY: pointer must be valid, upheld by caller
@@ -225,14 +250,14 @@ impl From<PHPObject> for PHPValue {
 
 #[cfg(feature = "bstr")]
 impl From<bstr::BString> for PHPValue {
-    fn from(s: bstr::BString) -> Self {
-        if s.is_empty() {
+    fn from(string: bstr::BString) -> Self {
+        if string.is_empty() {
             PHPValue::String(PHPStringWrapper {
                 inner: PHPStringSource::EmptyString,
             })
         } else {
             PHPValue::String(PHPStringWrapper {
-                inner: PHPStringSource::BString(s),
+                inner: PHPStringSource::BString(string),
             })
         }
     }
@@ -240,14 +265,14 @@ impl From<bstr::BString> for PHPValue {
 
 #[cfg(feature = "bstr")]
 impl From<&bstr::BStr> for PHPValue {
-    fn from(s: &bstr::BStr) -> Self {
-        if s.is_empty() {
+    fn from(string: &bstr::BStr) -> Self {
+        if string.is_empty() {
             PHPValue::String(PHPStringWrapper {
                 inner: PHPStringSource::EmptyString,
             })
         } else {
             PHPValue::String(PHPStringWrapper {
-                inner: PHPStringSource::BString(s.into()),
+                inner: PHPStringSource::BString(string.into()),
             })
         }
     }

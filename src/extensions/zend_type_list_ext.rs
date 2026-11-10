@@ -3,7 +3,9 @@ use rsphp_sys::{zend_type, zend_type_list};
 use std::ops::Range;
 
 // Cannot implement `Iterator` directly on `zend_type_list` so add a method instead
+/// Extension trait for [`rsphp_sys::zend_type_list`].
 pub trait ZendTypeListExt {
+    /// Get an iterator over the types of the type list.
     fn iter(&self) -> ZendTypeListIter<'_>;
 }
 
@@ -17,6 +19,7 @@ impl ZendTypeListExt for &zend_type_list {
 }
 
 /// Iterator over the types in a [`rsphp_sys::zend_type_list`].
+#[derive(Debug)]
 pub struct ZendTypeListIter<'list> {
     /// The target [`rsphp_sys::zend_type_list`].
     raw: &'list zend_type_list,

@@ -1,8 +1,11 @@
 //! Extension trait for [`rsphp_sys::zend_attribute`].
 use rsphp_sys::{zend_attribute, zend_attribute_arg};
+use std::fmt;
 use std::ops::Range;
 
+/// Extension trait for [`rsphp_sys::zend_attribute`].
 pub trait ZendAttributeExt {
+    /// Get an iterator over the arguments of the attribute.
     fn args(&self) -> ZendAttributeArgIter<'_>;
 }
 
@@ -39,5 +42,15 @@ impl Iterator for ZendAttributeArgIter<'_> {
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.range.size_hint()
+    }
+}
+
+impl fmt::Debug for ZendAttributeArgIter<'_> {
+    #[expect(clippy::pointer_format, reason = "No better options")]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ZendAttributeArgIter")
+            .field("raw", &format!("{:p}", std::ptr::from_ref(self.raw)))
+            .field("range", &self.range)
+            .finish()
     }
 }

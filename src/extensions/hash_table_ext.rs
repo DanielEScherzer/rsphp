@@ -5,12 +5,29 @@ use rsphp_sys::{
 };
 use std::ptr::NonNull;
 
+/// Extension trait for [`rsphp_sys::HashTable`].
 pub trait HashTableExt {
+    /// Does the table contain a value with the given string key?
+    ///
+    /// Wrapper around [`rsphp_sys::zend_hash_exists()`].
     fn contains(&self, key: &mut zend_string) -> bool;
+
+    /// Insert the given value to the next numerical index, and return the
+    /// resulting pointer.
+    ///
+    /// Wrapper around [`rsphp_sys::zend_hash_next_index_insert()`].
     fn next_index_insert<T>(&mut self, value: T) -> *mut zval
     where
         T: Into<PHPValue>;
+
+    /// Try to find the value in the table with the given string key.
+    ///
+    /// Wrapper around [`rsphp_sys::zend_hash_find()`].
     fn find(&self, key: &mut zend_string) -> Option<NonNull<zval>>;
+
+    /// Check the number of elements currently in the table.
+    ///
+    /// This is equivalent to [`rsphp_sys::zend_hash_num_elements()`].
     fn num_elements(&self) -> u32;
 }
 

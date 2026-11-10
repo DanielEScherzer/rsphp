@@ -2,22 +2,23 @@ use rsphp_macros_c::{ZSTR_LEN, ZSTR_VAL};
 use rsphp_sys::{
     smart_str, smart_str_0, smart_str_extract, smart_str_free, zend_string, zend_string_release,
 };
+use std::fmt;
 use std::ops::Deref;
-
-pub struct StackSmartStr {
-    /// The wrapped smart string.
-    inner: smart_str,
-}
 
 /// Rust handling of stack-allocated [`rsphp_sys::smart_str`] values.
 ///
 /// Can be dereferenced into the underlying `smart_str`.
 ///
-/// Calls [`rsphp_sys::smart_str_free`] automatically on drop.
+/// Calls [`rsphp_sys::smart_str_free()`] automatically on drop.
 ///
 /// # Panics
 ///
 /// Panics when extracting a string that is not valid UTF8.
+pub struct StackSmartStr {
+    /// The wrapped smart string.
+    inner: smart_str,
+}
+
 #[expect(clippy::new_without_default, reason = "Default is not appropriate")]
 impl StackSmartStr {
     /// Create a new empty [`rsphp_sys::smart_str`].
@@ -77,5 +78,14 @@ impl Deref for StackSmartStr {
     type Target = smart_str;
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+impl fmt::Debug for StackSmartStr {
+    #[expect(clippy::pointer_format, reason = "No better options")]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("StackSmartStr")
+            .field("inner", &format!("{:p}", std::ptr::from_ref(&self.inner)))
+            .finish()
     }
 }

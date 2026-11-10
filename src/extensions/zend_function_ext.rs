@@ -1,8 +1,18 @@
 //! Extension trait for [`rsphp_sys::zend_function`].
 use rsphp_sys::{_zend_function__common, zend_function};
 
+/// Extension trait for [`rsphp_sys::zend_function`].
 pub trait ZendFunctionExt {
+    /// Get the type of the function.
+    ///
+    /// The result should be one of
+    /// - [`rsphp_sys::ZEND_INTERNAL_FUNCTION`]
+    /// - [`rsphp_sys::ZEND_USER_FUNCTION`]
+    /// - [`rsphp_sys::ZEND_EVAL_CODE`]
     fn get_type(&self) -> u8;
+
+    /// Safe access for the common information shared by internal and userland
+    /// functions.
     fn get_common(&self) -> &_zend_function__common;
 }
 

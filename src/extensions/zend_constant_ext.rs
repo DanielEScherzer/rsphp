@@ -1,8 +1,16 @@
 //! Extension trait for [`rsphp_sys::zend_constant`].
 use rsphp_sys::zend_constant;
 
+/// Extension trait for [`rsphp_sys::zend_constant`].
 pub trait ZendConstantExt {
+    /// Get the flags of the constant.
+    ///
+    /// This is equivalent to [`rsphp_macros_c::ZEND_CONSTANT_FLAGS!()`].
     fn get_flags(&self) -> u32;
+
+    /// Get the module number of the constant.
+    ///
+    /// This is equivalent to [`rsphp_macros_c::ZEND_CONSTANT_MODULE_NUMBER!()`].
     fn get_module_number(&self) -> u32;
 }
 

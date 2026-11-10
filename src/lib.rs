@@ -6,7 +6,7 @@ pub use php_object::PHPObject;
 
 /// Module for `PHPValue` type and related.
 mod php_value;
-pub use php_value::PHPValue;
+pub use php_value::{PHPStringWrapper, PHPValue};
 
 /// Implementation of `PHPExceptions`.
 mod php_exceptions;
