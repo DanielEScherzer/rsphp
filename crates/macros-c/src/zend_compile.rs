@@ -18,8 +18,14 @@ macro_rules! OBJ_PROP {
 /// Identify the offset in bytes from a [`rsphp_sys::zend_object`] pointer to
 /// the property with the given offset number.
 #[doc = c_version!(
-    "#define OBJ_PROP_TO_OFFSET(num)",
-    "((uint32_t)(XtOffsetOf(zend_object, properties_table) + sizeof(zval) * (num)))"
+    85 => [
+        "#define OBJ_PROP_TO_OFFSET(num)",
+        "((uint32_t)(XtOffsetOf(zend_object, properties_table) + sizeof(zval) * (num)))",
+    ],
+    86 => [
+        "#define OBJ_PROP_TO_OFFSET(num)",
+    	"((uint32_t)(offsetof(zend_object, properties_table) + sizeof(zval) * (num)))",
+    ],
 )]
 #[macro_export]
 macro_rules! OBJ_PROP_TO_OFFSET {

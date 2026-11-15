@@ -233,13 +233,25 @@ macro_rules! ZEND_INI_ENTRY {
 
 /// Set up an INI entry definition for a boolean option.
 #[doc = c_version!(
-    NTS => [
-        "#define STD_ZEND_INI_BOOLEAN(name, default_value, modifiable, on_modify, property_name, struct_type, struct_ptr)",
-        "ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, (void *) XtOffsetOf(struct_type, property_name), (void *) &struct_ptr, NULL, zend_ini_boolean_displayer_cb)",
+    85 => [
+        NTS => [
+            "#define STD_ZEND_INI_BOOLEAN(name, default_value, modifiable, on_modify, property_name, struct_type, struct_ptr)",
+            "ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, (void *) XtOffsetOf(struct_type, property_name), (void *) &struct_ptr, NULL, zend_ini_boolean_displayer_cb)",
+        ],
+        ZTS => [
+            "#define STD_ZEND_INI_BOOLEAN(name, default_value, modifiable, on_modify, property_name, struct_type, struct_ptr)",
+            "ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, (void *) XtOffsetOf(struct_type, property_name), (void *) &struct_ptr##_id, NULL, zend_ini_boolean_displayer_cb)",
+        ],
     ],
-    ZTS => [
-        "#define STD_ZEND_INI_BOOLEAN(name, default_value, modifiable, on_modify, property_name, struct_type, struct_ptr)",
-        "ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, (void *) XtOffsetOf(struct_type, property_name), (void *) &struct_ptr##_id, NULL, zend_ini_boolean_displayer_cb)",
+    86 => [
+        NTS => [
+            "#define STD_ZEND_INI_BOOLEAN(name, default_value, modifiable, on_modify, property_name, struct_type, struct_ptr)",
+	        "ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, (void *) offsetof(struct_type, property_name), (void *) &struct_ptr, NULL, zend_ini_boolean_displayer_cb)",
+        ],
+        ZTS => [
+            "#define STD_ZEND_INI_BOOLEAN(name, default_value, modifiable, on_modify, property_name, struct_type, struct_ptr)",
+            "ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, (void *) offsetof(struct_type, property_name), (void *) &struct_ptr##_id, NULL, zend_ini_boolean_displayer_cb)",
+        ],
     ],
 )]
 #[macro_export]
@@ -267,7 +279,11 @@ macro_rules! STD_ZEND_INI_BOOLEAN {
 }
 
 /// Get the current version of an INI value, as a [`rsphp_sys::zend_long`].
-#[doc = c_version!("#define INI_INT(name) zend_ini_long((name), strlen(name), 0)")]
+#[doc = c_version!(
+    85 => "#define INI_INT(name) zend_ini_long((name), strlen(name), 0)",
+    86 => None,
+)]
+#[cfg(any(doc, not(php_is_86)))]
 #[macro_export]
 macro_rules! INI_INT {
     ($name:literal) => {
@@ -282,8 +298,29 @@ macro_rules! INI_INT {
         }
     };
 }
+
+/// Get the current version of an INI value, as a [`rsphp_sys::zend_long`].
+#[cfg(all(not(doc), php_is_86))]
+#[macro_export]
+macro_rules! INI_INT {
+    ($name:literal) => {
+        // SAFETY: per above
+        unsafe {
+            rsphp_sys::zend_ini_long(
+                $crate::c_str!($name).as_ptr(),
+                $crate::c_str!($name).count_bytes(),
+                false,
+            )
+        }
+    };
+}
+
 /// Get the current version of an INI value, as an f64.
-#[doc = c_version!("#define INI_FLT(name) zend_ini_double((name), strlen(name), 0)")]
+#[doc = c_version!(
+    85 => "#define INI_FLT(name) zend_ini_double((name), strlen(name), 0)",
+    86 => None,
+)]
+#[cfg(any(doc, not(php_is_86)))]
 #[macro_export]
 macro_rules! INI_FLT {
     ($name:literal) => {
@@ -298,8 +335,29 @@ macro_rules! INI_FLT {
         }
     };
 }
+
+/// Get the current version of an INI value, as an f64.
+#[cfg(all(not(doc), php_is_86))]
+#[macro_export]
+macro_rules! INI_FLT {
+    ($name:literal) => {
+        // SAFETY: per above
+        unsafe {
+            rsphp_sys::zend_ini_double(
+                $crate::c_str!($name).as_ptr(),
+                $crate::c_str!($name).count_bytes(),
+                false,
+            )
+        }
+    };
+}
+
 /// Get the current version of an INI value, as a character pointer.
-#[doc = c_version!("#define INI_STR(name) zend_ini_string_ex((name), strlen(name), 0, NULL)")]
+#[doc = c_version!(
+    85 => "#define INI_STR(name) zend_ini_string_ex((name), strlen(name), 0, NULL)",
+    86 => None,
+)]
+#[cfg(any(doc, not(php_is_86)))]
 #[macro_export]
 macro_rules! INI_STR {
     ($name:literal) => {
@@ -315,8 +373,29 @@ macro_rules! INI_STR {
         }
     };
 }
+
+/// Get the current version of an INI value, as a character pointer.
+#[cfg(all(not(doc), php_is_86))]
+#[macro_export]
+macro_rules! INI_STR {
+    ($name:literal) => {
+        // SAFETY: per above
+        unsafe {
+            rsphp_sys::zend_ini_string_ex(
+                $crate::c_str!($name).as_ptr(),
+                $crate::c_str!($name).count_bytes(),
+                false,
+                std::ptr::null_mut(),
+            )
+        }
+    };
+}
+
 /// Get the current version of an INI value, as a boolean.
-#[doc = c_version!("#define INI_BOOL(name) ((bool) INI_INT(name))")]
+#[doc = c_version!(
+    85 => "#define INI_BOOL(name) ((bool) INI_INT(name))",
+    86 => None,
+)]
 #[macro_export]
 macro_rules! INI_BOOL {
     ($name:literal) => {
@@ -325,7 +404,11 @@ macro_rules! INI_BOOL {
 }
 
 /// Get the original version of an INI value, as a [`rsphp_sys::zend_long`].
-#[doc = c_version!("#define INI_ORIG_INT(name)    zend_ini_long((name), strlen(name), 1)")]
+#[doc = c_version!(
+    85 => "#define INI_ORIG_INT(name)    zend_ini_long((name), strlen(name), 1)",
+    86 => None,
+)]
+#[cfg(any(doc, not(php_is_86)))]
 #[macro_export]
 macro_rules! INI_ORIG_INT {
     ($name:literal) => {
@@ -340,8 +423,29 @@ macro_rules! INI_ORIG_INT {
         }
     };
 }
+
+/// Get the original version of an INI value, as a [`rsphp_sys::zend_long`].
+#[cfg(all(not(doc), php_is_86))]
+#[macro_export]
+macro_rules! INI_ORIG_INT {
+    ($name:literal) => {
+        // SAFETY: per above
+        unsafe {
+            rsphp_sys::zend_ini_long(
+                $crate::c_str!($name).as_ptr(),
+                $crate::c_str!($name).count_bytes(),
+                true,
+            )
+        }
+    };
+}
+
 /// Get the original version of an INI value, as an f64.
-#[doc = c_version!("#define INI_ORIG_FLT(name)    zend_ini_double((name), strlen(name), 1)")]
+#[doc = c_version!(
+    85 => "#define INI_ORIG_FLT(name)    zend_ini_double((name), strlen(name), 1)",
+    86 => None,
+)]
+#[cfg(any(doc, not(php_is_86)))]
 #[macro_export]
 macro_rules! INI_ORIG_FLT {
     ($name:literal) => {
@@ -356,8 +460,29 @@ macro_rules! INI_ORIG_FLT {
         }
     };
 }
+
+/// Get the original version of an INI value, as an f64.
+#[cfg(all(not(doc), php_is_86))]
+#[macro_export]
+macro_rules! INI_ORIG_FLT {
+    ($name:literal) => {
+        // SAFETY: per above
+        unsafe {
+            rsphp_sys::zend_ini_double(
+                $crate::c_str!($name).as_ptr(),
+                $crate::c_str!($name).count_bytes(),
+                true,
+            )
+        }
+    };
+}
+
 /// Get the original version of an INI value, as a character pointer.
-#[doc = c_version!("#define INI_ORIG_STR(name)    zend_ini_string((name), strlen(name), 1)")]
+#[doc = c_version!(
+    85 => "#define INI_ORIG_STR(name)    zend_ini_string((name), strlen(name), 1)",
+    86 => None,
+)]
+#[cfg(any(doc, not(php_is_86)))]
 #[macro_export]
 macro_rules! INI_ORIG_STR {
     ($name:literal) => {
@@ -372,8 +497,28 @@ macro_rules! INI_ORIG_STR {
         }
     };
 }
+
+/// Get the original version of an INI value, as a character pointer.
+#[cfg(all(not(doc), php_is_86))]
+#[macro_export]
+macro_rules! INI_ORIG_STR {
+    ($name:literal) => {
+        // SAFETY: per above
+        unsafe {
+            rsphp_sys::zend_ini_string(
+                $crate::c_str!($name).as_ptr(),
+                $crate::c_str!($name).count_bytes(),
+                true,
+            )
+        }
+    };
+}
+
 /// Get the original version of an INI value, as a boolean.
-#[doc = c_version!("#define INI_ORIG_BOOL(name) ((bool) INI_ORIG_INT(name))")]
+#[doc = c_version!(
+    85 => "#define INI_ORIG_BOOL(name) ((bool) INI_ORIG_INT(name))",
+    86 => None,
+)]
 #[macro_export]
 macro_rules! INI_ORIG_BOOL {
     ($name:literal) => {

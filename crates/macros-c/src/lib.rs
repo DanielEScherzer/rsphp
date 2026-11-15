@@ -21,9 +21,16 @@ mod zend_api;
 mod zend_closures;
 mod zend_compile;
 mod zend_constants;
+mod zend_globals;
 mod zend_globals_macros;
 mod zend_hash;
 mod zend_ini;
 mod zend_object_handlers;
 mod zend_string;
 mod zend_types;
+
+#[cfg(any(doc, all(php_zend_zts, php_is_86)))]
+pub use zend_globals::ZEND_CG_OFFSET;
+
+#[cfg(any(doc, all(php_zend_zts, php_is_86)))]
+pub use zend_globals::ZEND_EG_OFFSET;

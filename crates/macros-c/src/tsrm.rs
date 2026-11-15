@@ -4,7 +4,44 @@
 //! statically linked with PHP (i.e. that `ZEND_ENABLE_STATIC_TSRMLS_CACHE` is
 //! not enabled for ZTS builds). Thus, `ZEND_TSRMG` is an alias for TSRMG.
 
-use crate::c_version;
+use crate::{c_differences, c_version};
+
+const _: () = {
+    assert!(size_of::<usize>() == 8, "usize should be 8 bytes");
+};
+const _: () = {
+    assert!(size_of::<isize>() == 8, "isize should be 8 bytes");
+};
+/// Get an aligned size for TSRM.
+#[doc = c_version!(
+    "# define TSRM_ALIGNED_SIZE(size)",
+    "(((size) + INT64_C(15)) & ~INT64_C(15))"
+)]
+#[doc = c_differences!(
+    "The C version is defined differently for `SIZEOF_SIZE_T` being 4 or 8, we \
+        assert that it is always 8. Only the C version for the size being 8 is \
+        shown above."
+)]
+#[macro_export]
+#[cfg(any(doc, php_zend_zts))]
+macro_rules! TSRM_ALIGNED_SIZE {
+    ($size:expr) => {{
+        #[expect(
+            clippy::cast_possible_wrap,
+            clippy::as_conversions,
+            reason = "Matches C code"
+        )]
+        let size: i64 = $size as i64;
+        let result_64: i64 = (size + 15_i64) & (!15_i64);
+        #[expect(
+            clippy::cast_possible_truncation,
+            clippy::as_conversions,
+            reason = "Matches C code, isize is 8 bytes"
+        )]
+        let result: isize = result_64 as isize;
+        result
+    }};
+}
 
 /// TSRM id unshuffling.
 #[doc = c_version!("#define TSRM_UNSHUFFLE_RSRC_ID(rsrc_id)        ((rsrc_id)-1)")]
@@ -83,7 +120,7 @@ macro_rules! TSRMG_FAST_BULK {
     ($offset:expr, $ty:ty) => {{
         // These are unsafe and so the macro is unsafe
         let cache_base: *mut std::ffi::c_void = rsphp_sys::tsrm_get_ls_cache();
-        let at_offset: *mut std::ffi::c_void = cache_base.byte_add($offset);
+        let at_offset: *mut std::ffi::c_void = cache_base.byte_offset($offset);
         at_offset.cast::<$ty>()
     }};
 }

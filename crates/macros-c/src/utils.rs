@@ -1,7 +1,7 @@
 /// Create a markdown string with the C version of a macro, for use in doc
 /// attributes.
 #[cfg_attr(
-    all(not(doc), php_zend_zts),
+    all(not(doc), any(php_zend_zts, not(php_is_86))),
     expect(
         unused_macro_rules,
         reason = "ZTS/NTS variants documented on the NTS version"
@@ -24,6 +24,71 @@ macro_rules! c_version {
             )
         )
     };
+    (85 => $code:literal, 86 => None,) => {
+        c_version!(
+            @overall
+            concat!(
+                c_version!(@subsection "PHP 8.5" c_version!(@code $code)),
+                "\n\n",
+                c_version!(@subsection "PHP 8.6" "The corresponding C macro was removed.")
+            )
+        )
+    };
+    (85 => [$( $line85:literal, )+], 86 => None,) => {
+        c_version!(
+            @overall
+            concat!(
+                c_version!(@subsection "PHP 8.5" c_version!(@code $( $line85, )+ )),
+                "\n\n",
+                c_version!(@subsection "PHP 8.6" "The corresponding C macro was removed.")
+            )
+        )
+    };
+    (85 => [$( $line85:literal, )+], 86 => [$( $line86:literal, )+],) => {
+        c_version!(
+            @overall
+            concat!(
+                c_version!(@subsection "PHP 8.5" c_version!(@code $( $line85, )+ )),
+                "\n\n",
+                c_version!(@subsection "PHP 8.6" c_version!(@code $( $line86, )+ ))
+            )
+        )
+    };
+    (
+        85 => [
+            NTS => [$( $line85NTS:literal, )+],
+            ZTS => [$( $line85ZTS:literal, )+],
+        ],
+        86 => [
+            NTS => [$( $line86NTS:literal, )+],
+            ZTS => [$( $line86ZTS:literal, )+],
+        ],
+    ) => {
+        c_version!(
+            @overall
+            concat!(
+                c_version!(
+                    @subsection
+                    "PHP 8.5"
+                    concat!(
+                        c_version!(@subsubsection "NTS" c_version!(@code $( $line85NTS, )+ ) ),
+                        "\n\n",
+                        c_version!(@subsubsection "ZTS" c_version!(@code $( $line85ZTS, )+ ) ),
+                    )
+                ),
+                "\n\n",
+                c_version!(
+                    @subsection
+                    "PHP 8.6"
+                    concat!(
+                        c_version!(@subsubsection "NTS" c_version!(@code $( $line86NTS, )+ ) ),
+                        "\n\n",
+                        c_version!(@subsubsection "ZTS" c_version!(@code $( $line86ZTS, )+ ) ),
+                    )
+                ),
+            )
+        )
+    };
     (NTS => [$nts1:literal, $nts2:literal,], ZTS => [$zts1:literal, $zts2:literal,],) => {
         c_version!(
             @overall
@@ -35,10 +100,10 @@ macro_rules! c_version {
         )
     };
 
-    (@code $code:expr) => {
+    (@code $code:expr $(,)?) => {
         concat!("```c\n", $code, "\n", "```")
     };
-    (@code $line1:literal, $line2:literal) => {
+    (@code $line1:literal, $line2:literal $(,)?) => {
         c_version!(@code concat!($line1, " \\", "\n", "    ", $line2))
     };
     (@overall $contents:expr) => {
@@ -46,6 +111,9 @@ macro_rules! c_version {
     };
     (@subsection $label:literal $contents:expr) => {
         concat!("## ", $label, "\n", "\n", $contents)
+    };
+    (@subsubsection $label:literal $contents:expr) => {
+        concat!("### ", $label, "\n", "\n", $contents)
     };
 }
 

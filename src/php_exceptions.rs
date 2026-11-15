@@ -1,10 +1,10 @@
 use crate::stack_types::StackZendString;
+use rsphp_compat::ZEND_RESULT_SUCCESS;
 use rsphp_macros_c::{CG, EG, Z_OBJ, ZSTR_KNOWN, ZVAL_LONG, ZVAL_STR};
 use rsphp_sys::{
     _zend_known_string_id::ZEND_STR_CODE, _zend_known_string_id::ZEND_STR_MESSAGE, E_ERROR,
-    ZEND_RESULT_CODE, instanceof_function, object_init_ex, zend_ce_error, zend_ce_throwable,
-    zend_class_entry, zend_error_noreturn, zend_throw_exception_internal, zend_update_property_ex,
-    zval,
+    instanceof_function, object_init_ex, zend_ce_error, zend_ce_throwable, zend_class_entry,
+    zend_error_noreturn, zend_throw_exception_internal, zend_update_property_ex, zval,
 };
 
 /// Method holder for methods relating to throwing exceptions and errors.
@@ -71,8 +71,7 @@ impl PHPExceptions {
         // zval pointer
         let result = unsafe { object_init_ex(&raw mut exception_zv, ce) };
         assert_eq!(
-            ZEND_RESULT_CODE::SUCCESS,
-            result,
+            ZEND_RESULT_SUCCESS, result,
             "Exception object initialization must succeed"
         );
 

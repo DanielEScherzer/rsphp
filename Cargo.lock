@@ -445,6 +445,7 @@ name = "rsphp"
 version = "0.1.3"
 dependencies = [
  "bstr",
+ "rsphp-compat",
  "rsphp-macros-c",
  "rsphp-sys",
 ]
@@ -454,6 +455,13 @@ name = "rsphp-build-tools"
 version = "0.1.3"
 dependencies = [
  "bindgen",
+]
+
+[[package]]
+name = "rsphp-compat"
+version = "0.1.2"
+dependencies = [
+ "rsphp-sys",
 ]
 
 [[package]]
@@ -468,6 +476,7 @@ dependencies = [
 name = "rsphp-macros-rs"
 version = "0.1.3"
 dependencies = [
+ "rsphp-compat",
  "rsphp-macros-c",
  "rsphp-sys",
 ]

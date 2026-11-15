@@ -1,0 +1,24 @@
+[package]
+name = "rsphp-compat"
+description = "Compatability definitions for supporting multiple PHP versions in RSPHP extensions"
+categories = ["development-tools::build-utils"]
+authors.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[package.metadata.docs.rs]
+# Show documentation for private items
+rustdoc-args = ["--document-private-items"]
+
+[lints]
+workspace = true
+
+[dependencies]
+rsphp-sys = { workspace = true }
+
+[build-dependencies]
+rsphp-sys = { workspace = true }

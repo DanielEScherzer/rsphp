@@ -71,6 +71,9 @@ fn main() {
         .blocklist_function("_mm_sad_epu8")
         .blocklist_function("_mm_movemask_epi8")
         .default_enum_style(EnumVariation::ModuleConsts)
+        .constified_enum("zend_class_type")
+        .constified_enum("zend_function_type")
+        .constified_enum("zpp_error")
         .merge_extern_blocks(true)
         // SLOW and didn't actually add anything
         // .clang_macro_fallback()

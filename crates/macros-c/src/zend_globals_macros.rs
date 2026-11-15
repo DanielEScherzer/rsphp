@@ -8,8 +8,14 @@ use crate::c_version;
 
 /// Access a compiler global.
 #[doc = c_version!(
-    NTS => "#define CG(v) (compiler_globals.v)",
-    ZTS => "#define CG(v) ZEND_TSRMG_FAST(compiler_globals_offset, zend_compiler_globals *, v)",
+    85 => [
+        NTS => ["#define CG(v) (compiler_globals.v)",],
+        ZTS => ["#define CG(v) ZEND_TSRMG_FAST(compiler_globals_offset, zend_compiler_globals *, v)",],
+    ],
+    86 => [
+        NTS => ["#define CG(v) (compiler_globals.v)",],
+        ZTS => ["#define CG(v) ZEND_TSRMG_FAST(ZEND_CG_OFFSET, zend_compiler_globals *, v)",],
+    ],
 )]
 #[macro_export]
 #[cfg(any(doc, not(php_zend_zts)))]
@@ -21,7 +27,7 @@ macro_rules! CG {
 
 /// Access a compiler global.
 #[macro_export]
-#[cfg(all(not(doc), php_zend_zts))]
+#[cfg(all(not(doc), php_zend_zts, not(php_is_86)))]
 macro_rules! CG {
     ($field:ident) => {
         unsafe {
@@ -34,10 +40,31 @@ macro_rules! CG {
     };
 }
 
+/// Access a compiler global.
+#[macro_export]
+#[cfg(all(not(doc), php_zend_zts, php_is_86))]
+macro_rules! CG {
+    ($field:ident) => {
+        unsafe {
+            $crate::TSRMG_FAST!(
+                rsphp_macros_c::ZEND_CG_OFFSET,
+                rsphp_sys::zend_compiler_globals,
+                $field
+            )
+        }
+    };
+}
+
 /// Access an executer global.
 #[doc = c_version!(
-    NTS => "#define EG(v) (executor_globals.v)",
-    ZTS => "#define EG(v) ZEND_TSRMG_FAST(executor_globals_offset, zend_executor_globals *, v)",
+    85 => [
+        NTS => ["#define EG(v) (executor_globals.v)",],
+        ZTS => ["#define EG(v) ZEND_TSRMG_FAST(executor_globals_offset, zend_executor_globals *, v)",],
+    ],
+    86 => [
+        NTS => ["#define EG(v) (executor_globals.v)",],
+        ZTS => ["#define EG(v) ZEND_TSRMG_FAST(ZEND_EG_OFFSET, zend_executor_globals *, v)",],
+    ],
 )]
 #[macro_export]
 #[cfg(any(doc, not(php_zend_zts)))]
@@ -49,12 +76,27 @@ macro_rules! EG {
 
 /// Access an executer global.
 #[macro_export]
-#[cfg(all(not(doc), php_zend_zts))]
+#[cfg(all(not(doc), php_zend_zts, not(php_is_86)))]
 macro_rules! EG {
     ($field:ident) => {
         unsafe {
             $crate::TSRMG_FAST!(
                 rsphp_sys::executor_globals_offset,
+                rsphp_sys::zend_executor_globals,
+                $field
+            )
+        }
+    };
+}
+
+/// Access an executer global.
+#[macro_export]
+#[cfg(all(not(doc), php_zend_zts, php_is_86))]
+macro_rules! EG {
+    ($field:ident) => {
+        unsafe {
+            $crate::TSRMG_FAST!(
+                rsphp_macros_c::ZEND_EG_OFFSET,
                 rsphp_sys::zend_executor_globals,
                 $field
             )

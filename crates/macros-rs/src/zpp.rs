@@ -359,7 +359,7 @@ macro_rules! __impl__ZEND_PARSE_ARGS {
             $spec.as_ptr().cast::<std::ffi::c_char>(),
             $( $processed_var ),+
         );
-        if result == rsphp_sys::ZEND_RESULT_CODE::FAILURE {
+        if result == rsphp_compat::ZEND_RESULT_FAILURE {
             rsphp_macros_c::RETURN_THROWS!();
         }
     };

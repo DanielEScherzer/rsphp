@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ["PHP-8.5"]
+        php: ["PHP-8.5", "PHP-8.6"]
         rust: ["1.99.0"]
         php_zts: [true, false]
         php_debug: [true, false]
@@ -108,7 +108,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ["PHP-8.5"]
+        php: ["PHP-8.5", "PHP-8.6"]
         rust: ["1.99.0"]
         php_zts: [true, false]
         php_debug: [true, false]

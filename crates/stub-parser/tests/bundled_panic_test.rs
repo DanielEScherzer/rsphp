@@ -31,6 +31,7 @@ fn verify_walker(walker: WalkDir) -> Result<(), Box<dyn std::error::Error>> {
         // zend_test splits the doc comment into two for one of the constants
         // listformatter.stub.php uses #if conditions to specify the definition
         // of IntlListFromatter::TYPE_AND and ::WIDTH_WIDE,
+        // similarly for rangeformatter
         skip!(
             "zend_builtin_functions",
             "zend_constants",
@@ -38,6 +39,7 @@ fn verify_walker(walker: WalkDir) -> Result<(), Box<dyn std::error::Error>> {
             "php_spl",
             "test",
             "listformatter",
+            "rangeformatter",
         );
         let path = entry.into_path();
         // We don't care about the actual result, just that .expect() does not
