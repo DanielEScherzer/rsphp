@@ -4,7 +4,7 @@
     all(not(doc), any(php_zend_zts, not(php_is_86))),
     expect(
         unused_macro_rules,
-        reason = "ZTS/NTS variants documented on the NTS version"
+        reason = "ZTS/NTS variants documented on the NTS version and on the PHP 8.5 version"
     )
 )]
 macro_rules! c_version {
@@ -13,16 +13,6 @@ macro_rules! c_version {
     };
     ($line1:literal, $line2:literal) => {
         c_version!(@overall c_version!(@code $line1, $line2))
-    };
-    (NTS => $nts:literal, ZTS => $zts:literal,) => {
-        c_version!(
-            @overall
-            concat!(
-                c_version!(@subsection "NTS" c_version!(@code $nts)),
-                "\n\n",
-                c_version!(@subsection "ZTS" c_version!(@code $zts)),
-            )
-        )
     };
     (85 => $code:literal, 86 => None,) => {
         c_version!(
@@ -86,16 +76,6 @@ macro_rules! c_version {
                         c_version!(@subsubsection "ZTS" c_version!(@code $( $line86ZTS, )+ ) ),
                     )
                 ),
-            )
-        )
-    };
-    (NTS => [$nts1:literal, $nts2:literal,], ZTS => [$zts1:literal, $zts2:literal,],) => {
-        c_version!(
-            @overall
-            concat!(
-                c_version!(@subsection "NTS" c_version!(@code $nts1, $nts2)),
-                "\n\n",
-                c_version!(@subsection "ZTS" c_version!(@code $zts1, $zts2)),
             )
         )
     };

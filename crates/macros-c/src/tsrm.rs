@@ -115,7 +115,19 @@ macro_rules! TSRMG_FAST {
 /// Bulk lookup of an overall structure in the TSRM cache.
 #[doc = c_version!("#define TSRMG_FAST_BULK(offset, type)    ((type) (((char*) tsrm_get_ls_cache())+(offset)))")]
 #[macro_export]
-#[cfg(any(doc, php_zend_zts))]
+#[cfg(any(doc, all(php_zend_zts, not(php_is_86))))]
+macro_rules! TSRMG_FAST_BULK {
+    ($offset:expr, $ty:ty) => {{
+        // These are unsafe and so the macro is unsafe
+        let cache_base: *mut std::ffi::c_void = rsphp_sys::tsrm_get_ls_cache();
+        let at_offset: *mut std::ffi::c_void = cache_base.byte_add($offset);
+        at_offset.cast::<$ty>()
+    }};
+}
+
+/// Bulk lookup of an overall structure in the TSRM cache.
+#[macro_export]
+#[cfg(all(not(doc), php_zend_zts, php_is_86))]
 macro_rules! TSRMG_FAST_BULK {
     ($offset:expr, $ty:ty) => {{
         // These are unsafe and so the macro is unsafe
