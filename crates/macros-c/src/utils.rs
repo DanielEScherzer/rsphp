@@ -1,6 +1,5 @@
 /// Create a markdown string with the C version of a macro, for use in doc
 /// attributes.
-
 macro_rules! c_version {
     ($code:expr) => {
         c_version!(@overall c_version!(@code $code))
