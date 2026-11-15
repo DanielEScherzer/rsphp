@@ -1,12 +1,6 @@
 /// Create a markdown string with the C version of a macro, for use in doc
 /// attributes.
-#[cfg_attr(
-    all(not(doc), any(php_zend_zts, not(php_is_86))),
-    expect(
-        unused_macro_rules,
-        reason = "ZTS/NTS variants documented on the NTS version and on the PHP 8.5 version"
-    )
-)]
+
 macro_rules! c_version {
     ($code:expr) => {
         c_version!(@overall c_version!(@code $code))

@@ -6,6 +6,7 @@ The primary `rsphp` crate contains utilities for use at runtime in PHP
 extensions. This workplace also includes the following crates:
 
 - `rsphp-build-tools`
+- `rsphp-compat`
 - `rsphp-macros-c`
 - `rsphp-macros-rs`
 - `rsphp-stub-parser`
@@ -29,6 +30,10 @@ testing.
 
 The `rsphp-sys` crate provides bindings for PHP's C ABI, and the
 `rsphp-build-tools` crate provides tools for generating those bindings.
+
+The `rsphp-compat` crate provides compatability aliases for items with different
+names across different PHP versions; these can be used to simplify supporting
+multiple versions of PHP.
 
 ## Argument information
 
