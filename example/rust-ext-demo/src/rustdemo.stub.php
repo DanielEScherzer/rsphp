@@ -70,3 +70,14 @@ class PropertiesDemo {
 	public static mixed $is_static;
 	public final mixed $is_final;
 }
+
+enum Color {
+	case White;
+	case Black;
+	case Red;
+	case Green;
+	case Blue;
+
+	public function isGreyScale(): bool {}
+
+}

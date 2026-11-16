@@ -18,7 +18,7 @@ use rsphp_sys::{
 use std::ffi::{c_char, c_int};
 
 mod demo;
-use demo::{class_RSDemo_methods, rs_demo_ptr};
+use demo::{class_RSDemo_methods, color_ptr, enum_Color_methods, rs_demo_ptr};
 
 mod opaquedata;
 use opaquedata::{
@@ -50,6 +50,8 @@ extern "C" fn my_module_info(entry: *mut zend_module_entry) {
 extern "C" fn my_module_init(type_: c_int, module_number: c_int) -> zend_result {
     unsafe {
         rs_demo_ptr = rustdemo_arginfo::RSDemo::register_class(&class_RSDemo_methods);
+        color_ptr = rustdemo_arginfo::Color::register_enum(enum_Color_methods);
+
         opaquedata_ptr =
             opaquedata_arginfo::RustDemo_OpaqueData::register_class(&class_opaquedata_methods);
         init_opaquedata_object_handlers();

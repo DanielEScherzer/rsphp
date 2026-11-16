@@ -82,7 +82,7 @@ Extension [ <persistent> extension #%d rustdemo version 0.1.0 ] {
     }
   }
 
-  - Classes [4] {
+  - Classes [5] {
     Class [ <internal:rustdemo> class RSDemo ] {
 
       - Constants [0] {
@@ -118,6 +118,45 @@ Extension [ <persistent> extension #%d rustdemo version 0.1.0 ] {
           - Parameters [0] {
           }
           - Return [ string ]
+        }
+      }
+    }
+
+    Enum [ <internal:rustdemo> enum Color implements UnitEnum ] {
+
+      - Enum cases [5] {
+        Case White
+        Case Black
+        Case Red
+        Case Green
+        Case Blue
+      }
+
+      - Constants [0] {
+      }
+
+      - Static properties [0] {
+      }
+
+      - Static methods [1] {
+        Method [ <internal:rustdemo, prototype UnitEnum> static public method cases ] {
+
+          - Parameters [0] {
+          }
+          - Return [ array ]
+        }
+      }
+
+      - Properties [1] {
+        Property [ public protected(set) readonly string $name ]
+      }
+
+      - Methods [1] {
+        Method [ <internal:rustdemo> public method isGreyScale ] {
+
+          - Parameters [0] {
+          }
+          - Return [ bool ]
         }
       }
     }
