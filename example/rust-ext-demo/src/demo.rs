@@ -5,10 +5,9 @@ use rsphp_macros_c::{
 };
 use rsphp_macros_rs::{ZEND_ME, ZEND_PARSE_PARAMETERS_NONE, ZEND_THIS};
 use rsphp_sys::{
-    ZEND_ACC_PUBLIC, zend_ce_arithmetic_error, zend_class_entry,
-    zend_enum_fetch_case_name, zend_execute_data, zend_function_entry, zend_object,
-    zend_parse_parameters, zend_read_property, zend_string, zend_string_init, zend_throw_exception,
-    zend_update_property_long, zval,
+    ZEND_ACC_PUBLIC, zend_ce_arithmetic_error, zend_class_entry, zend_enum_fetch_case_name,
+    zend_execute_data, zend_function_entry, zend_object, zend_parse_parameters, zend_read_property,
+    zend_string, zend_string_init, zend_throw_exception, zend_update_property_long, zval,
 };
 use std::ffi::c_char;
 
