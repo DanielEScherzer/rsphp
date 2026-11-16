@@ -184,6 +184,7 @@ impl ClassLikeType {
     /// the given number of methods, is in the given namespace, and the overall
     /// program where the class is declared is passed to allow fetching
     /// unprocessed details.
+    #[expect(clippy::too_many_lines, reason = "Complicated function")]
     fn init_and_register_code(
         &self,
         scope: &mut ImportsUsed,
@@ -251,9 +252,11 @@ impl ClassLikeType {
                 )
             }
             ClassLikeType::PhpEnum(php_enum) => {
-                if method_count != 0 {
-                    return Err("Enum methods not handled yet".to_owned());
-                }
+                let method_param = if method_count == 0 {
+                    "std::ptr::null_mut()"
+                } else {
+                    "methods.as_ptr()"
+                };
                 let get_raw_code = |span: Span| -> &str {
                     let start: usize = span.start.try_into().expect("Valid usize");
                     let end: usize = span.end.try_into().expect("Valid usize");
@@ -273,7 +276,7 @@ impl ClassLikeType {
                     \n{space}{space}rsphp_sys::zend_register_internal_enum(\
                     \n{space}{space}{space}c\"{ns_name_segment}{name}\".as_ptr(),\
                     \n{space}{space}{space}{backing_type_code},\
-                    \n{space}{space}{space}std::ptr::null_mut(),\
+                    \n{space}{space}{space}{method_param},\
                     \n{space}{space})\
                     \n{space}}};",
                     space = "    ",

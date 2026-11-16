@@ -1,0 +1,32 @@
+/// Module for `Color` enum.
+pub(crate) mod Color {
+    use rsphp_macros_rs::ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK;
+    use rsphp_sys::{IS_UNDEF, MAY_BE_BOOL, zend_class_entry, zend_enum_add_case_cstr, zend_function_entry, zend_internal_arg_info};
+
+    /// Argument information for `Color::isGreyScale()`.
+    pub(crate) const ARGINFO_ISGREYSCALE: [zend_internal_arg_info; 1] = [
+        ZEND_ARG_INFO_FOR_FUNCTION_WITH_RETURN_TYPE_MASK!(0, 0, MAY_BE_BOOL, 0),
+    ];
+
+    /// Register the `Color` enum.
+    pub(crate) fn register_enum(methods: &[zend_function_entry]) -> *mut zend_class_entry {
+        assert_eq!(2, methods.len(), "Color should have 1 methods");
+
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_enum(
+                c"Color".as_ptr(),
+                IS_UNDEF,
+                methods.as_ptr(),
+            )
+        };
+        unsafe {
+            zend_enum_add_case_cstr(class_entry, c"White".as_ptr(), std::ptr::null_mut());
+            zend_enum_add_case_cstr(class_entry, c"Black".as_ptr(), std::ptr::null_mut());
+            zend_enum_add_case_cstr(class_entry, c"Red".as_ptr(), std::ptr::null_mut());
+            zend_enum_add_case_cstr(class_entry, c"Green".as_ptr(), std::ptr::null_mut());
+            zend_enum_add_case_cstr(class_entry, c"Blue".as_ptr(), std::ptr::null_mut());
+        };
+
+        class_entry
+    }
+}
