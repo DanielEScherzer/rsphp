@@ -24,3 +24,9 @@ class ConstantValues {
 class ImplicitPublicConstant {
 	const int FOO = 5;
 }
+
+class IntlDateFormatter {
+
+	public const int PROLEPTIC_GREGORIAN = -16;
+
+}
