@@ -191,3 +191,37 @@ pub(crate) mod ImplicitPublicConstant {
         class_entry
     }
 }
+/// Module for `IntlDateFormatter` class.
+pub(crate) mod IntlDateFormatter {
+    use rsphp_macros_c::{ZEND_TYPE_INIT_MASK, ZVAL_LONG};
+    use rsphp_sys::{MAY_BE_LONG, ZEND_ACC_PUBLIC, zend_class_entry, zend_declare_typed_class_constant, zend_string, zend_string_init_interned, zend_string_release_ex, zval};
+
+    /// Register the `IntlDateFormatter` class.
+    pub(crate) fn register_class() -> *mut zend_class_entry {
+        let mut ce: zend_class_entry = unsafe { std::mem::zeroed() };
+        rsphp_macros_c::INIT_CLASS_ENTRY!(ce, "IntlDateFormatter", NULL);
+        let class_entry: *mut zend_class_entry = unsafe {
+            rsphp_sys::zend_register_internal_class_with_flags(
+                std::ptr::from_mut::<zend_class_entry>(&mut ce),
+                std::ptr::null_mut(),
+                0,
+            )
+        };
+
+        unsafe {
+            let mut value: zval = std::mem::zeroed();
+            ZVAL_LONG!(&mut value, -16);
+            let name: *mut zend_string = (zend_string_init_interned.expect("zend_string_init_interned should be set"))(
+                c"PROLEPTIC_GREGORIAN".as_ptr(),
+                "PROLEPTIC_GREGORIAN".len(),
+                true,
+            );
+            zend_declare_typed_class_constant(
+                class_entry, name, std::ptr::from_mut::<zval>(&mut value), ZEND_ACC_PUBLIC as i32,
+                std::ptr::null_mut(), ZEND_TYPE_INIT_MASK!(MAY_BE_LONG)
+            );
+            zend_string_release_ex(name, true);
+        }
+        class_entry
+    }
+}

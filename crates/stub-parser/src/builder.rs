@@ -2,11 +2,12 @@ use crate::VerificationMode;
 use crate::imports::ImportsUsed;
 use crate::types::ArgInfoTypeRepr;
 use crate::verification::{VERIFICATION_RSPHP_SYS_IMPORTS, VerificationData};
-use php_ast::ast::{BuiltinType, NameKind, Visibility};
+use php_ast::ast::{BuiltinType, NameKind, UnaryPrefixOp, Visibility};
 use php_ast::owned::{
     Attribute, ClassConstDecl, ClassDecl, ClassMemberKind, Comment, EnumCase, EnumDecl,
     EnumMemberKind, Expr, ExprKind, FunctionDecl, Ident, InterfaceDecl, MethodDecl, Name,
     NamespaceBody, NamespaceDecl, Param, PropertyDecl, Stmt, StmtKind, TypeHint, TypeHintKind,
+    UnaryPrefixExpr,
 };
 use php_ast::span::Span;
 use regex::Regex;
@@ -1199,6 +1200,19 @@ impl ArgInfoBuilder<'_> {
                 self.scope.add_import("rsphp_macros_c", "ZVAL_LONG");
                 format!("ZVAL_LONG!(&mut value, {num});")
             }
+            ExprKind::UnaryPrefix(UnaryPrefixExpr {
+                op: UnaryPrefixOp::Negate,
+                operand: negated,
+            }) => match &**negated {
+                Expr {
+                    kind: ExprKind::Int(num),
+                    span: _,
+                } => {
+                    self.scope.add_import("rsphp_macros_c", "ZVAL_LONG");
+                    format!("ZVAL_LONG!(&mut value, -{num});")
+                }
+                _ => return Err(format!("Unhandled constant initialization: {constant:#?}")),
+            },
             ExprKind::Null => {
                 self.scope.add_import("rsphp_macros_c", "ZVAL_NULL");
                 "ZVAL_NULL!(&mut value);".to_owned()
