@@ -6,7 +6,7 @@ use bindgen::EnumVariation;
 
 use rsphp_build_tools::{
     AnonymousTypeNames, BuildIdCallbacks, CommentProcessor, ExplicitIntTypesCallbacks,
-    IntTypeCastCallbacks, ZendHeaderIterator,
+    IntTypeCastCallbacks, PhpConfigRunner, ZendHeaderIterator,
 };
 
 fn main() {
@@ -17,21 +17,8 @@ fn main() {
 
     println!("cargo:rerun-if-changed=build.rs");
 
-    let include_dir_output = std::process::Command::new("php-config")
-        .arg("--include-dir")
-        .output()
-        .expect("php-config --include-dir should succeed");
-    let include_dir_full = std::str::from_utf8(&include_dir_output.stdout)
-        .expect("php-config --include-dir should result in UTF8");
-    let include_dir = include_dir_full.trim();
-
-    let includes_output = std::process::Command::new("php-config")
-        .arg("--includes")
-        .output()
-        .expect("php-config --includes should succeed");
-    let includes_full = std::str::from_utf8(&includes_output.stdout)
-        .expect("php-config --includes should result in UTF8");
-    let includes = includes_full.trim();
+    let include_dir = PhpConfigRunner::new().arg("--include-dir").run();
+    let includes = PhpConfigRunner::new().arg("--includes").run();
 
     let mut builder = bindgen::Builder::default();
 

@@ -27,3 +27,7 @@ pub use int_casts::IntTypeCastCallbacks;
 /// Module for the `ExplicitIntTypesCallbacks` callbacks.
 mod int_types;
 pub use int_types::ExplicitIntTypesCallbacks;
+
+/// Module for the `PhpConfigRunner` utility.
+mod php_config_runner;
+pub use php_config_runner::PhpConfigRunner;
