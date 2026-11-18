@@ -7,7 +7,7 @@
 - `[rsphp-macros-rs]` The ZPP implementation now marks the parameters for
   `Z_PARAM_LONG` and `Z_PARAM_LONG_OR_NULL` as `zend_long`s to guide type
   inference, since the default of `i32` leads to a 4-byte value when PHP treats
-  the provided pointer as an 8-byte value.
+  the provided pointer as pointing to an 8-byte value.
   ([#11](https://github.com/DanielEScherzer/rsphp/pull/11))
 
 ### Added
