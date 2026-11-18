@@ -242,7 +242,7 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 
 [[package]]
 name = "rsphp"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "bstr",
  "rsphp-macros-c",
@@ -251,7 +251,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-build-tools"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "bindgen",
 ]
@@ -270,7 +270,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-macros-c"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "c_str_macro",
  "rsphp-sys",
@@ -278,7 +278,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-macros-rs"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "rsphp-macros-c",
  "rsphp-sys",
@@ -286,7 +286,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-stub-parser"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "php-ast",
  "php-rs-parser",
@@ -295,7 +295,7 @@ dependencies = [
 
 [[package]]
 name = "rsphp-sys"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "bindgen",
  "cc",

@@ -1,5 +1,67 @@
 # Changelog
 
+## 0.1.3 - 2026.11.18
+
+### Fixed
+
+- `[rsphp-macros-rs]` The ZPP implementation now marks the parameters for
+  `Z_PARAM_LONG` and `Z_PARAM_LONG_OR_NULL` as `zend_long`s to guide type
+  inference, since the default of `i32` leads to a 4-byte value when PHP treats
+  the provided pointer as pointing to an 8-byte value.
+  ([#11](https://github.com/DanielEScherzer/rsphp/pull/11))
+
+### Added
+
+- `[rsphp]` The following types are now exported under the `extensions` module:
+    - `ZendAttributeArgIter`, the iterator returned by `ZendAttributeExt::args()`
+    - `ZendClassEntryTraitNamesIter`, the iterator returned by
+      `ZendClassEntryExt::get_trait_names()`
+    - `ZendTypeListIter`, the iterator returned by `ZendTypeListExt::iter()`
+
+  and `PHPStringWrapper` is exported under the root `rsphp` crate.
+  ([#12](https://github.com/DanielEScherzer/rsphp/pull/12))
+- `[rsphp]` The following types now implement `std::fmt::Debug`
+  ([#12](https://github.com/DanielEScherzer/rsphp/pull/12)):
+    - `extensions::ZendAttributeArgIter`
+    - `extensions::ZendClassEntryTraitNamesIter`
+    - `extensions::ZendTypeListIter`
+    - `PHPExceptions`
+    - `PHPObject`
+    - `PHPStringSource`
+    - `PHPStringWrapper`
+    - `PHPValue`
+    - `stack_types::StackSmartStr`
+    - `stack_types::StackZendString`
+    - `stack_types::StackZval`
+    - `wrappers::HashMapRepr`
+    - `wrappers::HashRepr`
+    - `wrappers::HashPackedRepr`
+    - `wrappers::InfoTablePrinter`
+- `[rsphp]` `PHPExceptions` now implements `Copy` and `Clone`.
+  ([#12](https://github.com/DanielEScherzer/rsphp/pull/12))
+- `[rsphp-stub-parser]` Added support for negative integer class constants.
+  ([#14](https://github.com/DanielEScherzer/rsphp/pull/14))
+- `[rsphp-stub-parser]` Added support for methods on enums.
+  ([#15](https://github.com/DanielEScherzer/rsphp/pull/15))
+- `[rsphp-build-tools]` Added `PhpConfigRunner` for running `php-config`
+  commands. ([#16](https://github.com/DanielEScherzer/rsphp/pull/16))
+
+### Changed
+
+- `[rsphp]` The following types are now marked as `#[non_exhaustive]`
+  ([#12](https://github.com/DanielEScherzer/rsphp/pull/12)):
+  - `PHPExceptions`
+  - `PHPValue`
+- `[rsphp]` `wrappers::InfoTablePrinter` no longer panics when trying to print
+  rows with too many values; instead, the supported values are printed, followed
+  by a warning. ([#12](https://github.com/DanielEScherzer/rsphp/pull/12))
+
+### Documentation
+
+- The contents of the `rsphp` crate are now fully documented, and lints have
+  been enabled to ensure that future additions are properly documented.
+  ([#12](https://github.com/DanielEScherzer/rsphp/pull/12))
+
 ## 0.1.2 - 2026.10.26
 
 ### Fixed
