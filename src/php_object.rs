@@ -1,5 +1,6 @@
+use rsphp_compat::ZEND_RESULT_FAILURE;
 use rsphp_macros_c::Z_OBJ;
-use rsphp_sys::{ZEND_RESULT_CODE, object_init_ex, zend_class_entry, zend_object, zval};
+use rsphp_sys::{object_init_ex, zend_class_entry, zend_object, zval};
 use std::ptr::NonNull;
 
 /// Wrapper around a [`rsphp_sys::zend_object`] that is known to exist and
@@ -37,7 +38,7 @@ impl PHPObject {
         // SAFETY: object_init_ex() is called correctly with a pointer to a
         // zval to initialize and non-null pointer to a class entry
         let result = unsafe { object_init_ex(&raw mut zval, class_type) };
-        if result == ZEND_RESULT_CODE::FAILURE {
+        if result == ZEND_RESULT_FAILURE {
             return None;
         }
         let ptr = NonNull::new(Z_OBJ!(zval))?;

@@ -15,6 +15,8 @@ macro_rules! IS_VALID_PROPERTY_OFFSET {
 ///
 /// # C version
 ///
+/// ## PHP 8.5
+///
 /// ```c
 /// #define zend_free_trampoline(func) do { \
 ///         if ((func) == &EG(trampoline)) { \
@@ -25,6 +27,10 @@ macro_rules! IS_VALID_PROPERTY_OFFSET {
 ///         } \
 ///     } while (0)
 /// ```
+///
+/// ## PHP 8.6
+///
+/// The corresponding C macro was removed.
 #[macro_export]
 macro_rules! zend_free_trampoline {
     ($func:expr) => {{

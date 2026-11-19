@@ -1,13 +1,13 @@
 use rsphp::extensions::ZendStringExt as _;
+use rsphp_compat::{ZEND_RESULT_FAILURE, ZEND_RESULT_SUCCESS};
 use rsphp_macros_c::{
     RETURN_THROWS, Z_LVAL_P, Z_OBJ_P, Z_OBJCE_P, Z_STR_P, ZEND_FE_END, ZVAL_BOOL, ZVAL_STR,
 };
 use rsphp_macros_rs::{ZEND_ME, ZEND_PARSE_PARAMETERS_NONE, ZEND_THIS};
 use rsphp_sys::{
-    ZEND_ACC_PUBLIC, ZEND_RESULT_CODE, zend_ce_arithmetic_error, zend_class_entry,
-    zend_enum_fetch_case_name, zend_execute_data, zend_function_entry, zend_object,
-    zend_parse_parameters, zend_read_property, zend_string, zend_string_init, zend_throw_exception,
-    zend_update_property_long, zval,
+    ZEND_ACC_PUBLIC, zend_ce_arithmetic_error, zend_class_entry, zend_enum_fetch_case_name,
+    zend_execute_data, zend_function_entry, zend_object, zend_parse_parameters, zend_read_property,
+    zend_string, zend_string_init, zend_throw_exception, zend_update_property_long, zval,
 };
 use std::ffi::c_char;
 
@@ -23,10 +23,10 @@ extern "C" fn RSDemoConstructor(execute_data: *mut zend_execute_data, _return_va
             &mut initial_value,
         )
     };
-    if result == ZEND_RESULT_CODE::FAILURE {
+    if result == ZEND_RESULT_FAILURE {
         RETURN_THROWS!();
     }
-    assert_eq!(result, ZEND_RESULT_CODE::SUCCESS, "Must be success");
+    assert_eq!(result, ZEND_RESULT_SUCCESS, "Must be success");
     unsafe {
         zend_update_property_long(
             rs_demo_ptr,

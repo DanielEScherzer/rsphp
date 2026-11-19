@@ -13,6 +13,7 @@ macro_rules! ZEND_NS_NAME {
 
 /// Create a [`rsphp_sys::zend_function_entry`] for arg info for a function.
 #[doc = c_version!("#define ZEND_RAW_FENTRY(zend_name, name, arg_info, flags, frameless_function_infos, doc_comment)   { zend_name, name, arg_info, (uint32_t) (sizeof(arg_info)/sizeof(struct _zend_internal_arg_info)-1), flags, frameless_function_infos, doc_comment },")]
+#[cfg(any(doc, not(php_is_86)))]
 #[macro_export]
 macro_rules! ZEND_RAW_FENTRY {
     ($name:literal, NULL, $arginfo:expr, $flags:expr, $frameless_function_infos:expr, $doc_comment:expr) => {
@@ -33,6 +34,34 @@ macro_rules! ZEND_RAW_FENTRY {
             arg_info: $arginfo.as_ptr(),
             num_args: ($arginfo.len() - 1) as u32,
             flags: $flags,
+            frameless_function_infos: $frameless_function_infos,
+            doc_comment: $doc_comment,
+        }
+    };
+}
+
+/// Create a [`rsphp_sys::zend_function_entry`] for arg info for a function.
+#[cfg(all(not(doc), php_is_86))]
+#[macro_export]
+macro_rules! ZEND_RAW_FENTRY {
+    ($name:literal, NULL, $arginfo:expr, $flags:expr, $frameless_function_infos:expr, $doc_comment:expr) => {
+        rsphp_sys::zend_function_entry {
+            fname: $crate::c_str!($name).as_ptr(),
+            handler: None,
+            arg_info: $arginfo.as_ptr(),
+            num_args: ($arginfo.len() - 1) as u32,
+            flags: $flags as u64,
+            frameless_function_infos: $frameless_function_infos,
+            doc_comment: $doc_comment,
+        }
+    };
+    ($name:literal, $handler:expr, $arginfo:expr, $flags:expr, $frameless_function_infos:expr, $doc_comment:expr) => {
+        rsphp_sys::zend_function_entry {
+            fname: $crate::c_str!($name).as_ptr(),
+            handler: Some($handler),
+            arg_info: $arginfo.as_ptr(),
+            num_args: ($arginfo.len() - 1) as u32,
+            flags: $flags as u64,
             frameless_function_infos: $frameless_function_infos,
             doc_comment: $doc_comment,
         }
@@ -451,7 +480,10 @@ macro_rules! CE_CONSTANTS_TABLE {
 }
 
 /// Initialize a [`rsphp_sys::zval`] to be an empty array.
-#[doc = c_version!("#define array_init(arg)                ZVAL_ARR((arg), zend_new_array(0))")]
+#[doc = c_version!(
+    85 => "#define array_init(arg)                ZVAL_ARR((arg), zend_new_array(0))",
+    86 => None,
+)]
 #[macro_export]
 macro_rules! array_init {
     ($arg:expr) => {

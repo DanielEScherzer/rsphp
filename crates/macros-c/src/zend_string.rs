@@ -21,7 +21,10 @@ macro_rules! ZSTR_LEN {
 }
 
 /// Check if a [`rsphp_sys::zend_string`] is interned.
-#[doc = c_version!("#define ZSTR_IS_INTERNED(s)                    (GC_FLAGS(s) & IS_STR_INTERNED)")]
+#[doc = c_version!(
+    85 => "#define ZSTR_IS_INTERNED(s)                    (GC_FLAGS(s) & IS_STR_INTERNED)",
+    86 => None,
+)]
 #[macro_export]
 macro_rules! ZSTR_IS_INTERNED {
     ($s:expr) => {
@@ -32,8 +35,11 @@ macro_rules! ZSTR_IS_INTERNED {
 /// Check if two [`rsphp_sys::zend_string`]s are equal in a case-insensitive
 /// manner.
 #[doc = c_version!(
-    "#define zend_string_equals_ci(s1, s2)",
-    "(ZSTR_LEN(s1) == ZSTR_LEN(s2) && !zend_binary_strcasecmp(ZSTR_VAL(s1), ZSTR_LEN(s1), ZSTR_VAL(s2), ZSTR_LEN(s2)))"
+    85 => [
+        "#define zend_string_equals_ci(s1, s2)",
+        "(ZSTR_LEN(s1) == ZSTR_LEN(s2) && !zend_binary_strcasecmp(ZSTR_VAL(s1), ZSTR_LEN(s1), ZSTR_VAL(s2), ZSTR_LEN(s2)))",
+    ],
+    86 => None,
 )]
 #[macro_export]
 macro_rules! zend_string_equals_ci {
@@ -49,7 +55,10 @@ macro_rules! zend_string_equals_ci {
 }
 
 /// Get a [`rsphp_sys::zend_string`] from a known string id.
-#[doc = c_version!("#define ZSTR_KNOWN(idx) zend_known_strings[idx]")]
+#[doc = c_version!(
+    85 => "#define ZSTR_KNOWN(idx) zend_known_strings[idx]",
+    86 => None,
+)]
 #[macro_export]
 macro_rules! ZSTR_KNOWN {
     ($idx:expr) => {{

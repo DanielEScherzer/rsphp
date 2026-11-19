@@ -2,6 +2,7 @@
 
 use bstr::BStr;
 use rsphp::wrappers::{HashRepr, InfoTablePrinter};
+use rsphp_compat::{ZEND_RESULT_FAILURE, ZEND_RESULT_SUCCESS, ZendResultType};
 use rsphp_macros_c::{
     HT_IS_PACKED, RETURN_THROWS, Z_ARR_P, Z_DVAL_P, Z_LVAL_P, Z_OBJCE_P, Z_STR_P, Z_TYPE_P,
     ZEND_ADD_CALL_FLAG, ZEND_CALL_INFO, ZEND_DEL_CALL_FLAG, ZEND_FE_END, ZSTR_LEN, ZSTR_VAL,
@@ -9,11 +10,10 @@ use rsphp_macros_c::{
 };
 use rsphp_macros_rs::{ZEND_FE, ZEND_PARSE_ARGS, ZEND_PARSE_PARAMETERS_NONE};
 use rsphp_sys::{
-    HashTable, ZEND_CALL_HAS_EXTRA_NAMED_PARAMS, ZEND_RESULT_CODE, display_ini_entries,
-    php_output_write, php_printf, php_var_dump, zend_class_entry, zend_execute_data,
-    zend_function_entry, zend_long, zend_module_entry, zend_parse_parameters,
-    zend_register_ini_entries_ex, zend_result, zend_string, zend_string_init,
-    zend_unregister_ini_entries_ex, zval,
+    HashTable, ZEND_CALL_HAS_EXTRA_NAMED_PARAMS, display_ini_entries, php_output_write, php_printf,
+    php_var_dump, zend_class_entry, zend_execute_data, zend_function_entry, zend_long,
+    zend_module_entry, zend_parse_parameters, zend_register_ini_entries_ex, zend_string,
+    zend_string_init, zend_unregister_ini_entries_ex, zval,
 };
 use std::ffi::{c_char, c_int};
 
@@ -33,10 +33,13 @@ static mut properties_demo_ptr: *mut zend_class_entry = std::ptr::null_mut();
 
 #[rustfmt::skip]
 #[expect(clippy::cast_possible_wrap, clippy::too_many_lines)]
+#[cfg_attr(not(php_is_86), expect(clippy::useless_conversion, reason = "Needed for 8.6"))]
 mod rustdemo_arginfo;
 #[rustfmt::skip]
+#[cfg_attr(not(php_is_86), expect(clippy::useless_conversion, reason = "Needed for 8.6"))]
 mod opaquedata_arginfo;
 #[rustfmt::skip]
+#[cfg_attr(not(php_is_86), expect(clippy::useless_conversion, reason = "Needed for 8.6"))]
 mod ini_demo_arginfo;
 
 extern "C" fn my_module_info(entry: *mut zend_module_entry) {
@@ -47,7 +50,7 @@ extern "C" fn my_module_info(entry: *mut zend_module_entry) {
     }
 }
 
-extern "C" fn my_module_init(type_: c_int, module_number: c_int) -> zend_result {
+extern "C" fn my_module_init(type_: c_int, module_number: c_int) -> ZendResultType {
     unsafe {
         rs_demo_ptr = rustdemo_arginfo::RSDemo::register_class(&class_RSDemo_methods);
         color_ptr = rustdemo_arginfo::Color::register_enum(enum_Color_methods);
@@ -64,14 +67,14 @@ extern "C" fn my_module_init(type_: c_int, module_number: c_int) -> zend_result 
 
         zend_register_ini_entries_ex(ini_demo::demo_ini_entries.as_ptr(), module_number, type_);
     }
-    ZEND_RESULT_CODE::SUCCESS
+    ZEND_RESULT_SUCCESS
 }
 
-extern "C" fn my_module_shutdown(type_: c_int, module_number: c_int) -> zend_result {
+extern "C" fn my_module_shutdown(type_: c_int, module_number: c_int) -> ZendResultType {
     unsafe {
         zend_unregister_ini_entries_ex(module_number, type_);
     }
-    ZEND_RESULT_CODE::SUCCESS
+    ZEND_RESULT_SUCCESS
 }
 
 extern "C" fn test1(exd: *mut zend_execute_data, _return_value: *mut zval) {
@@ -93,10 +96,10 @@ extern "C" fn test2(execute_data: *mut zend_execute_data, return_value: *mut zva
             &mut str_len,
         )
     };
-    if result == ZEND_RESULT_CODE::FAILURE {
+    if result == ZEND_RESULT_FAILURE {
         RETURN_THROWS!();
     }
-    assert_eq!(result, ZEND_RESULT_CODE::SUCCESS, "Must be success");
+    assert_eq!(result, ZEND_RESULT_SUCCESS, "Must be success");
     let str_slice: &[u8] = unsafe { std::slice::from_raw_parts(str_ptr.cast::<u8>(), str_len) };
     let rust_str = BStr::new(str_slice);
     // CANNOT use CString since PHP strings can have null bytes in the middle
@@ -119,10 +122,10 @@ extern "C" fn test3(execute_data: *mut zend_execute_data, return_value: *mut zva
             &mut str_ptr,
         )
     };
-    if result == ZEND_RESULT_CODE::FAILURE {
+    if result == ZEND_RESULT_FAILURE {
         RETURN_THROWS!();
     }
-    assert_eq!(result, ZEND_RESULT_CODE::SUCCESS, "Must be success");
+    assert_eq!(result, ZEND_RESULT_SUCCESS, "Must be success");
     let str_slice: &[u8] =
         unsafe { std::slice::from_raw_parts((*str_ptr).val.as_ptr().cast::<u8>(), (*str_ptr).len) };
     let rust_str = BStr::new(str_slice);
@@ -238,7 +241,7 @@ extern "C" fn zpp_testing(execute_data: *mut zend_execute_data, return_value: *m
             &mut nullable_string_len,
         )
     };
-    if result == ZEND_RESULT_CODE::FAILURE {
+    if result == ZEND_RESULT_FAILURE {
         RETURN_THROWS!();
     }
     let string_slice: &[u8] =
@@ -360,7 +363,7 @@ extern "C" fn display_value(execute_data: *mut zend_execute_data, _return_value:
     let result = unsafe {
         zend_parse_parameters((*execute_data).This.u2.num_args, c"z".as_ptr(), &mut value)
     };
-    if result == ZEND_RESULT_CODE::FAILURE {
+    if result == ZEND_RESULT_FAILURE {
         RETURN_THROWS!();
     }
     let mut description = match unsafe { Z_TYPE_P!(value) } {

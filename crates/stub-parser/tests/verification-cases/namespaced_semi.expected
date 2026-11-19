@@ -175,7 +175,7 @@ fn verify_registration(
             continue;
         };
         let (_, fn_entry) = methods_and_names.remove(index);
-        if fn_entry.flags != expect_flags {
+        if fn_entry.flags != expect_flags.into() {
             errors.push(format!(
                 "Registration of method {name} has wrong flags, expected {expect_flags}, found {}",
                 fn_entry.flags

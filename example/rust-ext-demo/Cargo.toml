@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 bstr = "1.13.1"
 rsphp = { path = "../../", features = [ "bstr" ] }
+rsphp-compat = { path = "../../crates/compat" }
 rsphp-macros-c = { path = "../../crates/macros-c" }
 rsphp-macros-rs = { path = "../../crates/macros-rs" }
 rsphp-sys = { path = "../../crates/sys" }
