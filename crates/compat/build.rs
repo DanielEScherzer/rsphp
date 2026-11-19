@@ -1,4 +1,5 @@
-//! Build script for [`rsphp_compat`] that `php_is_86` if building for PHP 8.6.
+//! Build script for [`rsphp_compat`] that sets `php_is_86` if building for PHP
+//! 8.6.
 
 fn main() {
     println!("cargo::rustc-check-cfg=cfg(php_is_86)");
